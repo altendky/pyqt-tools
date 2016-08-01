@@ -3,18 +3,9 @@
 import argparse
 import os
 import shutil
+import stat
 import subprocess
 import sys
-
-from distutils.core import run_setup
-
-# TODO: CAMPid 935481834121236136785436129254676532
-def setup(path, script_args=['develop']):
-    backup = os.getcwd()
-    os.chdir(path)
-    run_setup(os.path.join(path, 'setup.py'),
-              script_args=script_args)
-    os.chdir(backup)
 
 
 def main():
@@ -45,12 +36,9 @@ def main():
         'c:/', 'Program Files (x86)', 'Microsoft Visual Studio 14.0', 'VC',
         'redist', 'x86', 'Microsoft.VC140.CRT', 'msvcp140.dll'
     )
-    shutil.copyfile(
-        redist_path,
-        os.path.join(designer_destination, os.path.basename(redist_path))
-    )
-
-    setup('.', script_args=['bdist_wheel'])
+    redist_destination = os.path.join(designer_destination, os.path.basename(redist_path))
+    shutil.copyfile(redist_path, redist_destination)
+    os.chmod(redist_destination, stat.S_IWRITE)
 
 
 if __name__ == '__main__':

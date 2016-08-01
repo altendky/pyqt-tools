@@ -1,7 +1,10 @@
 import os
 
+import build
 import buildinfo
 import setuptools
+
+build.main()
 
 long_description = '''
 The PyQt5 wheels do not provide tools such as Qt Designer that
