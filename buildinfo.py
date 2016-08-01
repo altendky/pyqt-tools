@@ -1,6 +1,10 @@
 #!/usr/bin/env python3
 
 import collections
+#import git
+import os
+
+from datetime import datetime, timezone
 
 
 DevelopmentStatus = collections.namedtuple(
@@ -36,12 +40,22 @@ statuses = {
 
 status_type = 'dev'
 status = statuses[status_type]
-prerelease_str = 'add-build-hash-here'
+if status.prerelease_suffix is not None:
+    prerelease_list = []
+    local_time = datetime.now(timezone.utc).astimezone()
+    timestamp = local_time.isoformat()
+    timestamp = timestamp.replace('-', '', 2)
+    timestamp = timestamp.replace(':', '')
+    print(timestamp)
+    prerelease_list.append(timestamp)
 
-if (status.prerelease_suffix is None and
-    (prerelease_str is not None or len(prerelease_str) > 0)):
-    raise Exception("prerelease_str must be empty for status '{}'"
-                    .format(status_type))
+#    repo = git.Repo(os.getcwd())
+#    sha = repo.head.object.hexsha
+#    prerelease_list.append(sha)
+#    if repo.is_dirty():
+#        prerelease_list.append('dirty')
+
+    prerelease_str = '-'.join(prerelease_list)
 
 version_numbers = [5, 7]
 

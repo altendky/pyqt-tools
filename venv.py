@@ -125,6 +125,7 @@ def main():
         # TODO: make this configurable
         custom_packages = [
             'wheel'
+#            'gitpython'
         ]
         for package in packages + custom_packages:
             pip_install(package, args.no_ssl_verify, virtual=True)
