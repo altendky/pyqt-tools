@@ -46,7 +46,6 @@ if status.prerelease_suffix is not None:
     timestamp = local_time.isoformat()
     timestamp = timestamp.replace('-', '', 2)
     timestamp = timestamp.replace(':', '')
-    print(timestamp)
     prerelease_list.append(timestamp)
 
 #    repo = git.Repo(os.getcwd())
@@ -62,7 +61,8 @@ version_numbers = [5, 7]
 version_str = (
     '.'.join([str(v) for v in version_numbers])
     + status.prerelease_suffix
-    + prerelease_str
+    # TODO: this is totally cheating, revisit the revision scheme
+    + '0'# prerelease_str
 )
 
 directories = [

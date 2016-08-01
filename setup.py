@@ -18,6 +18,7 @@ setuptools.setup(
     long_description=long_description,
     url='https://github.com/altendky/pyqt5-tools',
     author="Kyle Altendorf",
+    author_email='sda@fstab.net',
     license='GPLv3',
     classifiers=[
 #        '{development_status}',
@@ -33,7 +34,8 @@ setuptools.setup(
     ],
     keywords='pyqt5 qt designer',
     packages=['PyQt5-tools'],
-    data_files=buildinfo.data_files()
+    include_package_data=True,
+#    data_files=buildinfo.data_files()
 #    scripts=[
 #        {scripts}
 #        'PyQt5-tools/designer.exe'

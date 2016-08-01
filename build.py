@@ -18,11 +18,6 @@ def setup(path, script_args=['develop']):
 
 
 def main():
-    vc = 'VCINSTALLDIR'
-    if vc not in os.environ:
-        # TODO: explain how to set it via that .bat
-        raise Exception('Environment variable {} must be set'.format(vc))
-
     designer_path = os.path.join('c:/', 'Qt', 'Qt5.7.0', '5.7', 'msvc2015', 'bin', 'designer.exe')
     designer_destination = os.path.join('PyQt5-tools', 'designer')
     try:
@@ -31,18 +26,28 @@ def main():
         pass
     shutil.copy(designer_path, designer_destination)
     windeployqt_path = os.path.join('c:/', 'Qt', 'Qt5.7.0', '5.7', 'msvc2015', 'bin', 'windeployqt.exe'),
-    print(designer_destination)
     windeployqt = subprocess.Popen(
         [
             windeployqt_path,
-            # TODO: doesn't find it and supposedly just copies the installer...
-            '--compiler-runtime',
             os.path.basename(designer_path)
         ],
         cwd=designer_destination
     )
-    windeployqt.check_returncode()
+    windeployqt.wait(timeout=15)
+    if windeployqt.returncode != 0:
+        raise Exception('windeployqt failed with return code {}'
+                        .format(winqtdeploy.returncode))
+
+    # Since windeployqt doesn't actually work with --compiler-runtime,
+    # copy it ourselves
     
+    shutil.copy(
+        os.path.join(
+            'c:/', 'Program Files (x86)', 'Microsoft Visual Studio 14.0', 'VC',
+            'redist', 'x86', 'Microsoft.VC140.CRT', 'msvcp140.dll'
+        ),
+        designer_destination
+    )
 
     setup('.', script_args=['bdist_wheel'])
 
