@@ -25,6 +25,7 @@ def main():
     except FileExistsError:
         pass
     shutil.copy(designer_path, designer_destination)
+
     windeployqt_path = os.path.join('c:/', 'Qt', 'Qt5.7.0', '5.7', 'msvc2015', 'bin', 'windeployqt.exe'),
     windeployqt = subprocess.Popen(
         [
@@ -40,13 +41,13 @@ def main():
 
     # Since windeployqt doesn't actually work with --compiler-runtime,
     # copy it ourselves
-    
-    shutil.copy(
-        os.path.join(
-            'c:/', 'Program Files (x86)', 'Microsoft Visual Studio 14.0', 'VC',
-            'redist', 'x86', 'Microsoft.VC140.CRT', 'msvcp140.dll'
-        ),
-        designer_destination
+    redist_path = os.path.join(
+        'c:/', 'Program Files (x86)', 'Microsoft Visual Studio 14.0', 'VC',
+        'redist', 'x86', 'Microsoft.VC140.CRT', 'msvcp140.dll'
+    )
+    shutil.copyfile(
+        redist_path,
+        os.path.join(designer_destination, os.path.basename(redist_path))
     )
 
     setup('.', script_args=['bdist_wheel'])
