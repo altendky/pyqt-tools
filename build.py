@@ -16,6 +16,10 @@ def main():
     except FileExistsError:
         pass
     shutil.copy(designer_path, designer_destination)
+    designer_plugin_path = os.path.join('c:/', 'Users', 'IEUser', 'Desktop', 'sysroot', 'pyqt5-install', 'designer', 'pyqt5.dll')
+    designer_plugin_destination = os.path.join(designer_destination, 'plugins', 'designer')
+    os.makedirs(designer_plugin_destination)
+    shutil.copy(designer_plugin_path, designer_plugin_destination)
 
     windeployqt_path = os.path.join('c:/', 'Qt', 'Qt5.7.0', '5.7', 'msvc2015', 'bin', 'windeployqt.exe'),
     windeployqt = subprocess.Popen(
