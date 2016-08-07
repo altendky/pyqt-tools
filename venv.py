@@ -58,10 +58,7 @@ def main():
 
     if not args.in_virtual:
         if args.rebuild:
-            try:
-                shutil.rmtree(args.virtualenv)
-            except FileNotFoundError:
-                pass
+            shutil.rmtree(args.virtualenv, ignore_errors=True)
 
         try:
             os.mkdir(args.virtualenv)
