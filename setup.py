@@ -37,7 +37,7 @@ setuptools.setup(
     ],
     keywords='pyqt5 qt designer',
     packages=['PyQt5-tools'],
-    include_package_data=True,
+    include_package_data=True
 #    data_files=buildinfo.data_files()
 #    scripts=[
 #        {scripts}
