@@ -20,14 +20,27 @@ def main():
     qt_bin_path = os.path.join('c:/', 'Qt', 'Qt5.7.0', '5.7', compiler_dir, 'bin')
 
     with open('setup.cfg', 'w') as cfg:
+        arch = platform.architecture()
+        # TODO: CAMPid 994391911172312371845393249991437
+        bits = int(arch[0][0:2])
+        plat_names = {
+            32: 'win32',
+            64: 'win_amd64'
+        }
+        try:
+            plat_name = plat_names[bits]
+        except KeyError:
+            raise Exception('Bit depth {bits} not recognized {}'.format(plat_names.keys()))
+
+        python_tag = 'cp{major}{minor}'.format(
+            major=sys.version_info[0],
+            minor=sys.version_info[1],
+        )
+
         cfg.write(
 '''[bdist_wheel]
-python-tag = cp{major}{minor}
-plat-name = win{bits}'''.format(
-    major=sys.version_info[0],
-    minor=sys.version_info[1],
-    bits=bits)
-)
+python-tag = {python_tag}
+plat-name = {plat_name}'''.format(**locals()))
 
     designer_path = os.path.join(qt_bin_path, 'designer.exe')
     designer_destination = os.path.join('PyQt5-tools', 'designer')
