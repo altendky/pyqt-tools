@@ -68,9 +68,10 @@ plat-name = {plat_name}'''.format(**locals()))
 
     # Since windeployqt doesn't actually work with --compiler-runtime,
     # copy it ourselves
+    plat = {32: 'x86', 64: 'x64'}[bits]
     redist_path = os.path.join(
         'c:/', 'Program Files (x86)', 'Microsoft Visual Studio 14.0', 'VC',
-        'redist', 'x{}'.format(bits), 'Microsoft.VC140.CRT'
+        'redist', plat, 'Microsoft.VC140.CRT'
     )
     redist_files = [
         'msvcp140.dll',
