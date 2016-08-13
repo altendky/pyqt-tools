@@ -62,7 +62,7 @@ version_str = (
     '.'.join([str(v) for v in version_numbers])
     + status.prerelease_suffix
     # TODO: this is totally cheating, revisit the revision scheme
-    + '6'# prerelease_str
+    + '7'# prerelease_str
 )
 
 directories = [

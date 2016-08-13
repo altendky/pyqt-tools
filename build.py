@@ -70,7 +70,7 @@ plat-name = {plat_name}'''.format(**locals()))
     # copy it ourselves
     redist_path = os.path.join(
         'c:/', 'Program Files (x86)', 'Microsoft Visual Studio 14.0', 'VC',
-        'redist', 'x86', 'Microsoft.VC140.CRT'
+        'redist', 'x{}'.format(bits), 'Microsoft.VC140.CRT'
     )
     redist_files = [
         'msvcp140.dll',
