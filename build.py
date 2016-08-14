@@ -44,7 +44,7 @@ python-tag = {python_tag}
 plat-name = {plat_name}'''.format(**locals()))
 
     designer_path = os.path.join(qt_bin_path, 'designer.exe')
-    designer_destination = os.path.join('PyQt5-tools', 'designer')
+    designer_destination = os.path.join('pyqt5-tools', 'designer')
     os.makedirs(designer_destination, exist_ok=True)
     shutil.copy(designer_path, designer_destination)
     designer_plugin_path = os.path.join('${SYSROOT}', 'pyqt5-install', 'designer', 'pyqt5.dll')
@@ -53,7 +53,7 @@ plat-name = {plat_name}'''.format(**locals()))
     os.makedirs(designer_plugin_destination, exist_ok=True)
     shutil.copy(designer_plugin_path, designer_plugin_destination)
     shutil.copy(os.path.join('..', 'PyQt5_gpl-5.7-designer', 'LICENSE'),
-                os.path.join('PyQt5-tools', 'LICENSE.pyqt5'))
+                os.path.join('pyqt5-tools', 'LICENSE.pyqt5'))
 
     windeployqt_path = os.path.join(qt_bin_path, 'windeployqt.exe'),
     windeployqt = subprocess.Popen(
@@ -84,7 +84,7 @@ plat-name = {plat_name}'''.format(**locals()))
         shutil.copyfile(os.path.join(redist_path, file), dest)
         os.chmod(dest, stat.S_IWRITE)
 
-    redist_license = os.path.join('PyQt5-tools', 'REDIST.visual_cpp_build_tools')
+    redist_license = os.path.join('pyqt5-tools', 'REDIST.visual_cpp_build_tools')
     redist_license_html = redist_license + '.html'
     with open(redist_license, 'w') as redist:
         redist.write(
