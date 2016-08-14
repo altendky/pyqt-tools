@@ -55,9 +55,6 @@ plat-name = {plat_name}'''.format(**locals()))
     shutil.copy(os.path.join('..', 'PyQt5_gpl-5.7-designer', 'LICENSE'),
                 os.path.join('PyQt5-tools', 'LICENSE.pyqt5'))
 
-    python_dll_path = os.path.join('venv', 'Scripts', 'python35.dll')
-    shutil.copy(python_dll_path, designer_destination)
-
     windeployqt_path = os.path.join(qt_bin_path, 'windeployqt.exe'),
     windeployqt = subprocess.Popen(
         [
