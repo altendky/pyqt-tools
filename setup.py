@@ -15,7 +15,7 @@ fulfulling the dependencies of PyQt5 applications.
 '''
 
 setuptools.setup(
-    name="PyQt5 Tools",
+    name="pyqt5-tools",
     version=buildinfo.version(),
     description="Tools to supplement the official PyQt5 wheels",
     long_description=long_description,
