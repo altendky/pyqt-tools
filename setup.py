@@ -41,6 +41,6 @@ setuptools.setup(
 #    data_files=buildinfo.data_files()
 #    scripts=[
 #        {scripts}
-#        'PyQt5-tools/designer.exe'
+#        'pyqt5-tools/designer.exe'
 #    ]
 )

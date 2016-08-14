@@ -66,13 +66,13 @@ version_str = (
 )
 
 directories = [
-    'PyQt5-tools'
+    'pyqt5-tools'
 ]
 
 data_files_list = []
 for directory in directories:
     all_files = []
-    for root, dirs, files in os.walk('PyQt5-tools'):
+    for root, dirs, files in os.walk('pyqt5-tools'):
         all_files.extend([os.path.join(root, file) for file in files])
     data_files_list.append((directory, all_files))
 
