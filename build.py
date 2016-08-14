@@ -3,6 +3,7 @@
 import argparse
 import os
 import platform
+import urllib.request
 import shutil
 import stat
 import subprocess
@@ -81,6 +82,26 @@ plat-name = {plat_name}'''.format(**locals()))
         dest = os.path.join(designer_destination, file)
         shutil.copyfile(os.path.join(redist_path, file), dest)
         os.chmod(dest, stat.S_IWRITE)
+
+    redist_license = os.path.join('PyQt5-tools', 'REDIST.visual_cpp_build_tools')
+    redist_license_html = redist_license + '.html'
+    with open(redist_license, 'w') as redist:
+        redist.write(
+'''The following filings are being distributed under the Microsoft Visual C++ Build Tools license linked below.
+
+{files}
+
+https://www.visualstudio.com/en-us/support/legal/mt644918
+
+
+For a local copy see:
+
+{license_file}
+'''.format(files='\n'.join(redist_files),
+           license_file=os.path.basename(redist_license_html)))
+
+    urllib.request.urlretrieve(url='https://www.visualstudio.com/DownloadEula/en-us/mt644918',
+                               filename=redist_license_html)
 
 
 if __name__ == '__main__':
