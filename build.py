@@ -115,7 +115,7 @@ plat-name = {plat_name}'''.format(**locals()))
     os.environ['SYSROOT'] = sysroot
     r = requests.get('http://downloads.sourceforge.net/project/pyqt/PyQt5/PyQt-5.7/PyQt5_gpl-5.7.zip')
     z = zipfile.ZipFile(io.BytesIO(r.content))
-    z.extract(path=os.path.join(build))
+    z.extractall(path=os.path.join(build))
     print('<{}>'.format(build))
     list_files(build)
     designer_plugin_path = os.path.join(sysroot, 'pyqt5-install', 'designer', 'pyqt5.dll')
