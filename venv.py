@@ -124,6 +124,7 @@ def main():
             'vcversioner==2.16.0.0',
             'requests==2.13.0',
             'pyqtdeploy==1.3.2',
+            'PyQt5=5.8.2',
         ]
         # TODO: make this configurable
         custom_packages = [
