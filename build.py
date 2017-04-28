@@ -59,10 +59,10 @@ python-tag = {python_tag}
 plat-name = {plat_name}'''.format(**locals()))
 
     applications = []
-    for file in os.listdir(qt_bin_path):
-        base, ext = os.path.splitext(file)
-        if ext == '.exe':
-            applications.append(file)
+    # for file in os.listdir(qt_bin_path):
+    #     base, ext = os.path.splitext(file)
+    #     if ext == '.exe':
+    #         applications.append(file)
 
     destination = 'pyqt5-tools'
     os.makedirs(destination, exist_ok=True)
