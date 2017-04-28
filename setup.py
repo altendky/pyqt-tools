@@ -38,6 +38,7 @@ setuptools.setup(
     set_requires=[
         'vcversioner==2.16.0.0',
         'requests==2.13.0',
+        'pyqtdeploy==1.3.2',
     ],
     vcversioner={
         'version_module_paths': ['epyq/_version.py'],
