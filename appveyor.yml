@@ -12,9 +12,7 @@ environment:
       PYTHON_VERSION: "3.6.1"
       PYTHON_ARCH: "32"
 
-init:
-  - "%CMD_IN_ENV% python venv.py"
-
 build_script:
+  - "%CMD_IN_ENV% python venv.py"
   # Build the compiled extension
   - "%CMD_IN_ENV% python setup.py build_wheel"
