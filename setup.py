@@ -1,7 +1,6 @@
 import os
 
 import build
-import buildinfo
 import setuptools
 
 build.main()
@@ -16,7 +15,6 @@ fulfulling the dependencies of PyQt5 applications.
 
 setuptools.setup(
     name="pyqt5-tools",
-    version=buildinfo.version(),
     description="Tools to supplement the official PyQt5 wheels",
     long_description=long_description,
     url='https://github.com/altendky/pyqt5-tools',
@@ -37,7 +35,13 @@ setuptools.setup(
     ],
     keywords='pyqt5 qt designer',
     packages=['pyqt5-tools'],
-    include_package_data=True
+    set_requires=['vcversioner==2.16.0.0'],
+    vcversioner={
+        'version_module_paths': ['epyq/_version.py'],
+        'vcs_args': ['git', '--git-dir', '%(root)s/.git', 'describe',
+                     '--tags', '--long', '--abbrev=999']
+    },keywords='pyqt5 qt designer',
+    include_package_data=True,
 #    data_files=buildinfo.data_files()
 #    scripts=[
 #        {scripts}
