@@ -1,0 +1,7 @@
+environment:
+  matrix:
+    - JOB: "3.6 32-bit"
+      TOXENV: "py36"
+      PYTHON: "C:\\Python36"
+      PYTHON_VERSION: "3.6.1"
+      PYTHON_ARCH: "32"
