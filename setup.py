@@ -35,7 +35,10 @@ setuptools.setup(
     ],
     keywords='pyqt5 qt designer',
     packages=['pyqt5-tools'],
-    set_requires=['vcversioner==2.16.0.0'],
+    set_requires=[
+        'vcversioner==2.16.0.0',
+        'requests==2.13.0',
+    ],
     vcversioner={
         'version_module_paths': ['epyq/_version.py'],
         'vcs_args': ['git', '--git-dir', '%(root)s/.git', 'describe',

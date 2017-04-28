@@ -8,6 +8,20 @@ import shutil
 import stat
 import subprocess
 import sys
+import zipfile
+
+import requests
+
+
+# http://stackoverflow.com/a/9728478/228539
+def list_files(startpath):
+    for root, dirs, files in os.walk(startpath):
+        level = root.replace(startpath, '').count(os.sep)
+        indent = ' ' * 4 * (level)
+        print('{}{}/'.format(indent, os.path.basename(root)))
+        subindent = ' ' * 4 * (level + 1)
+        for f in files:
+            print('{}{}'.format(subindent, f))
 
 
 def main():
@@ -95,6 +109,13 @@ plat-name = {plat_name}'''.format(**locals()))
             # raise Exception('windeployqt failed with return code {}'
                             # .format(winqtdeploy.returncode))
 
+    build = os.environ['APPVEYOR_BUILD_FOLDER']
+    sysroot = os.path.join(build, 'sysroot')
+    os.environ['SYSROOT'] = sysroot
+    r = requests.get('http://downloads.sourceforge.net/project/pyqt/PyQt5/PyQt-5.7/PyQt5_gpl-5.7.zip')
+    z = zipfile.ZipFile(r.content)
+    z.extract(path=os.path.join(build))
+    list_files(build)
     designer_plugin_path = os.path.join('${SYSROOT}', 'pyqt5-install', 'designer', 'pyqt5.dll')
     designer_plugin_path = os.path.expandvars(designer_plugin_path)
     designer_plugin_destination = os.path.join(destination, 'plugins', 'designer')
