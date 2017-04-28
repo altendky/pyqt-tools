@@ -122,6 +122,7 @@ plat-name = {plat_name}'''.format(**locals()))
     z.extractall(path=os.path.join(src))
     print('<{}>'.format(build))
     venv_bin = os.path.join(build, 'venv', 'Scripts')
+    print(os.listdir(venv_bin))
     subprocess.check_call([
         os.path.join(venv_bin, 'pyqtdeploycli'),
         '--package', 'pyqt5',
