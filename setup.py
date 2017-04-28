@@ -40,7 +40,7 @@ setuptools.setup(
         'version_module_paths': ['epyq/_version.py'],
         'vcs_args': ['git', '--git-dir', '%(root)s/.git', 'describe',
                      '--tags', '--long', '--abbrev=999']
-    },keywords='pyqt5 qt designer',
+    },
     include_package_data=True,
 #    data_files=buildinfo.data_files()
 #    scripts=[
