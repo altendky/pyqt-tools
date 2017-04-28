@@ -120,12 +120,15 @@ def main():
         }
 
         packages = [
-            'requests'
+            'requests',
+            'vcversioner==2.16.0.0',
+            'requests==2.13.0',
+            'pyqtdeploy==1.3.2',
         ]
         # TODO: make this configurable
         custom_packages = [
-            'wheel'
-#            'gitpython'
+            'wheel',
+            #            'gitpython'
         ]
         for package in packages + custom_packages:
             pip_install(package, args.no_ssl_verify, virtual=True)
