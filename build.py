@@ -18,7 +18,7 @@ def main():
     elif bits == 64:
         compiler_dir = 'msvc2015_64'
 
-    qt_bin_path = os.path.join('c:/', 'Qt', 'Qt5.8.0', '5.8', compiler_dir, 'bin')
+    qt_bin_path = os.path.join('c:/', 'Qt', '5.8', compiler_dir, 'bin')
 
     with open('setup.cfg', 'w') as cfg:
         arch = platform.architecture()
