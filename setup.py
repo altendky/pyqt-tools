@@ -35,7 +35,7 @@ setuptools.setup(
     ],
     keywords='pyqt5 qt designer',
     packages=['pyqt5-tools'],
-    set_requires=[
+    setup_requires=[
         'vcversioner==2.16.0.0',
         'requests==2.13.0',
         'pyqtdeploy==1.3.2',
