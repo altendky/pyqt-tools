@@ -9,15 +9,13 @@ environment:
 
 # https://www.appveyor.com/docs/how-to/rdp-to-build-worker/
 init:
-  - ps: if (Get-Variable -Name ENABLE_RDP -ErrorAction SilentlyContinue) {iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))} else {echo RDP not enabled}
+  - ps: if (Get-ChildItem Env:red -ErrorAction SilentlyContinue | out-null) {iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))} else {echo RDP not enabled}
 
 build_script:
-  - echo ENABLE_RDP %ENABLE_RDP%
-  - ps: Get-ChildItem Env:ENABLE_RDP
   - "c:\\python36\\python venv.py"
   # Build the compiled extension
   - "venv\\Scripts\\python setup.py build_wheel"
 
 # https://www.appveyor.com/docs/how-to/rdp-to-build-worker/
 on_finish:
-  - ps: if (Get-Variable -Name ENABLE_RDP -ErrorAction SilentlyContinue) {$blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))} else {echo RDP not enabled}
+  - ps: if (Get-ChildItem Env:red -ErrorAction SilentlyContinue | out-null) {$blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))} else {echo RDP not enabled}
