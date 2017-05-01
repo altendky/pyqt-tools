@@ -12,8 +12,8 @@ init:
   - ps: if (Get-Variable -Name ENABLE_RDP -ErrorAction SilentlyContinue) {iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))} else {echo RDP not enabled}
 
 build_script:
-  - ps: Get-Variable -Name ENABLE_RDP
   - echo ENABLE_RDP %ENABLE_RDP%
+  - ps: Get-Variable -Name ENABLE_RDP
   - "c:\\python36\\python venv.py"
   # Build the compiled extension
   - "venv\\Scripts\\python setup.py build_wheel"
