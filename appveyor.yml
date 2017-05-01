@@ -9,9 +9,13 @@ environment:
 
 # https://www.appveyor.com/docs/how-to/rdp-to-build-worker/
 init:
-  - ps: iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
+  - ps: if (Get-Variable -Name ENABLE_RDP -ErrorAction SilentlyContinue) {iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))}
 
 build_script:
   - "c:\\python36\\python venv.py"
   # Build the compiled extension
   - "venv\\Scripts\\python setup.py build_wheel"
+
+# https://www.appveyor.com/docs/how-to/rdp-to-build-worker/
+on_finish:
+  - ps: if (Get-Variable -Name ENABLE_RDP -ErrorAction SilentlyContinue) {$blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))}
