@@ -7,6 +7,10 @@ environment:
     # See: http://stackoverflow.com/a/13751649/163740
     CMD_IN_ENV: "cmd /E:ON /V:ON /C .\\ci\\run_with_env.cmd"
 
+# https://www.appveyor.com/docs/how-to/rdp-to-build-worker/
+init:
+  - ps: iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
+
 build_script:
   - "c:\\python36\\python venv.py"
   # Build the compiled extension
