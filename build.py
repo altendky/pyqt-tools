@@ -287,6 +287,7 @@ plat-name = {plat_name}'''.format(**locals()))
             nmake,
         ],
         cwd=pyqt5,
+        env=os.environ,
     )
     subprocess.check_call(
         [
@@ -294,6 +295,7 @@ plat-name = {plat_name}'''.format(**locals()))
             'install',
         ],
         cwd=pyqt5,
+        env=os.environ,
     )
     designer_plugin_path = os.path.join(sysroot, 'pyqt5-install', 'designer', 'pyqt5.dll')
     designer_plugin_path = os.path.expandvars(designer_plugin_path)
