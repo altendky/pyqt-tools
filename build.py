@@ -113,7 +113,6 @@ plat-name = {plat_name}'''.format(**locals()))
     build = os.environ['APPVEYOR_BUILD_FOLDER']
     sysroot = os.path.join(build, 'sysroot')
     os.makedirs(sysroot)
-    os.environ['SYSROOT'] = sysroot
     r = requests.get('http://downloads.sourceforge.net/project/pyqt/sip/sip-4.19.2/sip-4.19.2.zip')
     r = requests.get('http://downloads.sourceforge.net/project/pyqt/PyQt5/PyQt-5.8.2/PyQt5_gpl-5.8.2.zip')
     z = zipfile.ZipFile(io.BytesIO(r.content))
@@ -131,7 +130,6 @@ plat-name = {plat_name}'''.format(**locals()))
             'configure',
         ],
         cwd=pyqt5,
-        env=os.environ,
     )
     pyqt5_cfg = os.path.join(pyqt5, 'pyqt5-win.cfg')
     with open(pyqt5_cfg) as f:
@@ -152,41 +150,37 @@ plat-name = {plat_name}'''.format(**locals()))
             sys.executable,
             'configure.py',
             '--static',
-            '--sysroot="%SYSROOT%"',
+            '--sysroot="{}"'.format(sysroot),
             '--no-tools',
             '--no-qsci-api',
             '--no-qml-plugin',
             '--configuration={}'.format(pyqt5_cfg),
             '--qmake="{}"'.format(qmake),
             '--confirm-license',
-            '--sip="%SYSROOT%\native\sip.exe"',
-            '--bindir="%SYSROOT%\pyqt5-install\bin"',
-            '--destdir="%SYSROOT%\pyqt5-install\dest"',
-            '--designer-plugindir="%SYSROOT%\pyqt5-install\designer" --enable=QtDesigner',
+            '--sip="{}\native\sip.exe"'.format(sysroot),
+            '--bindir="{}\pyqt5-install\bin"'.format(sysroot),
+            '--destdir="{}\pyqt5-install\dest"'.format(sysroot),
+            '--designer-plugindir="{}\pyqt5-install\designer" --enable=QtDesigner'.format(sysroot),
         ],
         cwd=pyqt5,
-        env=os.environ,
     )
     subprocess.check_call(
         [
             qmake
         ],
         cwd=pyqt5,
-        env=os.environ,
     )
     subprocess.check_call(
         [
             'nmake'
         ],
         cwd=pyqt5,
-        env=os.environ,
     )
     subprocess.check_call(
         [
             'nmake install'
         ],
         cwd=pyqt5,
-        env=os.environ,
     )
     designer_plugin_path = os.path.join(sysroot, 'pyqt5-install', 'designer', 'pyqt5.dll')
     designer_plugin_path = os.path.expandvars(designer_plugin_path)
