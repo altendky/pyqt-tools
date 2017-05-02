@@ -201,13 +201,13 @@ plat-name = {plat_name}'''.format(**locals()))
         ],
         cwd=native_sip,
     )
-    subprocess.check_call(
+    subprocess.run(
         [
             'where',
             'nmake'
         ],
     )
-    subprocess.check_call(
+    subprocess.run(
         [
             'where',
             'nmake'
