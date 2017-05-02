@@ -343,8 +343,8 @@ plat-name = {plat_name}'''.format(**locals()))
     designer_plugin_destination = os.path.join(destination, 'plugins', 'designer')
     os.makedirs(designer_plugin_destination, exist_ok=True)
     shutil.copy(designer_plugin_path, designer_plugin_destination)
-    shutil.copy(os.path.join('..', 'PyQt5_gpl-5.7-designer', 'LICENSE'),
-                os.path.join('pyqt5-tools', 'LICENSE.pyqt5'))
+    shutil.copy(os.path.join(pyqt5, 'LICENSE'),
+                os.path.join(sysroot, 'pyqt5-tools', 'LICENSE.pyqt5'))
 
     # Since windeployqt doesn't actually work with --compiler-runtime,
     # copy it ourselves
