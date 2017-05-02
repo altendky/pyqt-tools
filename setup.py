@@ -41,7 +41,7 @@ setuptools.setup(
         'pyqtdeploy==1.3.2',
     ],
     vcversioner={
-        'version_module_paths': ['epyq/_version.py'],
+        'version_module_paths': ['_version.py'],
         'vcs_args': ['git', '--git-dir', '%(root)s/.git', 'describe',
                      '--tags', '--long', '--abbrev=999']
     },
