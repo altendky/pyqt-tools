@@ -2,6 +2,7 @@
 
 import argparse
 import io
+import itertools
 import os
 import platform
 import urllib.request
