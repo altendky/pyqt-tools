@@ -179,10 +179,21 @@ plat-name = {plat_name}'''.format(**locals()))
     build = os.environ['APPVEYOR_BUILD_FOLDER']
     sysroot = os.path.join(build, 'sysroot')
     os.makedirs(sysroot)
+
     src = os.path.join(build, 'src')
     os.makedirs(src)
     venv_bin = os.path.join(build, 'venv', 'Scripts')
     native = os.path.join(sysroot, 'native')
+
+    subprocess.check_call(
+        [
+            os.path.join(venv_bin, 'pyqtdeploycli'),
+            '--sysroot', sysroot,
+            '--package', 'python',
+            '--system-python', '3.5',
+            'install',
+        ],
+    )
 
     r = requests.get('http://downloads.sourceforge.net/project/pyqt/sip/sip-4.19.2/sip-4.19.2.zip')
     z = zipfile.ZipFile(io.BytesIO(r.content))
@@ -200,19 +211,6 @@ plat-name = {plat_name}'''.format(**locals()))
             '--sysroot={}'.format(native),
         ],
         cwd=native_sip,
-    )
-    subprocess.run(
-        [
-            'where',
-            'nmake'
-        ],
-    )
-    subprocess.run(
-        [
-            'where',
-            'nmake'
-        ],
-        env=os.environ,
     )
     subprocess.check_call(
         [
