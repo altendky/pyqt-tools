@@ -214,7 +214,7 @@ plat-name = {plat_name}'''.format(**locals()))
     )
     subprocess.check_call(
         [
-            'nmake',
+            os.path.join('C:\\', 'Program Files (x86)', 'Microsoft Visual Studio 14.0', 'VC', 'BIN', 'nmake'),
         ],
         cwd=native_sip,
         env=os.environ,
@@ -283,7 +283,7 @@ plat-name = {plat_name}'''.format(**locals()))
     )
     subprocess.check_call(
         [
-            os.path.join('C:\\', 'Program Files (x86)', 'Microsoft Visual Studio 14.0', 'VC', 'BIN', 'nmake'),
+            'nmake'
         ],
         cwd=pyqt5,
     )
