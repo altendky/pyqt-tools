@@ -204,6 +204,7 @@ plat-name = {plat_name}'''.format(**locals()))
             'nmake',
         ],
         cwd=native_sip,
+        env=os.environ,
     )
     subprocess.check_call(
         [
@@ -211,6 +212,7 @@ plat-name = {plat_name}'''.format(**locals()))
             'install',
         ],
         cwd=native_sip,
+        env=os.environ,
     )
 
     r = requests.get('http://downloads.sourceforge.net/project/pyqt/PyQt5/PyQt-5.8.2/PyQt5_gpl-5.8.2.zip')
