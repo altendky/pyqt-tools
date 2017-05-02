@@ -214,7 +214,7 @@ plat-name = {plat_name}'''.format(**locals()))
     )
     subprocess.check_call(
         [
-            'nmake',
+            'aanmake',
         ],
         cwd=native_sip,
         env=os.environ,
