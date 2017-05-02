@@ -127,7 +127,7 @@ plat-name = {plat_name}'''.format(**locals()))
         [
             os.path.join(venv_bin, 'pyqtdeploycli'),
             '--package', 'pyqt5',
-            '--target', 'win-32',
+            '--target', 'win',
             'configure',
         ],
         cwd=pyqt5,
