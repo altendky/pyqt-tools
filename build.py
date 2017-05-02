@@ -379,7 +379,7 @@ For a local copy see:
            license_file=os.path.basename(redist_license_html)))
 
     r = requests.get('https://www.visualstudio.com/DownloadEula/en-us/mt644918')
-    c = io.BytesIO(r.text)
+    c = io.StringIO(r.text)
     with open(redist_license_html, 'w') as f:
         f.write(c.read())
 
