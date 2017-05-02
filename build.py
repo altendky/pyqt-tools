@@ -25,7 +25,53 @@ def list_files(startpath):
             print('{}{}'.format(subindent, f))
 
 
+def get_environment_from_batch_command(env_cmd, initial=None):
+    """
+    Take a command (either a single command or list of arguments)
+    and return the environment created after running that command.
+    Note that if the command must be a batch file or .cmd file, or the
+    changes to the environment will not be captured.
+
+    If initial is supplied, it is used as the initial environment passed
+    to the child process.
+    """
+    if not isinstance(env_cmd, (list, tuple)):
+        env_cmd = [env_cmd]
+    # construct the command that will alter the environment
+    env_cmd = subprocess.list2cmdline(env_cmd)
+    # create a tag so we can tell in the output when the proc is done
+    tag = bytes('Done running command', 'UTF-8')
+    # construct a cmd.exe command to do accomplish this
+    cmd = 'cmd.exe /s /c "{env_cmd} && echo "{tag}" && set"'.format(**vars())
+    # launch the process
+    proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, env=initial)
+    # parse the output sent to stdout
+    lines = proc.stdout
+    # consume whatever output occurs until the tag is reached
+    consume(itertools.takewhile(lambda l: tag not in l, lines))
+    # define a way to handle each KEY=VALUE line
+    handle_line = lambda l: str(l, 'UTF-8').rstrip().split('=',1)
+    # parse key/values into pairs
+    pairs = map(handle_line, lines)
+    # make sure the pairs are valid
+    valid_pairs = filter(validate_pair, pairs)
+    # construct a dictionary of the pairs
+    result = dict(valid_pairs)
+    # let the process finish
+    proc.communicate()
+    return result
+
+
 def main():
+    os.environ = get_environment_from_batch_command(
+        [
+            os.path.join('C:/', 'Program Files (x86)',
+                         'Microsoft Visual Studio 14.0', 'VC', 'vcvarsall.bat'),
+            'x86'
+        ],
+        initial=os.environ
+    )
+
     bits = int(platform.architecture()[0][0:2])
     print(bits)
     if bits == 32:
@@ -113,14 +159,45 @@ plat-name = {plat_name}'''.format(**locals()))
     build = os.environ['APPVEYOR_BUILD_FOLDER']
     sysroot = os.path.join(build, 'sysroot')
     os.makedirs(sysroot)
-    r = requests.get('http://downloads.sourceforge.net/project/pyqt/sip/sip-4.19.2/sip-4.19.2.zip')
-    r = requests.get('http://downloads.sourceforge.net/project/pyqt/PyQt5/PyQt-5.8.2/PyQt5_gpl-5.8.2.zip')
-    z = zipfile.ZipFile(io.BytesIO(r.content))
     src = os.path.join(build, 'src')
     os.makedirs(src)
-    z.extractall(path=os.path.join(src))
-    print('<{}>'.format(build))
     venv_bin = os.path.join(build, 'venv', 'Scripts')
+    native = os.path.join(sysroot, 'native')
+
+    r = requests.get('http://downloads.sourceforge.net/project/pyqt/sip/sip-4.19.2/sip-4.19.2.zip')
+    z = zipfile.ZipFile(io.BytesIO(r.content))
+    z.extractall(path=src)
+    sip = os.path.join(src, 'sip-4.19.2')
+    native_sip = sip + '-native'
+    shutil.copytree(os.path.join(src, 'sip-4.19.2'), native_sip)
+    os.makedirs(native)
+    os.environ['CL'] = '/I{}/include/python3.6'.format(sysroot)
+    subprocess.check_call(
+        [
+            sys.executable,
+            'configure.py',
+            '--static',
+            '--sysroot={}'.format(native),
+        ],
+        cwd=native_sip,
+    )
+    subprocess.check_call(
+        [
+            'nmake',
+        ],
+        cwd=native_sip,
+    )
+    subprocess.check_call(
+        [
+            'nmake',
+            'install',
+        ],
+        cwd=native_sip,
+    )
+
+    r = requests.get('http://downloads.sourceforge.net/project/pyqt/PyQt5/PyQt-5.8.2/PyQt5_gpl-5.8.2.zip')
+    z = zipfile.ZipFile(io.BytesIO(r.content))
+    z.extractall(path=src)
     pyqt5 = os.path.join(src, 'PyQt5_gpl-5.8.2')
     subprocess.check_call(
         [
@@ -157,7 +234,7 @@ plat-name = {plat_name}'''.format(**locals()))
             r'--configuration={}'.format(pyqt5_cfg),
             r'--qmake={}'.format(qmake),
             r'--confirm-license',
-            r'--sip="{}\native\sip.exe"'.format(sysroot),
+            r'--sip={}\sip.exe'.format(native),
             r'--bindir={}\pyqt5-install\bin'.format(sysroot),
             r'--destdir={}\pyqt5-install\dest'.format(sysroot),
             r'--designer-plugindir={}\pyqt5-install\designer'.format(sysroot),
