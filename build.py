@@ -26,6 +26,16 @@ def list_files(startpath):
             print('{}{}'.format(subindent, f))
 
 
+def validate_pair(ob):
+    try:
+        if not (len(ob) == 2):
+            print("Unexpected result:", ob, file=sys.stderr)
+            raise ValueError
+    except:
+        return False
+    return True
+
+
 def consume(iter):
     try:
         while True: next(iter)
