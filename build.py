@@ -81,7 +81,6 @@ def get_environment_from_batch_command(env_cmd, initial=None):
 
 
 def main():
-    print(os.environ)
     os.environ = get_environment_from_batch_command(
         [
             os.path.join('C:/', 'Program Files (x86)',
@@ -90,7 +89,6 @@ def main():
         ],
         initial=os.environ
     )
-    print(os.environ)
 
     bits = int(platform.architecture()[0][0:2])
     print(bits)
@@ -290,12 +288,12 @@ plat-name = {plat_name}'''.format(**locals()))
     with open(pyqt5_cfg) as f:
         original = io.StringIO(f.read())
     with open(pyqt5_cfg, 'w') as f:
+        f.write('\npy_pyshlib = python36.dll\n')
         for line in original:
             if line.startswith('py_pylib_lib'):
                 f.write('py_pylib_lib = python%(py_major)%(py_minor)\n')
             else:
                 f.write(line)
-        f.write('\npy_pyshlib = python36.dll\n')
     designer_pro = os.path.join(pyqt5, 'designer', 'designer.pro-in')
     with open(designer_pro, 'a') as f:
         f.write('\nDEFINES     += PYTHON_LIB=\'"\\\\\\"@PYSHLIB@\\\\\\""\'\n')
