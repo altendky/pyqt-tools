@@ -81,6 +81,7 @@ def get_environment_from_batch_command(env_cmd, initial=None):
 
 
 def main():
+    print(os.environ)
     os.environ = get_environment_from_batch_command(
         [
             os.path.join('C:/', 'Program Files (x86)',
@@ -89,6 +90,7 @@ def main():
         ],
         initial=os.environ
     )
+    print(os.environ)
 
     bits = int(platform.architecture()[0][0:2])
     print(bits)
