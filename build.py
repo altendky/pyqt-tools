@@ -163,7 +163,7 @@ plat-name = {plat_name}'''.format(**locals()))
             '--sip="%SYSROOT%\native\sip.exe"',
             '--bindir="%SYSROOT%\pyqt5-install\bin"',
             '--destdir="%SYSROOT%\pyqt5-install\dest"',
-            '--designer-plugindir="%SYSROOT%\pyqt5-install\designer" --enable=QtDesigner"',
+            '--designer-plugindir="%SYSROOT%\pyqt5-install\designer" --enable=QtDesigner',
         ],
         cwd=pyqt5,
         stdout=subprocess.PIPE,
