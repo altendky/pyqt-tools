@@ -179,6 +179,7 @@ plat-name = {plat_name}'''.format(**locals()))
     build = os.environ['APPVEYOR_BUILD_FOLDER']
     sysroot = os.path.join(build, 'sysroot')
     os.makedirs(sysroot)
+    nmake = os.path.join('C:\\', 'Program Files (x86)', 'Microsoft Visual Studio 14.0', 'VC', 'BIN', 'nmake'),
 
     src = os.path.join(build, 'src')
     os.makedirs(src)
@@ -214,14 +215,14 @@ plat-name = {plat_name}'''.format(**locals()))
     )
     subprocess.check_call(
         [
-            os.path.join('C:\\', 'Program Files (x86)', 'Microsoft Visual Studio 14.0', 'VC', 'BIN', 'nmake'),
+           nmake,
         ],
         cwd=native_sip,
         env=os.environ,
     )
     subprocess.check_call(
         [
-            'nmake',
+            nmake,
             'install',
         ],
         cwd=native_sip,
@@ -283,13 +284,14 @@ plat-name = {plat_name}'''.format(**locals()))
     )
     subprocess.check_call(
         [
-            'nmake'
+            nmake,
         ],
         cwd=pyqt5,
     )
     subprocess.check_call(
         [
-            'nmake install'
+            nmake,
+            'install',
         ],
         cwd=pyqt5,
     )
