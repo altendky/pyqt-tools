@@ -132,6 +132,7 @@ plat-name = {plat_name}'''.format(**locals()))
         ],
         cwd=pyqt5,
         stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
     )
     pyqt5_cfg = os.path.join(pyqt5, 'pyqt5-win.cfg')
     with open(pyqt5_cfg) as f:
@@ -165,24 +166,32 @@ plat-name = {plat_name}'''.format(**locals()))
             '--designer-plugindir="%SYSROOT%\pyqt5-install\designer" --enable=QtDesigner"',
         ],
         cwd=pyqt5,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
     )
     subprocess.check_call(
         [
             qmake
         ],
         cwd=pyqt5,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
     )
     subprocess.check_call(
         [
             'nmake'
         ],
         cwd=pyqt5,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
     )
     subprocess.check_call(
         [
             'nmake install'
         ],
         cwd=pyqt5,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
     )
     designer_plugin_path = os.path.join(sysroot, 'pyqt5-install', 'designer', 'pyqt5.dll')
     designer_plugin_path = os.path.expandvars(designer_plugin_path)
