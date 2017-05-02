@@ -180,11 +180,13 @@ plat-name = {plat_name}'''.format(**locals()))
     sysroot = os.path.join(build, 'sysroot')
     os.makedirs(sysroot)
     nmake = os.path.join('C:\\', 'Program Files (x86)', 'Microsoft Visual Studio 14.0', 'VC', 'BIN', 'nmake'),
+    qmake = os.path.join(qt_bin_path, 'qmake.exe')
 
     src = os.path.join(build, 'src')
     os.makedirs(src)
     venv_bin = os.path.join(build, 'venv', 'Scripts')
     native = os.path.join(sysroot, 'native')
+    os.makedirs(native)
 
     subprocess.check_call(
         [
@@ -202,7 +204,6 @@ plat-name = {plat_name}'''.format(**locals()))
     sip = os.path.join(src, 'sip-4.19.2')
     native_sip = sip + '-native'
     shutil.copytree(os.path.join(src, 'sip-4.19.2'), native_sip)
-    os.makedirs(native)
     os.environ['CL'] = '/I"{}\\include\\python3.6"'.format(sysroot)
     subprocess.check_call(
         [
@@ -226,6 +227,49 @@ plat-name = {plat_name}'''.format(**locals()))
             'install',
         ],
         cwd=native_sip,
+        env=os.environ,
+    )
+
+    subprocess.check_call(
+        [
+            os.path.join(venv_bin, 'pyqtdeploycli'),
+            '--package', 'sip',
+            '--target', 'win-32',
+            'configure',
+        ],
+        cwd=sip,
+    )
+    subprocess.check_call(
+        [
+            sys.executable,
+            'configure.py',
+            '--static',
+            '--sysroot={}'.format(sysroot),
+            '--no-tools',
+            '--use-qmake',
+            '--configuration=sip-win.cfg'
+        ],
+        cwd=sip,
+    )
+    subprocess.check_call(
+        [
+            qmake
+        ],
+        cwd=sip,
+    )
+    subprocess.check_call(
+        [
+            nmake,
+        ],
+        cwd=sip,
+        env=os.environ,
+    )
+    subprocess.check_call(
+        [
+            nmake,
+            'install',
+        ],
+        cwd=sip,
         env=os.environ,
     )
 
@@ -255,7 +299,6 @@ plat-name = {plat_name}'''.format(**locals()))
     designer_pro = os.path.join(pyqt5, 'designer', 'designer.pro-in')
     with open(designer_pro, 'a') as f:
         f.write('\nDEFINES     += PYTHON_LIB=\'"\\\\\\"@PYSHLIB@\\\\\\""\'\n')
-    qmake = os.path.join(qt_bin_path, 'qmake.exe')
     subprocess.check_call(
         [
             sys.executable,
