@@ -127,13 +127,13 @@ plat-name = {plat_name}'''.format(**locals()))
         [
             os.path.join(venv_bin, 'pyqtdeploycli'),
             '--package', 'pyqt5',
-            '--target', 'win',
+            '--target', 'win-32',
             'configure',
         ],
         cwd=pyqt5,
         stdout=subprocess.PIPE,
     )
-    pyqt5_cfg = os.path.join(pyqt5, 'pyqt5-win32.cfg')
+    pyqt5_cfg = os.path.join(pyqt5, 'pyqt5-win.cfg')
     with open(pyqt5_cfg) as f:
         original = io.TextIO(f.read())
     with open(pyqt5_cfg, 'w') as f:
