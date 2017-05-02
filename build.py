@@ -128,7 +128,9 @@ plat-name = {plat_name}'''.format(**locals()))
     #     if ext == '.exe':
     #         applications.append(file)
 
-    destination = 'pyqt5-tools'
+    build = os.environ['APPVEYOR_BUILD_FOLDER']
+
+    destination = os.path.join(build, 'pyqt5-tools')
     os.makedirs(destination, exist_ok=True)
 
     windeployqt_path = os.path.join(qt_bin_path, 'windeployqt.exe'),
@@ -174,7 +176,6 @@ plat-name = {plat_name}'''.format(**locals()))
             # raise Exception('windeployqt failed with return code {}'
                             # .format(winqtdeploy.returncode))
 
-    build = os.environ['APPVEYOR_BUILD_FOLDER']
     sysroot = os.path.join(build, 'sysroot')
     os.makedirs(sysroot)
     nmake = os.path.join('C:\\', 'Program Files (x86)', 'Microsoft Visual Studio 14.0', 'VC', 'BIN', 'nmake'),
@@ -344,7 +345,7 @@ plat-name = {plat_name}'''.format(**locals()))
     os.makedirs(designer_plugin_destination, exist_ok=True)
     shutil.copy(designer_plugin_path, designer_plugin_destination)
     shutil.copy(os.path.join(pyqt5, 'LICENSE'),
-                os.path.join(sysroot, 'pyqt5-tools', 'LICENSE.pyqt5'))
+                os.path.join(destination, 'LICENSE.pyqt5'))
 
     # Since windeployqt doesn't actually work with --compiler-runtime,
     # copy it ourselves
