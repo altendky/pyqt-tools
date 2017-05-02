@@ -25,6 +25,13 @@ def list_files(startpath):
             print('{}{}'.format(subindent, f))
 
 
+def consume(iter):
+    try:
+        while True: next(iter)
+    except StopIteration:
+        pass
+
+
 def get_environment_from_batch_command(env_cmd, initial=None):
     """
     Take a command (either a single command or list of arguments)
