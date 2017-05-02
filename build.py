@@ -135,7 +135,7 @@ plat-name = {plat_name}'''.format(**locals()))
     )
     pyqt5_cfg = os.path.join(pyqt5, 'pyqt5-win.cfg')
     with open(pyqt5_cfg) as f:
-        original = io.TextIO(f.read())
+        original = io.StringIO(f.read())
     with open(pyqt5_cfg, 'w') as f:
         for line in original:
             if line.startswith('py_pylib_lib'):
