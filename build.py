@@ -146,7 +146,6 @@ plat-name = {plat_name}'''.format(**locals()))
     designer_pro = os.path.join(pyqt5, 'designer', 'designer.pro-in')
     with open(designer_pro, 'a') as f:
         f.write('\nDEFINES     += PYTHON_LIB=\'"\\\\\\"@PYSHLIB@\\\\\\""\'\n')
-    list_files(build)
     qmake = os.path.join(qt_bin_path, 'qmake.exe')
     subprocess.check_call(
         [
