@@ -202,7 +202,7 @@ plat-name = {plat_name}'''.format(**locals()))
     native_sip = sip + '-native'
     shutil.copytree(os.path.join(src, 'sip-4.19.2'), native_sip)
     os.makedirs(native)
-    os.environ['CL'] = '/I{}/include/python3.6'.format(sysroot)
+    os.environ['CL'] = '/I"{}\\include\\python3.6"'.format(sysroot)
     subprocess.check_call(
         [
             sys.executable,
