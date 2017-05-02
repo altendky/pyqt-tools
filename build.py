@@ -122,7 +122,6 @@ plat-name = {plat_name}'''.format(**locals()))
     z.extractall(path=os.path.join(src))
     print('<{}>'.format(build))
     venv_bin = os.path.join(build, 'venv', 'Scripts')
-    print(os.listdir(venv_bin))
     pyqt5 = os.path.join(src, 'PyQt5_gpl-5.8.2')
     subprocess.check_call(
         [
@@ -132,6 +131,7 @@ plat-name = {plat_name}'''.format(**locals()))
             'configure',
         ],
         cwd=pyqt5,
+        stdout=subprocess.PIPE,
     )
     pyqt5_cfg = os.path.join(pyqt5, 'pyqt5-win32.cfg')
     with open(pyqt5_cfg) as f:
