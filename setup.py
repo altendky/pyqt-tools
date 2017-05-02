@@ -23,7 +23,7 @@ setuptools.setup(
     license='GPLv3',
     classifiers=[
 #        '{development_status}',
-        'Development Status :: 2 - Pre-Alpha',
+#         'Development Status :: 2 - Pre-Alpha',
         'Environment :: Win32 (MS Windows)',
         'Intended Audience :: Developers',
         ("License :: OSI Approved :: "
