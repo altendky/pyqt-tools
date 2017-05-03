@@ -150,29 +150,29 @@ plat-name = {plat_name}'''.format(**locals()))
             print('\n\nwindeployqt failed with return code {}\n\n'
                             .format(windeployqt.returncode))
 
-    # application_paths = [
-        # 'assistant.exe',
-        # 'designer.exe',
-        # 'linguist.exe'
-    # ]
+    application_paths = [
+        'assistant.exe',
+        'designer.exe',
+        'linguist.exe'
+    ]
 
 
-    # for application in application_paths:
-        # application_path = os.path.join(qt_bin_path, application)
-        # os.makedirs(destination, exist_ok=True)
-        # shutil.copy(application_path, destination)
+    for application in application_paths:
+        application_path = os.path.join(qt_bin_path, application)
+        os.makedirs(destination, exist_ok=True)
+        shutil.copy(application_path, destination)
 
-        # windeployqt = subprocess.Popen(
-            # [
-                # windeployqt_path,
-                # os.path.basename(application)
-            # ],
-            # cwd=destination
-        # )
-        # windeployqt.wait(timeout=15)
-        # if windeployqt.returncode != 0:
-            # raise Exception('windeployqt failed with return code {}'
-                            # .format(winqtdeploy.returncode))
+        windeployqt = subprocess.Popen(
+            [
+                windeployqt_path,
+                os.path.basename(application)
+            ],
+            cwd=destination
+        )
+        windeployqt.wait(timeout=15)
+        if windeployqt.returncode != 0:
+            raise Exception('windeployqt failed with return code {}'
+                            .format(windeployqt.returncode))
 
     sysroot = os.path.join(build, 'sysroot')
     os.makedirs(sysroot)
