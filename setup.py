@@ -23,7 +23,7 @@ setuptools.setup(
     license='GPLv3',
     classifiers=[
 #        '{development_status}',
-#         'Development Status :: 2 - Pre-Alpha',
+        'Development Status :: 2 - Pre-Alpha',
         'Environment :: Win32 (MS Windows)',
         'Intended Audience :: Developers',
         ("License :: OSI Approved :: "
@@ -39,6 +39,7 @@ setuptools.setup(
         'vcversioner==2.16.0.0',
         'requests==2.13.0',
         'pyqtdeploy==1.3.2',
+        'wheel==0.30.0a0',
     ],
     vcversioner={
         'version_module_paths': ['_version.py'],
