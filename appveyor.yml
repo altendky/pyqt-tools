@@ -17,6 +17,9 @@ build_script:
   # Build the compiled extension
   - "venv\\Scripts\\python setup.py bdist_wheel"
 
+artifacts:
+  - path: dist\*
+
 # https://www.appveyor.com/docs/how-to/rdp-to-build-worker/
 on_finish:
   - ps: if (Get-ChildItem Env:ENABLE_RDP -ErrorAction SilentlyContinue) {$blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))} else {echo RDP not enabled}
