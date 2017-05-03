@@ -15,7 +15,7 @@ build_script:
   - "c:\\python36\\python venv.py"
   - copy "c:\\python36\\python3.dll" "venv\\Scripts"
   # Build the compiled extension
-  - "venv\\Scripts\\python setup.py build_wheel"
+  - "venv\\Scripts\\python setup.py bdist_wheel"
 
 # https://www.appveyor.com/docs/how-to/rdp-to-build-worker/
 on_finish:
