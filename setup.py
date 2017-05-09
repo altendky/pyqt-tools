@@ -3,7 +3,13 @@ import os
 import build
 import setuptools
 
-build.main()
+import distutils.command.build
+
+
+class Build(distutils.command.build.build):
+    def run(self):
+        build.main()
+        distutils.command.build.build.run(self)
 
 long_description = '''
 The PyQt5 wheels do not provide tools such as Qt Designer that
@@ -35,6 +41,9 @@ setuptools.setup(
     ],
     keywords='pyqt5 qt designer',
     packages=['pyqt5-tools'],
+    cmdclass = {
+        'build': Build,
+    },
     setup_requires=[
         'vcversioner==2.16.0.0',
         'requests==2.13.0',
