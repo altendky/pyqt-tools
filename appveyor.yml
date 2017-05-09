@@ -13,6 +13,14 @@ environment:
 
     -  PYTHON: "C:\\Python36-x64"
 
+    -  PYTHON: "C:\\Python35"
+
+    -  PYTHON: "C:\\Python35-x64"
+
+    -  PYTHON: "C:\\Python34"
+
+    -  PYTHON: "C:\\Python34-x64"
+
 # https://www.appveyor.com/docs/how-to/rdp-to-build-worker/
 init:
   - ps: if (Get-ChildItem Env:ENABLE_RDP -ErrorAction SilentlyContinue) {iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))} else {echo RDP not enabled}
