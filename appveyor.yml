@@ -7,13 +7,18 @@ environment:
     # See: http://stackoverflow.com/a/13751649/163740
     CMD_IN_ENV: "cmd /E:ON /V:ON /C .\\ci\\run_with_env.cmd"
 
+  matrix:
+    -  PYTHON: "C:\\Python36"
+
+    -  PYTHON: "C:\\Python36x64"
+
 # https://www.appveyor.com/docs/how-to/rdp-to-build-worker/
 init:
   - ps: if (Get-ChildItem Env:ENABLE_RDP -ErrorAction SilentlyContinue) {iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))} else {echo RDP not enabled}
 
 build_script:
-  - "c:\\python36\\python venv.py"
-  - copy "c:\\python36\\python3.dll" "venv\\Scripts"
+  - "%PYTHON%\\python venv.py"
+  - copy "%PYTHON%\\python3.dll" "venv\\Scripts"
   # Build the compiled extension
   - "venv\\Scripts\\python setup.py bdist_wheel"
 
