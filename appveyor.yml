@@ -19,11 +19,11 @@ environment:
     -  PYTHON: "C:\\Python35-x64"
        APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
 
-    -  PYTHON: "C:\\Python34"
-       APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2010
-
-    -  PYTHON: "C:\\Python34-x64"
-       APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2010
+#    -  PYTHON: "C:\\Python34"
+#       APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2010
+#
+#    -  PYTHON: "C:\\Python34-x64"
+#       APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2010
 
 # https://www.appveyor.com/docs/how-to/rdp-to-build-worker/
 init:
