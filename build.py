@@ -147,7 +147,10 @@ plat-name = {plat_name}'''.format(**locals()))
     application_paths = [
         'assistant.exe',
         'designer.exe',
-        'linguist.exe'
+        'linguist.exe',
+        'lrelease.exe',
+        'qcollectiongenerator.exe',
+        'qhelpgenerator.exe',
     ]
 
 
