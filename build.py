@@ -81,17 +81,23 @@ def get_environment_from_batch_command(env_cmd, initial=None):
 
 def main():
     bits = int(platform.architecture()[0][0:2])
+    python_major_minor = os.environ['PYTHON'][-2:]
+    vs_path = os.path.join(
+        'C:/', 'Program Files (x86)', 'Microsoft Visual Studio {}.0'.format(
+            {'34': 10, '35': 14, '36': 14}[python_major_minor]
+        )
+    )
 
     os.environ = get_environment_from_batch_command(
         [
-            os.path.join('C:/', 'Program Files (x86)',
-                         'Microsoft Visual Studio 14.0', 'VC', 'vcvarsall.bat'),
+            os.path.join(vs_path, 'VC', 'vcvarsall.bat'),
             {32: 'x86', 64: 'x64'}[bits]
         ],
         initial=os.environ
     )
 
-    compiler_dir = {32: 'msvc2015', 64: 'msvc2015_64'}[bits]
+    compiler_dir = {32: 'msvc{}', 64: 'msvc{}_64'}[bits]
+    compiler_dir.format({'34': 2010, '35': 2015, '36': 2015}[python_major_minor])
 
     qt_bin_path = os.path.join(os.environ['QT_BASE_PATH'], compiler_dir, 'bin')
 
@@ -181,7 +187,7 @@ plat-name = {plat_name}'''.format(**locals()))
 
     sysroot = os.path.join(build, 'sysroot')
     os.makedirs(sysroot)
-    nmake = os.path.join('C:\\', 'Program Files (x86)', 'Microsoft Visual Studio 14.0', 'VC', 'BIN', 'nmake'),
+    nmake = os.path.join(vs_path, 'VC', 'BIN', 'nmake'),
     qmake = os.path.join(qt_bin_path, 'qmake.exe')
 
     src = os.path.join(build, 'src')
