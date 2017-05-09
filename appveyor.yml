@@ -1,3 +1,5 @@
+image: Visual Studio 2015
+
 environment:
   global:
     # SDK v7.0 MSVC Express 2008's SetEnv.cmd script will fail if the
@@ -8,22 +10,16 @@ environment:
 
   matrix:
     -  PYTHON: "C:\\Python36"
-       APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
 
     -  PYTHON: "C:\\Python36-x64"
-       APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
 
     -  PYTHON: "C:\\Python35"
-       APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
 
     -  PYTHON: "C:\\Python35-x64"
-       APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
 
-#    -  PYTHON: "C:\\Python34"
-#       APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2010
-#
-#    -  PYTHON: "C:\\Python34-x64"
-#       APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2010
+    -  PYTHON: "C:\\Python34"
+
+    -  PYTHON: "C:\\Python34-x64"
 
 # https://www.appveyor.com/docs/how-to/rdp-to-build-worker/
 init:
