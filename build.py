@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import glob
 import io
 import itertools
 import os
@@ -144,19 +145,26 @@ plat-name = {plat_name}'''.format(**locals()))
             print('\n\nwindeployqt failed with return code {}\n\n'
                             .format(windeployqt.returncode))
 
-    application_paths = [
-        'assistant.exe',
-        'designer.exe',
-        'linguist.exe',
-        'lrelease.exe',
-        'qcollectiongenerator.exe',
-        'qhelpgenerator.exe',
-    ]
+    application_paths = glob.glob(os.path.join(qt_bin_path), '*.exe')
 
+    os.makedirs(destination, exist_ok=True)
 
     for application in application_paths:
         application_path = os.path.join(qt_bin_path, application)
-        os.makedirs(destination, exist_ok=True)
+
+        p = subprocess.run(
+            [
+                windeployqt_path,
+                application_path,
+                '--dry-run',
+                '--list', 'source',
+            ],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        )
+        if p.returncode != 0 or b'Qt5WebEngineCore' in p.stdout:
+            continue
+
         shutil.copy(application_path, destination)
 
         windeployqt = subprocess.Popen(
