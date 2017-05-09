@@ -292,7 +292,9 @@ plat-name = {plat_name}'''.format(**locals()))
     with open(pyqt5_cfg) as f:
         original = io.StringIO(f.read())
     with open(pyqt5_cfg, 'w') as f:
-        f.write('\npy_pyshlib = python36.dll\n')
+        f.write('\npy_pyshlib = python{}.dll\n'.format(
+            os.environ['PYTHON'][-2:],
+        ))
         for line in original:
             if line.startswith('py_pylib_lib'):
                 f.write('py_pylib_lib = python%(py_major)%(py_minor)\n')
