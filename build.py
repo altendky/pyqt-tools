@@ -145,17 +145,19 @@ plat-name = {plat_name}'''.format(**locals()))
             print('\n\nwindeployqt failed with return code {}\n\n'
                             .format(windeployqt.returncode))
 
-    application_paths = glob.glob(os.path.join(qt_bin_path), '*.exe')
+    application_paths = glob.glob(os.path.join(qt_bin_path, '*.exe'))
 
     os.makedirs(destination, exist_ok=True)
 
     for application in application_paths:
         application_path = os.path.join(qt_bin_path, application)
 
+        shutil.copy(application_path, destination)
+
         p = subprocess.run(
             [
                 windeployqt_path,
-                application_path,
+                os.path.basename(application)
                 '--dry-run',
                 '--list', 'source',
             ],
@@ -163,9 +165,7 @@ plat-name = {plat_name}'''.format(**locals()))
             stderr=subprocess.PIPE,
         )
         if p.returncode != 0 or b'Qt5WebEngineCore' in p.stdout:
-            continue
-
-        shutil.copy(application_path, destination)
+           continue
 
         windeployqt = subprocess.Popen(
             [
