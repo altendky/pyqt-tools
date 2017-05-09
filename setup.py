@@ -4,6 +4,8 @@ import build
 import setuptools
 
 
+build.main()
+
 long_description = '''
 The PyQt5 wheels do not provide tools such as Qt Designer that
 were included in the old binary installers.  This package aims
