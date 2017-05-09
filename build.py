@@ -166,6 +166,7 @@ plat-name = {plat_name}'''.format(**locals()))
 
         shutil.copy(application_path, destination)
 
+        print('\n\nChecking: {}'.format(os.path.basename(application)))
         p = subprocess.run(
             [
                 windeployqt_path,
@@ -176,8 +177,11 @@ plat-name = {plat_name}'''.format(**locals()))
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
         )
+        for line in p.stdout.splitlines():
+            print('    {}'.format(line))
+
         if b'WebEngine' in p.stdout:
-            print('Skipping: {}'.format(os.path.basename(application)))
+            print('    skipped')
             continue
 
         windeployqt = subprocess.run(
