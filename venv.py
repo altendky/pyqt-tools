@@ -120,21 +120,18 @@ def main():
         }
 
         packages = [
-            'requests',
-            'vcversioner==2.16.0.0',
-            'requests==2.13.0',
-            'pyqtdeploy==1.3.2',
-            'PyQt5==5.8.2',
         ]
+        if len(zip_repos) > 0:
+            packages.append('requests')
+            import requests
+
         # TODO: make this configurable
         custom_packages = [
-            'wheel',
             #            'gitpython'
         ]
         for package in packages + custom_packages:
             pip_install(package, args.no_ssl_verify, virtual=True)
 
-        import requests
         import zipfile
         import io
         for name, url in zip_repos.items():
