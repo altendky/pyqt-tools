@@ -189,6 +189,7 @@ plat-name = {plat_name}'''.format(**locals()))
     os.makedirs(sysroot)
     nmake = os.path.join(vs_path, 'VC', 'BIN', 'nmake'),
     qmake = os.path.join(qt_bin_path, 'qmake.exe')
+    print('qmake: {}'.format(qmake))
 
     src = os.path.join(build, 'src')
     os.makedirs(src)
