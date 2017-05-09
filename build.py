@@ -127,35 +127,12 @@ def main():
 python-tag = {python_tag}
 plat-name = {plat_name}'''.format(**locals()))
 
-    applications = []
-    # for file in os.listdir(qt_bin_path):
-    #     base, ext = os.path.splitext(file)
-    #     if ext == '.exe':
-    #         applications.append(file)
-
     build = os.environ['APPVEYOR_BUILD_FOLDER']
 
     destination = os.path.join(build, 'pyqt5-tools')
     os.makedirs(destination, exist_ok=True)
 
     windeployqt_path = os.path.join(qt_bin_path, 'windeployqt.exe'),
-
-    for file in applications:
-        print("\n\n   - - -   Copying {} and it's dependencies".format(file))
-        file_path = os.path.join(qt_bin_path, file)
-        shutil.copy(file_path, destination)
-
-        windeployqt = subprocess.Popen(
-            [
-                windeployqt_path,
-                os.path.basename(file_path)
-            ],
-            cwd=destination
-        )
-        windeployqt.wait(timeout=15)
-        if windeployqt.returncode != 0:
-            print('\n\nwindeployqt failed with return code {}\n\n'
-                            .format(windeployqt.returncode))
 
     application_paths = glob.glob(os.path.join(qt_bin_path, '*.exe'))
 
@@ -176,9 +153,8 @@ plat-name = {plat_name}'''.format(**locals()))
             ],
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
+            cwd=destination,
         )
-        for line in p.stdout.splitlines():
-            print('    {}'.format(line))
 
         if b'WebEngine' in p.stdout:
             print('    skipped')
@@ -189,7 +165,7 @@ plat-name = {plat_name}'''.format(**locals()))
                 windeployqt_path,
                 os.path.basename(application)
             ],
-            cwd=destination
+            cwd=destination,
         )
 
     sysroot = os.path.join(build, 'sysroot')
