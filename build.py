@@ -176,7 +176,7 @@ plat-name = {plat_name}'''.format(**locals()))
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
         )
-        if p.returncode == 0 and b'Qt5WebEngineCore' in p.stdout:
+        if p.returncode == 0 and b'WebEngine' in p.stdout:
             print('Skipping: {}'.format(os.path.basename(application)))
             continue
 
