@@ -185,7 +185,7 @@ plat-name = {plat_name}'''.format(**locals()))
             os.path.join(venv_bin, 'pyqtdeploycli'),
             '--sysroot', sysroot,
             '--package', 'python',
-            '--system-python', python_major_minor.join('.'),
+            '--system-python', '.'.join(python_major_minor),
             'install',
         ],
     )
