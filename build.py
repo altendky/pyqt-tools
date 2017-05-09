@@ -81,7 +81,7 @@ def get_environment_from_batch_command(env_cmd, initial=None):
 
 def main():
     bits = int(platform.architecture()[0][0:2])
-    python_major_minor = os.environ['PYTHON'][-2:]
+    python_major_minor = os.environ['PYTHON'][:len('python')+2][-2:]
     msvc_versions = {'34': 10, '35': 14, '36': 14}
     msvc_version = msvc_versions[python_major_minor]
     vs_path = os.path.join(
