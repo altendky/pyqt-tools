@@ -81,7 +81,10 @@ def get_environment_from_batch_command(env_cmd, initial=None):
 
 def main():
     bits = int(platform.architecture()[0][0:2])
-    python_major_minor = os.environ['PYTHON'][:len('python')+2][-2:]
+    python_major_minor = '{}{}'.format(
+        sys.version_info.major,
+        sys.version_info.minor
+    )
     msvc_versions = {'34': 10, '35': 14, '36': 14}
     msvc_version = msvc_versions[python_major_minor]
     vs_path = os.path.join(
@@ -173,7 +176,7 @@ plat-name = {plat_name}'''.format(**locals()))
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
         )
-        if p.returncode != 0 or b'Qt5WebEngineCore' in p.stdout:
+        if p.returncode == 0 and b'Qt5WebEngineCore' in p.stdout:
            continue
 
         windeployqt = subprocess.Popen(
