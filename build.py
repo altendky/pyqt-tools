@@ -92,7 +92,7 @@ def main():
 
     compiler_dir = {32: 'msvc2015', 64: 'msvc2015_64'}[bits]
 
-    qt_bin_path = os.path.join('c:/', 'Qt', '5.8', compiler_dir, 'bin')
+    qt_bin_path = os.path.join(os.environ['QT_BASE_PATH'], compiler_dir, 'bin')
 
     with open('setup.cfg', 'w') as cfg:
         plat_names = {

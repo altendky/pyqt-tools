@@ -6,6 +6,7 @@ environment:
     # /E:ON and /V:ON options are not enabled in the batch script intepreter
     # See: http://stackoverflow.com/a/13751649/163740
     CMD_IN_ENV: "cmd /E:ON /V:ON /C .\\ci\\run_with_env.cmd"
+    QT_BASE_PATH: c:\\Qt\\5.8
 
   matrix:
     -  PYTHON: "C:\\Python36"
@@ -21,9 +22,10 @@ build_script:
   - copy "%PYTHON%\\python3.dll" "venv\\Scripts"
   # Build the compiled extension
   - "venv\\Scripts\\python setup.py bdist_wheel"
+  - "cp dist\\*.whl ."
 
 artifacts:
-  - path: dist\*
+  - path: '*.whl'
 
 # https://www.appveyor.com/docs/how-to/rdp-to-build-worker/
 on_finish:
