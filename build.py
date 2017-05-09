@@ -157,7 +157,7 @@ plat-name = {plat_name}'''.format(**locals()))
         p = subprocess.run(
             [
                 windeployqt_path,
-                os.path.basename(application)
+                os.path.basename(application),
                 '--dry-run',
                 '--list', 'source',
             ],
