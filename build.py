@@ -177,19 +177,15 @@ plat-name = {plat_name}'''.format(**locals()))
             stderr=subprocess.PIPE,
         )
         if p.returncode == 0 and b'Qt5WebEngineCore' in p.stdout:
-           continue
+            continue
 
-        windeployqt = subprocess.Popen(
+        windeployqt = subprocess.run(
             [
                 windeployqt_path,
                 os.path.basename(application)
             ],
             cwd=destination
         )
-        windeployqt.wait(timeout=15)
-        if windeployqt.returncode != 0:
-            raise Exception('windeployqt failed with return code {}'
-                            .format(windeployqt.returncode))
 
     sysroot = os.path.join(build, 'sysroot')
     os.makedirs(sysroot)
