@@ -79,28 +79,22 @@ def get_environment_from_batch_command(env_cmd, initial=None):
 
 
 def main():
+    bits = int(platform.architecture()[0][0:2])
+
     os.environ = get_environment_from_batch_command(
         [
             os.path.join('C:/', 'Program Files (x86)',
                          'Microsoft Visual Studio 14.0', 'VC', 'vcvarsall.bat'),
-            'x86'
+            {32: 'x86', 64: 'x64'}[bits]
         ],
         initial=os.environ
     )
 
-    bits = int(platform.architecture()[0][0:2])
-    print(bits)
-    if bits == 32:
-        compiler_dir = 'msvc2015'
-    elif bits == 64:
-        compiler_dir = 'msvc2015_64'
+    compiler_dir = {32: 'msvc2015', 64: 'msvc2015_64'}
 
     qt_bin_path = os.path.join('c:/', 'Qt', '5.8', compiler_dir, 'bin')
 
     with open('setup.cfg', 'w') as cfg:
-        arch = platform.architecture()
-        # TODO: CAMPid 994391911172312371845393249991437
-        bits = int(arch[0][0:2])
         plat_names = {
             32: 'win32',
             64: 'win_amd64'
@@ -231,7 +225,7 @@ plat-name = {plat_name}'''.format(**locals()))
         [
             os.path.join(venv_bin, 'pyqtdeploycli'),
             '--package', 'sip',
-            '--target', 'win-32',
+            '--target', 'win-{}'.format(bits),
             'configure',
         ],
         cwd=sip,
@@ -278,7 +272,7 @@ plat-name = {plat_name}'''.format(**locals()))
         [
             os.path.join(venv_bin, 'pyqtdeploycli'),
             '--package', 'pyqt5',
-            '--target', 'win-32',
+            '--target', 'win-{}'.format(bits),
             'configure',
         ],
         cwd=pyqt5,
