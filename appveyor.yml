@@ -10,7 +10,7 @@ environment:
   matrix:
     -  PYTHON: "C:\\Python36"
 
-    -  PYTHON: "C:\\Python36x64"
+    -  PYTHON: "C:\\Python36-x64"
 
 # https://www.appveyor.com/docs/how-to/rdp-to-build-worker/
 init:
