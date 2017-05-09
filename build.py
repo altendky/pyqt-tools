@@ -90,7 +90,7 @@ def main():
         initial=os.environ
     )
 
-    compiler_dir = {32: 'msvc2015', 64: 'msvc2015_64'}
+    compiler_dir = {32: 'msvc2015', 64: 'msvc2015_64'}[bits]
 
     qt_bin_path = os.path.join('c:/', 'Qt', '5.8', compiler_dir, 'bin')
 
