@@ -97,7 +97,8 @@ def main():
     )
 
     compiler_dir = {32: 'msvc{}', 64: 'msvc{}_64'}[bits]
-    compiler_dir.format({'34': 2010, '35': 2015, '36': 2015}[python_major_minor])
+    compiler_dir = compiler_dir.format(
+        {'34': 2010, '35': 2015, '36': 2015}[python_major_minor])
 
     qt_bin_path = os.path.join(os.environ['QT_BASE_PATH'], compiler_dir, 'bin')
 
