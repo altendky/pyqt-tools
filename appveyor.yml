@@ -22,7 +22,7 @@ build_script:
   - copy "%PYTHON%\\python3.dll" "venv\\Scripts"
   # Build the compiled extension
   - "venv\\Scripts\\python setup.py bdist_wheel"
-  - "cp dist\\*.whl ."
+  - "cp dist\\\\*.whl ."
 
 artifacts:
   - path: '*.whl'
