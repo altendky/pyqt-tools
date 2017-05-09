@@ -34,9 +34,10 @@ build_script:
   - copy "%PYTHON%\\python3.dll" "venv\\Scripts"
   # Build the compiled extension
   - "venv\\Scripts\\python setup.py bdist_wheel"
+  - "copy dist\\*.whl ."
 
 artifacts:
-  - path: 'dist\\*.whl'
+  - path: '*.whl'
 
 # https://www.appveyor.com/docs/how-to/rdp-to-build-worker/
 on_finish:
