@@ -82,9 +82,11 @@ def get_environment_from_batch_command(env_cmd, initial=None):
 def main():
     bits = int(platform.architecture()[0][0:2])
     python_major_minor = os.environ['PYTHON'][-2:]
+    msvc_versions = {'34': 10, '35': 14, '36': 14}
+    msvc_version = msvc_versions[python_major_minor]
     vs_path = os.path.join(
         'C:/', 'Program Files (x86)', 'Microsoft Visual Studio {}.0'.format(
-            {'34': 10, '35': 14, '36': 14}[python_major_minor]
+            msvc_version
         )
     )
 
@@ -364,12 +366,11 @@ plat-name = {plat_name}'''.format(**locals()))
     # copy it ourselves
     plat = {32: 'x86', 64: 'x64'}[bits]
     redist_path = os.path.join(
-        'c:/', 'Program Files (x86)', 'Microsoft Visual Studio 14.0', 'VC',
-        'redist', plat, 'Microsoft.VC140.CRT'
+        vs_path, 'VC', 'redist', plat, 'Microsoft.VC{}0.CRT'.format(msvc_version)
     )
     redist_files = [
-        'msvcp140.dll',
-        'vcruntime140.dll'
+        'msvcp{}0.dll'.format(msvc_version),
+        'vcruntime{}0.dll'.format(msvc_version),
     ]
     for file in redist_files:
         dest = os.path.join(destination, file)
