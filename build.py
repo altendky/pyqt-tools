@@ -141,13 +141,11 @@ plat-name = {plat_name}'''.format(**locals()))
     for application in application_paths:
         application_path = os.path.join(qt_bin_path, application)
 
-        shutil.copy(application_path, destination)
-
         print('\n\nChecking: {}'.format(os.path.basename(application)))
         p = subprocess.run(
             [
                 windeployqt_path,
-                os.path.basename(application),
+                application_path,
                 '--dry-run',
                 '--list', 'source',
             ],
@@ -159,6 +157,8 @@ plat-name = {plat_name}'''.format(**locals()))
         if b'WebEngine' in p.stdout:
             print('    skipped')
             continue
+
+        shutil.copy(application_path, destination)
 
         windeployqt = subprocess.run(
             [
