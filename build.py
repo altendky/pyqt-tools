@@ -265,18 +265,12 @@ plat-name = {plat_name}'''.format(**locals()))
         env=os.environ,
     )
 
-    pyqt5_version = tuple(
-        int(x)
-        for x in os.environ['PYQT5_VERSION'].split('.')
-    )
-    if pyqt5_version[2:] == (0,):
-        pyqt5_version = pyqt5_version[:2]
-    pyqt5_version_string = '.'.join(str(x) for x in pyqt5_version)
-    pyqt5_name = 'PyQt5_gpl-{}'.format(pyqt5_version_string)
+    pyqt5_version = os.environ['PYQT5_VERSION']
+    pyqt5_name = 'PyQt5_gpl-{}'.format(pyqt5_version)
     r = requests.get(
         'http://downloads.sourceforge.net'
         '/project/pyqt/PyQt5/PyQt-{}/{}.zip'.format(
-            pyqt5_version_string, pyqt5_name
+            pyqt5_version, pyqt5_name
         )
     )
     z = zipfile.ZipFile(io.BytesIO(r.content))

@@ -28,10 +28,10 @@ environment:
        PYQT5_VERSION: 5.8.2
 
     -  PYTHON: "C:\\Python34"
-       PYQT5_VERSION: 5.8.0
+       PYQT5_VERSION: 5.8
 
     -  PYTHON: "C:\\Python34-x64"
-       PYQT5_VERSION: 5.8.0
+       PYQT5_VERSION: 5.8
 
 # https://www.appveyor.com/docs/how-to/rdp-to-build-worker/
 init:
