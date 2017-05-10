@@ -199,18 +199,11 @@ plat-name = {plat_name}'''.format(**locals()))
         ],
     )
 
-    sip_version = sip = next(
+    sip_version = next(
         d.version
         for d in pip.utils.get_installed_distributions()
         if d.project_name == 'sip'
     )
-    prefix = 'Version: '
-    for line in sip_version.splitlines():
-        if line.startswith(prefix):
-            sip_version = line[len(prefix):]
-            break
-    else:
-        raise Exception('sip version not found in: {}'.format(sip_version))
 
     sip_name = 'sip-{}'.format(sip_version)
     r = requests.get(
