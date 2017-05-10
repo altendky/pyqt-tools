@@ -206,7 +206,7 @@ plat-name = {plat_name}'''.format(**locals()))
     )
     prefix = 'Version: '
     for line in sip_version.splitlines():
-        if line.startswith(prefix)
+        if line.startswith(prefix):
             sip_version = line[len(prefix):]
             break
     else:
