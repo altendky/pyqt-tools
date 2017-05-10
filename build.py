@@ -132,6 +132,14 @@ plat-name = {plat_name}'''.format(**locals()))
     destination = os.path.join(build, 'pyqt5-tools')
     os.makedirs(destination, exist_ok=True)
 
+    build_id = os.environ['APPVEYOR_BUILD_ID']
+    with open(os.path.join(destination, 'build_id')) as f:
+        f.write(build_id + '\n')
+
+    job_id = os.environ['APPVEYOR_JOB_ID']
+    with open(os.path.join(destination, 'job_id')) as f:
+        f.write(job_id + '\n')
+
     windeployqt_path = os.path.join(qt_bin_path, 'windeployqt.exe'),
 
     application_paths = glob.glob(os.path.join(qt_bin_path, '*.exe'))
