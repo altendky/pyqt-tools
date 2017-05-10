@@ -9,29 +9,41 @@ environment:
     QT_BASE_PATH: c:\\Qt\\5.8
 
   matrix:
-#    -  PYTHON: "C:\\Python36"
-#       PYQT5_VERSION: 5.8.2
-#
-#    -  PYTHON: "C:\\Python36-x64"
-#       PYQT5_VERSION: 5.8.2
-#
-#    -  PYTHON: "C:\\Python36"
-#       PYQT5_VERSION: 5.7.1
-#
-#    -  PYTHON: "C:\\Python36-x64"
-#       PYQT5_VERSION: 5.7.1
-#
-#    -  PYTHON: "C:\\Python35"
-#       PYQT5_VERSION: 5.8.2
-#
-#    -  PYTHON: "C:\\Python35-x64"
-#       PYQT5_VERSION: 5.8.2
+    -  PYTHON: "C:\\Python36"
+       PYQT5_VERSION: 5.8.2
 
-    -  PYTHON: "C:\\Python34"
+    -  PYTHON: "C:\\Python36-x64"
+       PYQT5_VERSION: 5.8.2
+
+    -  PYTHON: "C:\\Python36"
        PYQT5_VERSION: 5.7.1
 
-    -  PYTHON: "C:\\Python34-x64"
+    -  PYTHON: "C:\\Python36-x64"
        PYQT5_VERSION: 5.7.1
+
+    -  PYTHON: "C:\\Python36"
+       PYQT5_VERSION: 5.6
+
+    -  PYTHON: "C:\\Python36-x64"
+       PYQT5_VERSION: 5.6
+
+    -  PYTHON: "C:\\Python35"
+       PYQT5_VERSION: 5.8.2
+
+    -  PYTHON: "C:\\Python35-x64"
+       PYQT5_VERSION: 5.8.2
+
+    -  PYTHON: "C:\\Python35"
+       PYQT5_VERSION: 5.7.1
+
+    -  PYTHON: "C:\\Python35-x64"
+       PYQT5_VERSION: 5.7.1
+
+    -  PYTHON: "C:\\Python35"
+       PYQT5_VERSION: 5.6
+
+    -  PYTHON: "C:\\Python35-x64"
+       PYQT5_VERSION: 5.6
 
 # https://www.appveyor.com/docs/how-to/rdp-to-build-worker/
 init:
@@ -39,8 +51,7 @@ init:
 
 build_script:
   - "%PYTHON%\\python venv.py"
-  - if exist "%PYTHON%\\python3.dll" (copy "%PYTHON%\\python3.dll" "venv\\Scripts") else (copy "%PYTHON%\\DLLs\\python3.dll" "venv\\Scripts")
-#  - copy "%PYTHON%\\python3.dll" "venv\\Scripts"
+  - copy "%PYTHON%\\python3.dll" "venv\\Scripts"
   # Build the compiled extension
   - "venv\\Scripts\\python setup.py bdist_wheel"
   - "copy dist\\*.whl ."
