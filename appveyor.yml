@@ -9,29 +9,29 @@ environment:
     QT_BASE_PATH: c:\\Qt\\5.8
 
   matrix:
-    -  PYTHON: "C:\\Python36"
-       PYQT5_VERSION: 5.8.2
-
-    -  PYTHON: "C:\\Python36-x64"
-       PYQT5_VERSION: 5.8.2
-
-    -  PYTHON: "C:\\Python36"
-       PYQT5_VERSION: 5.7.1
-
-    -  PYTHON: "C:\\Python36-x64"
-       PYQT5_VERSION: 5.7.1
-
-    -  PYTHON: "C:\\Python35"
-       PYQT5_VERSION: 5.8.2
-
-    -  PYTHON: "C:\\Python35-x64"
-       PYQT5_VERSION: 5.8.2
+#    -  PYTHON: "C:\\Python36"
+#       PYQT5_VERSION: 5.8.2
+#
+#    -  PYTHON: "C:\\Python36-x64"
+#       PYQT5_VERSION: 5.8.2
+#
+#    -  PYTHON: "C:\\Python36"
+#       PYQT5_VERSION: 5.7.1
+#
+#    -  PYTHON: "C:\\Python36-x64"
+#       PYQT5_VERSION: 5.7.1
+#
+#    -  PYTHON: "C:\\Python35"
+#       PYQT5_VERSION: 5.8.2
+#
+#    -  PYTHON: "C:\\Python35-x64"
+#       PYQT5_VERSION: 5.8.2
 
     -  PYTHON: "C:\\Python34"
-       PYQT5_VERSION: 5.8
+       PYQT5_VERSION: 5.7.1
 
     -  PYTHON: "C:\\Python34-x64"
-       PYQT5_VERSION: 5.8
+       PYQT5_VERSION: 5.7.1
 
 # https://www.appveyor.com/docs/how-to/rdp-to-build-worker/
 init:
