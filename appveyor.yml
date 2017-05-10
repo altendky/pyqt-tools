@@ -9,15 +9,16 @@ environment:
     QT_BASE_PATH: c:\\Qt\\5.8
 
   matrix:
-    -  PYTHON: "C:\\Python36"
-
-    -  PYTHON: "C:\\Python36-x64"
-
-    -  PYTHON: "C:\\Python35"
-
-    -  PYTHON: "C:\\Python35-x64"
-
+#    -  PYTHON: "C:\\Python36"
+#
+#    -  PYTHON: "C:\\Python36-x64"
+#
+#    -  PYTHON: "C:\\Python35"
+#
+#    -  PYTHON: "C:\\Python35-x64"
+#
     -  PYTHON: "C:\\Python34"
+       ENABLE_RDP: 1
 
     -  PYTHON: "C:\\Python34-x64"
 
