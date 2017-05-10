@@ -4,6 +4,7 @@ import glob
 import io
 import itertools
 import os
+import pip
 import platform
 import shutil
 import stat
@@ -198,13 +199,32 @@ plat-name = {plat_name}'''.format(**locals()))
         ],
     )
 
-    r = requests.get('http://downloads.sourceforge.net/project/pyqt/sip/sip-4.19.2/sip-4.19.2.zip')
+    sip_version = pip.main(['show', 'sip'])
+    prefix = 'Version: '
+    for line in sip_version.splitlines():
+        if line.startswith(prefix)
+            sip_version = line[len(prefix):]
+            break
+    else:
+        raise Exception('sip version not found in: {}'.format(sip_version))
+
+    sip_name = 'sip-{}'.format(sip_version)
+    r = requests.get(
+        'http://downloads.sourceforge.net'
+        '/project/pyqt/sip/sip-{}/{}.zip'.format(
+            sip_version, sip_name
+        )
+    )
+
     z = zipfile.ZipFile(io.BytesIO(r.content))
     z.extractall(path=src)
-    sip = os.path.join(src, 'sip-4.19.2')
+    sip = os.path.join(src, sip_name)
     native_sip = sip + '-native'
-    shutil.copytree(os.path.join(src, 'sip-4.19.2'), native_sip)
-    os.environ['CL'] = '/I"{}\\include\\python3.6"'.format(sysroot)
+    shutil.copytree(os.path.join(src, sip_name), native_sip)
+    os.environ['CL'] = '/I"{}\\include\\python{}"'.format(
+        sysroot,
+        '.'.join(python_major_minor)
+    )
     subprocess.check_call(
         [
             sys.executable,
