@@ -12,7 +12,7 @@ version = vcversioner.find_version(
 
 version = '.'.join((
     os.environ['PYQT5_VERSION'],
-    version,
+    version.version,
 ))
 
 build.main()
