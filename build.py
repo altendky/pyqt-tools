@@ -199,7 +199,11 @@ plat-name = {plat_name}'''.format(**locals()))
         ],
     )
 
-    sip_version = pip.main(['show', 'sip'])
+    sip_version = sip = next(
+        d.version
+        for d in pip.utils.get_installed_distributions()
+        if d.project_name == 'sip'
+    )
     prefix = 'Version: '
     for line in sip_version.splitlines():
         if line.startswith(prefix)
