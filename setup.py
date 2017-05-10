@@ -34,8 +34,6 @@ setuptools.setup(
     author_email='sda@fstab.net',
     license='GPLv3',
     classifiers=[
-#        '{development_status}',
-        'Development Status :: 2 - Pre-Alpha',
         'Environment :: Win32 (MS Windows)',
         'Intended Audience :: Developers',
         ("License :: OSI Approved :: "
