@@ -2,7 +2,18 @@ import os
 
 import build
 import setuptools
+import vcversioner
 
+version = vcversioner.find_version(
+        version_module_paths=['_version.py'],
+        vcs_args=['git', '--git-dir', '%(root)s/.git', 'describe',
+                     '--tags', '--long', '--abbrev=999'],
+    )
+
+version = '.'.join(
+    os.environ['PYQT5_VERSION'],
+    version,
+)
 
 build.main()
 
@@ -36,11 +47,7 @@ setuptools.setup(
     ],
     keywords='pyqt5 qt designer',
     packages=['pyqt5-tools'],
-    vcversioner={
-        'version_module_paths': ['_version.py'],
-        'vcs_args': ['git', '--git-dir', '%(root)s/.git', 'describe',
-                     '--tags', '--long', '--abbrev=999']
-    },
+    version=version,
     include_package_data=True,
 #    data_files=buildinfo.data_files()
 #    scripts=[
