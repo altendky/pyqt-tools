@@ -179,16 +179,17 @@ plat-name = {plat_name}'''.format(**locals()))
 
     platform_path = os.path.join(destination, 'platform')
     os.makedirs(platform_path)
-    shutil.copy(
-        os.path.join(
-            os.environ['QT_BASE_PATH'],
-            compiler_dir,
-            'plugins',
-            'platforms',
-            'qwindows.dll'
-        ),
-        platform_path,
-    )
+    for platform in ('minimal',):
+        shutil.copy(
+            os.path.join(
+                os.environ['QT_BASE_PATH'],
+                compiler_dir,
+                'plugins',
+                'platforms',
+                'q{}.dll'.format(platform)
+            ),
+            platform_path,
+        )
 
     sysroot = os.path.join(build, 'sysroot')
     os.makedirs(sysroot)
