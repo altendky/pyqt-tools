@@ -177,6 +177,18 @@ plat-name = {plat_name}'''.format(**locals()))
             cwd=destination,
         )
 
+    platform_path = os.path.join(destination, 'platform')
+    os.makedirs(platform_path)
+    shutil.copy(
+        os.path.join(
+            os.environ['QT_BASE_PATH'],
+            compiler_dir,
+            'plugins',
+            'platform',
+        ),
+        platform_path,
+    )
+
     sysroot = os.path.join(build, 'sysroot')
     os.makedirs(sysroot)
     nmake = os.path.join(vs_path, 'VC', 'BIN', 'nmake'),
