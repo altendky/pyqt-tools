@@ -178,7 +178,7 @@ plat-name = {plat_name}'''.format(**locals()))
         )
 
     platform_path = os.path.join(destination, 'platforms')
-    os.makedirs(platform_path)
+    os.makedirs(platform_path, exist_ok=True)
     for platform_plugin in ('minimal',):
         shutil.copy(
             os.path.join(
