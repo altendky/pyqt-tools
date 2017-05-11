@@ -184,7 +184,8 @@ plat-name = {plat_name}'''.format(**locals()))
             os.environ['QT_BASE_PATH'],
             compiler_dir,
             'plugins',
-            'platform',
+            'platforms',
+            'qwindows.dll'
         ),
         platform_path,
     )
