@@ -179,14 +179,14 @@ plat-name = {plat_name}'''.format(**locals()))
 
     platform_path = os.path.join(destination, 'platform')
     os.makedirs(platform_path)
-    for platform in ('minimal',):
+    for platform_plugin in ('minimal',):
         shutil.copy(
             os.path.join(
                 os.environ['QT_BASE_PATH'],
                 compiler_dir,
                 'plugins',
                 'platforms',
-                'q{}.dll'.format(platform)
+                'q{}.dll'.format(platform_plugin),
             ),
             platform_path,
         )
