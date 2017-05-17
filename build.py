@@ -152,15 +152,18 @@ plat-name = {plat_name}'''.format(**locals()))
         application_path = os.path.join(qt_bin_path, application)
 
         print('\n\nChecking: {}'.format(os.path.basename(application)))
-        output = subprocess.check_output(
-            [
-                windeployqt_path,
-                application_path,
-                '--dry-run',
-                '--list', 'source',
-            ],
-            cwd=destination,
-        )
+        try:
+            output = subprocess.check_output(
+                [
+                    windeployqt_path,
+                    application_path,
+                    '--dry-run',
+                    '--list', 'source',
+                ],
+                cwd=destination,
+            )
+        except subprocess.CalledProcessError:
+            continue
 
         if b'WebEngine' in output:
             print('    skipped')
