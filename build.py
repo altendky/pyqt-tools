@@ -19,7 +19,7 @@ try:
     run = subprocess.run
 except AttributeError:
     def run(*args, **kwargs):
-        return run(*args, **kwargs)
+        return subprocess.call(*args, **kwargs)
 
     subprocess.run = run
 
