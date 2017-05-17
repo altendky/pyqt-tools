@@ -9,6 +9,12 @@ environment:
     QT_BASE_PATH: c:\\Qt\\5.8
 
   matrix:
+    -  PYTHON: "C:\\Python34"
+       PYQT5_VERSION: 5.5.1
+
+    -  PYTHON: "C:\\Python34-x64"
+       PYQT5_VERSION: 5.5.1
+
     -  PYTHON: "C:\\Python36"
        PYQT5_VERSION: 5.8.2
 

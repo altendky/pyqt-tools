@@ -124,7 +124,7 @@ def main():
             'requests==2.13.0',
             'pyqtdeploy==1.3.2',
             'wheel==0.30.0a0',
-            'PyQt5=={}'.format(os.environ['PYQT5_VERSION']),
+            'PyQt5==5.8.2',
         ]
         if len(zip_repos) > 0 and not any(p.startswith('requests') for p in packages):
             packages.append('requests')
