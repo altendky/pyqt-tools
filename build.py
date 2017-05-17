@@ -159,8 +159,6 @@ plat-name = {plat_name}'''.format(**locals()))
                 '--dry-run',
                 '--list', 'source',
             ],
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
             cwd=destination,
         )
 
