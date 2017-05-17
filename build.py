@@ -15,6 +15,14 @@ import zipfile
 import requests
 
 
+try:
+    run = subprocess.run
+except AttributeError:
+    def run(*args, **kwargs):
+        return run(*args, **kwargs)
+
+    subprocess.run = run
+
 # http://stackoverflow.com/a/9728478/228539
 def list_files(startpath):
     for root, dirs, files in os.walk(startpath):
