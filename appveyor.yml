@@ -51,7 +51,7 @@ init:
 
 build_script:
   - "%PYTHON%\\python venv.py"
-  - copy "%PYTHON%\\python3.dll" "venv\\Scripts"
+  - if exist "%PYTHON%\\python3.dll" (copy "%PYTHON%\\python3.dll" "venv\\Scripts") else (copy "%PYTHON%\\DLLs\\python3.dll" "venv\\Scripts")
   # Build the compiled extension
   - "venv\\Scripts\\python setup.py bdist_wheel"
   - "copy dist\\*.whl ."
