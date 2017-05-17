@@ -103,8 +103,9 @@ def main():
     )
 
     compiler_dir = {32: 'msvc{}', 64: 'msvc{}_64'}[bits]
+    # WARNING: The compiler for Python 3.4 is actually 2010 but let's try 2013
     compiler_dir = compiler_dir.format(
-        {'34': 2010, '35': 2015, '36': 2015}[python_major_minor])
+        {'34': 2013, '35': 2015, '36': 2015}[python_major_minor])
 
     qt_bin_path = os.path.join(os.environ['QT_BASE_PATH'], compiler_dir, 'bin')
 
