@@ -15,14 +15,6 @@ import zipfile
 import requests
 
 
-try:
-    run = subprocess.run
-except AttributeError:
-    def run(*args, **kwargs):
-        return subprocess.call(*args, **kwargs)
-
-    subprocess.run = run
-
 # http://stackoverflow.com/a/9728478/228539
 def list_files(startpath):
     for root, dirs, files in os.walk(startpath):
@@ -160,7 +152,7 @@ plat-name = {plat_name}'''.format(**locals()))
         application_path = os.path.join(qt_bin_path, application)
 
         print('\n\nChecking: {}'.format(os.path.basename(application)))
-        p = subprocess.run(
+        output = subprocess.check_output(
             [
                 windeployqt_path,
                 application_path,
@@ -172,13 +164,13 @@ plat-name = {plat_name}'''.format(**locals()))
             cwd=destination,
         )
 
-        if b'WebEngine' in p.stdout:
+        if b'WebEngine' in output:
             print('    skipped')
             continue
 
         shutil.copy(application_path, destination)
 
-        windeployqt = subprocess.run(
+        subprocess.check_call(
             [
                 windeployqt_path,
                 os.path.basename(application)
