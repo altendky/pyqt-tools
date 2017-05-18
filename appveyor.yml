@@ -66,7 +66,7 @@ build_script:
   - copy "%PYTHON%\\python3.dll" "venv\\Scripts"
   # Build the compiled extension
   - "%TARGET_PYTHON%\\python -m virtualenv target_venv"
-  - if exist "%TARGET_PYTHON%\\python3.dll" (copy "%TARGET_PYTHON%\\python3.dll" "venv\\Scripts") else (copy "%TARGET_PYTHON%\\DLLs\\python3.dll" "venv\\Scripts")
+  - if exist "%TARGET_PYTHON%\\python3.dll" (copy "%TARGET_PYTHON%\\python3.dll" "target_venv\\Scripts") else (copy "%TARGET_PYTHON%\\DLLs\\python3.dll" "target_venv\\Scripts")
   - "target_venv\\Scripts\\pip install requests==2.13.0"
   - "target_venv\\Scripts\\pip install vcversioner==2.16.0.0"
   - "target_venv\\Scripts\\pip install wheel==0.30.0a0"
