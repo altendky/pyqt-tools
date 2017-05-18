@@ -240,7 +240,7 @@ plat-name = {plat_name}'''.format(**locals()))
     )
     subprocess.check_call(
         [
-            sys.executable,
+            os.path.join(venv_bin, 'python'),
             'configure.py',
             '--static',
             '--sysroot={}'.format(native),
@@ -274,7 +274,7 @@ plat-name = {plat_name}'''.format(**locals()))
     )
     subprocess.check_call(
         [
-            sys.executable,
+            os.path.join(venv_bin, 'python'),
             'configure.py',
             '--static',
             '--sysroot={}'.format(sysroot),
@@ -343,7 +343,7 @@ plat-name = {plat_name}'''.format(**locals()))
         f.write('\nDEFINES     += PYTHON_LIB=\'"\\\\\\"@PYSHLIB@\\\\\\""\'\n')
     subprocess.check_call(
         [
-            sys.executable,
+            os.path.join(venv_bin, 'python'),
             r'configure.py',
             r'--static',
             r'--sysroot={}'.format(sysroot),

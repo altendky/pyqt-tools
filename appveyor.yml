@@ -6,53 +6,54 @@ environment:
     # /E:ON and /V:ON options are not enabled in the batch script intepreter
     # See: http://stackoverflow.com/a/13751649/163740
     CMD_IN_ENV: "cmd /E:ON /V:ON /C .\\ci\\run_with_env.cmd"
+    PYTHON: "C:\\Python36"
 
   matrix:
-    -  PYTHON: "C:\\Python34"
+    -  TARGET_PYTHON: "C:\\Python34"
        PYQT5_VERSION: 5.5.1
        QT_BASE_PATH: c:\\Qt\\5.5
 
-    -  PYTHON: "C:\\Python34-x64"
+    -  TARGET_PYTHON: "C:\\Python34-x64"
        PYQT5_VERSION: 5.5.1
        QT_BASE_PATH: c:\\Qt\\5.5
 
-    -  PYTHON: "C:\\Python36"
+    -  TARGET_PYTHON: "C:\\Python36"
        PYQT5_VERSION: 5.8.2
        QT_BASE_PATH: c:\\Qt\\5.8
 
-    -  PYTHON: "C:\\Python36-x64"
+    -  TARGET_PYTHON: "C:\\Python36-x64"
        PYQT5_VERSION: 5.8.2
        QT_BASE_PATH: c:\\Qt\\5.8
 
-    -  PYTHON: "C:\\Python36"
+    -  TARGET_PYTHON: "C:\\Python36"
        PYQT5_VERSION: 5.7.1
        QT_BASE_PATH: c:\\Qt\\5.7
 
-    -  PYTHON: "C:\\Python36-x64"
+    -  TARGET_PYTHON: "C:\\Python36-x64"
        PYQT5_VERSION: 5.7.1
        QT_BASE_PATH: c:\\Qt\\5.7
 
-    -  PYTHON: "C:\\Python35"
+    -  TARGET_PYTHON: "C:\\Python35"
        PYQT5_VERSION: 5.8.2
        QT_BASE_PATH: c:\\Qt\\5.8
 
-    -  PYTHON: "C:\\Python35-x64"
+    -  TARGET_PYTHON: "C:\\Python35-x64"
        PYQT5_VERSION: 5.8.2
        QT_BASE_PATH: c:\\Qt\\5.8
 
-    -  PYTHON: "C:\\Python35"
+    -  TARGET_PYTHON: "C:\\Python35"
        PYQT5_VERSION: 5.7.1
        QT_BASE_PATH: c:\\Qt\\5.7
 
-    -  PYTHON: "C:\\Python35-x64"
+    -  TARGET_PYTHON: "C:\\Python35-x64"
        PYQT5_VERSION: 5.7.1
        QT_BASE_PATH: c:\\Qt\\5.7
 
-    -  PYTHON: "C:\\Python35"
+    -  TARGET_PYTHON: "C:\\Python35"
        PYQT5_VERSION: 5.6
        QT_BASE_PATH: c:\\Qt\\5.6
 
-    -  PYTHON: "C:\\Python35-x64"
+    -  TARGET_PYTHON: "C:\\Python35-x64"
        PYQT5_VERSION: 5.6
        QT_BASE_PATH: c:\\Qt\\5.6
 
@@ -62,9 +63,11 @@ init:
 
 build_script:
   - "%PYTHON%\\python venv.py"
-  - if exist "%PYTHON%\\python3.dll" (copy "%PYTHON%\\python3.dll" "venv\\Scripts") else (copy "%PYTHON%\\DLLs\\python3.dll" "venv\\Scripts")
+  - copy "%PYTHON%\\python3.dll" "venv\\Scripts"
   # Build the compiled extension
-  - "venv\\Scripts\\python setup.py bdist_wheel"
+  - "%TARGET_PYTHON%\\python -m virtualenv target_venv"
+  - if exist "%TARGET_PYTHON%\\python3.dll" (copy "%TARGET_PYTHON%\\python3.dll" "venv\\Scripts") else (copy "%TARGET_PYTHON%\\DLLs\\python3.dll" "venv\\Scripts")
+  - "target_venv\\Scripts\\python setup.py bdist_wheel"
   - "copy dist\\*.whl ."
 
 artifacts:
