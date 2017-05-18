@@ -215,11 +215,12 @@ plat-name = {plat_name}'''.format(**locals()))
         ],
     )
 
-    sip_version = next(
-        d.version
-        for d in pip.utils.get_installed_distributions()
-        if d.project_name == 'sip'
-    )
+    # sip_version = next(
+    #     d.version
+    #     for d in pip.utils.get_installed_distributions()
+    #     if d.project_name == 'sip'
+    # )
+    sip_version = '4.19.2'
 
     sip_name = 'sip-{}'.format(sip_version)
     r = requests.get(
