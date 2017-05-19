@@ -265,7 +265,8 @@ plat-name = {plat_name}'''.format(**locals()))
         'configure.py',
         '--static',
         '--sysroot={}'.format(native),
-        '--platform=win32-{}{}'.format(compiler_name, year)
+        '--platform=win32-{}{}'.format(compiler_name, year),
+        '--target-py-version={}'.format('.'.join(python_major_minor)),
     ]
     print('Calling: {}'.format(call))
     subprocess.check_call(
@@ -297,7 +298,6 @@ plat-name = {plat_name}'''.format(**locals()))
         '--package', 'sip',
         '--target', 'win-{}'.format(bits),
         'configure',
-        '--target-py-version={}'.format('.'.join(python_major_minor)),
     ]
     print('Calling: {}'.format(call))
     subprocess.check_call(
@@ -313,7 +313,8 @@ plat-name = {plat_name}'''.format(**locals()))
         '--no-tools',
         '--use-qmake',
         '--configuration=sip-win.cfg',
-        '--platform=win32-{}{}'.format(compiler_name, year)
+        '--platform=win32-{}{}'.format(compiler_name, year),
+        '--target-py-version={}'.format('.'.join(python_major_minor)),
     ]
     print('Calling: {}'.format(call))
     subprocess.check_call(
@@ -367,7 +368,6 @@ plat-name = {plat_name}'''.format(**locals()))
             '--package', 'pyqt5',
             '--target', 'win-{}'.format(bits),
             'configure',
-            '--target-py-version={}'.format('.'.join(python_major_minor)),
         ],
         cwd=pyqt5,
     )
@@ -403,6 +403,7 @@ plat-name = {plat_name}'''.format(**locals()))
             r'--destdir={}\pyqt5-install\dest'.format(sysroot),
             r'--designer-plugindir={}\pyqt5-install\designer'.format(sysroot),
             r'--enable=QtDesigner',
+            '--target-py-version={}'.format('.'.join(python_major_minor)),
         ],
         cwd=pyqt5,
     )
