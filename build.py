@@ -252,12 +252,18 @@ plat-name = {plat_name}'''.format(**locals()))
         sysroot,
         '.'.join(python_major_minor)
     )
+
+    year = compiler_year
+    if year == '2013':
+        year = '2010'
+
     subprocess.check_call(
         [
             os.path.join(venv_bin, 'python'),
             'configure.py',
             '--static',
             '--sysroot={}'.format(native),
+            '--platform=win32-{}{}'.format(compiler_name, year)
         ],
         cwd=native_sip,
     )
@@ -286,9 +292,7 @@ plat-name = {plat_name}'''.format(**locals()))
         ],
         cwd=sip,
     )
-    year = compiler_year
-    if year == '2013':
-        year = '2010'
+
     subprocess.check_call(
         [
             os.path.join(venv_bin, 'python'),
