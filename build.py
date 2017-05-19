@@ -105,7 +105,11 @@ def main():
     compiler_name = 'msvc'
     # WARNING: The compiler for Python 3.4 is actually 2010 but let's try 2013
     #          because that's what Qt offers
-    compiler_year = {'34': 2013, '35': 2015, '36': 2015}[python_major_minor]
+    compiler_year = {
+        '34': '2013',
+        '35': '2015',
+        '36': '2015',
+    }[python_major_minor]
     compiler_bits_string = {32: '', 64: '_64'}[bits]
 
     compiler_dir = ''.join((compiler_name, compiler_year, compiler_bits_string))
