@@ -102,10 +102,13 @@ def main():
         initial=os.environ
     )
 
-    compiler_dir = {32: 'msvc{}', 64: 'msvc{}_64'}[bits]
+    compiler_name = 'msvc'
     # WARNING: The compiler for Python 3.4 is actually 2010 but let's try 2013
-    compiler_dir = compiler_dir.format(
-        {'34': 2013, '35': 2015, '36': 2015}[python_major_minor])
+    #          because that's what Qt offers
+    compiler_year = {'34': 2013, '35': 2015, '36': 2015}[python_major_minor]
+    compiler_bits_string = {32: '', 64: '_64'}[bits]
+
+    compiler_dir = ''.join((compiler_name, compiler_year, compiler_bits_string))
 
     qt_bin_path = os.path.join(os.environ['QT_BASE_PATH'], compiler_dir, 'bin')
 
@@ -222,7 +225,7 @@ plat-name = {plat_name}'''.format(**locals()))
     #     if d.project_name == 'sip'
     # )
     sip_version = {
-        '5.5.1': '4.18.1',
+        '5.5.1': '4.17',
         '5.6': '4.19',
         '5.7.1': '4.19',
         '5.8.2': '4.19.2',
@@ -279,6 +282,9 @@ plat-name = {plat_name}'''.format(**locals()))
         ],
         cwd=sip,
     )
+    year = compiler_year
+    if year == '2013':
+        year = '2010'
     subprocess.check_call(
         [
             os.path.join(venv_bin, 'python'),
@@ -287,7 +293,8 @@ plat-name = {plat_name}'''.format(**locals()))
             '--sysroot={}'.format(sysroot),
             '--no-tools',
             '--use-qmake',
-            '--configuration=sip-win.cfg'
+            '--configuration=sip-win.cfg',
+            '--platform=win32-{}{}'.format(compiler_name, year)
         ],
         cwd=sip,
     )
