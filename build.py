@@ -215,12 +215,18 @@ plat-name = {plat_name}'''.format(**locals()))
         ],
     )
 
+    pyqt5_version = os.environ['PYQT5_VERSION']
     # sip_version = next(
     #     d.version
     #     for d in pip.utils.get_installed_distributions()
     #     if d.project_name == 'sip'
     # )
-    sip_version = '4.19.2'
+    sip_version = {
+        '5.5.1': '4.18.1',
+        '5.6': '4.19',
+        '5.7.1': '4.19',
+        '5.8.2': '4.19.2',
+    }[pyqt5_version]
 
     sip_name = 'sip-{}'.format(sip_version)
     r = requests.get(
@@ -307,7 +313,6 @@ plat-name = {plat_name}'''.format(**locals()))
         env=os.environ,
     )
 
-    pyqt5_version = os.environ['PYQT5_VERSION']
     pyqt5_name = 'PyQt5_gpl-{}'.format(pyqt5_version)
     r = requests.get(
         'http://downloads.sourceforge.net'
