@@ -86,7 +86,9 @@ def main():
         sys.version_info.major,
         sys.version_info.minor
     )
-    msvc_versions = {'34': '10', '35': '14', '36': '14'}
+    # WARNING: The compiler for Python 3.4 is actually 10 but let's try 12
+    #          because that's what Qt offers
+    msvc_versions = {'34': '12', '35': '14', '36': '14'}
     msvc_version = msvc_versions[python_major_minor]
     vs_path = os.path.join(
         'C:/', 'Program Files (x86)', 'Microsoft Visual Studio {}.0'.format(
@@ -103,11 +105,13 @@ def main():
     )
 
     compiler_name = 'msvc'
-    # WARNING: The compiler for Python 3.4 is actually 2010 but let's try 2013
-    #          because that's what Qt offers
     compiler_year = {
-        '10': '2013',
+        '9': '2008',
+        '10': '2010',
+        '11': '2012',
+        '12': '2013',
         '14': '2015',
+        '14.1': '2017',
     }[msvc_version]
     compiler_bits_string = {32: '', 64: '_64'}[bits]
 
@@ -293,6 +297,7 @@ plat-name = {plat_name}'''.format(**locals()))
         '--package', 'sip',
         '--target', 'win-{}'.format(bits),
         'configure',
+        '--target-py-version={}'.format('.'.join(python_major_minor)),
     ]
     print('Calling: {}'.format(call))
     subprocess.check_call(
@@ -362,6 +367,7 @@ plat-name = {plat_name}'''.format(**locals()))
             '--package', 'pyqt5',
             '--target', 'win-{}'.format(bits),
             'configure',
+            '--target-py-version={}'.format('.'.join(python_major_minor)),
         ],
         cwd=pyqt5,
     )
