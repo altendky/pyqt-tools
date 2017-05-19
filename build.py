@@ -86,7 +86,7 @@ def main():
         sys.version_info.major,
         sys.version_info.minor
     )
-    msvc_versions = {'34': 10, '35': 14, '36': 14}
+    msvc_versions = {'34': '10', '35': '14', '36': '14'}
     msvc_version = msvc_versions[python_major_minor]
     vs_path = os.path.join(
         'C:/', 'Program Files (x86)', 'Microsoft Visual Studio {}.0'.format(
@@ -106,10 +106,9 @@ def main():
     # WARNING: The compiler for Python 3.4 is actually 2010 but let's try 2013
     #          because that's what Qt offers
     compiler_year = {
-        '34': '2013',
-        '35': '2015',
-        '36': '2015',
-    }[python_major_minor]
+        '10': '2013',
+        '14': '2015',
+    }[msvc_version]
     compiler_bits_string = {32: '', 64: '_64'}[bits]
 
     compiler_dir = ''.join((compiler_name, compiler_year, compiler_bits_string))
@@ -257,73 +256,92 @@ plat-name = {plat_name}'''.format(**locals()))
     if year == '2013':
         year = '2010'
 
+    call = [
+        os.path.join(venv_bin, 'python'),
+        'configure.py',
+        '--static',
+        '--sysroot={}'.format(native),
+        '--platform=win32-{}{}'.format(compiler_name, year)
+    ]
+    print('Calling: {}'.format(call))
     subprocess.check_call(
-        [
-            os.path.join(venv_bin, 'python'),
-            'configure.py',
-            '--static',
-            '--sysroot={}'.format(native),
-            '--platform=win32-{}{}'.format(compiler_name, year)
-        ],
+        call,
         cwd=native_sip,
     )
+    call = [
+        nmake,
+    ]
+    print('Calling: {}'.format(call))
     subprocess.check_call(
-        [
-           nmake,
-        ],
+        call,
         cwd=native_sip,
         env=os.environ,
     )
+    call = [
+        nmake,
+        'install',
+    ]
+    print('Calling: {}'.format(call))
     subprocess.check_call(
-        [
-            nmake,
-            'install',
-        ],
+        call,
         cwd=native_sip,
         env=os.environ,
     )
 
+    call = [
+        os.path.join(venv_bin, 'pyqtdeploycli'),
+        '--package', 'sip',
+        '--target', 'win-{}'.format(bits),
+        'configure',
+    ]
+    print('Calling: {}'.format(call))
     subprocess.check_call(
-        [
-            os.path.join(venv_bin, 'pyqtdeploycli'),
-            '--package', 'sip',
-            '--target', 'win-{}'.format(bits),
-            'configure',
-        ],
+        call,
         cwd=sip,
     )
 
+    call = [
+        os.path.join(venv_bin, 'python'),
+        'configure.py',
+        '--static',
+        '--sysroot={}'.format(sysroot),
+        '--no-tools',
+        '--use-qmake',
+        '--configuration=sip-win.cfg',
+        '--platform=win32-{}{}'.format(compiler_name, year)
+    ]
+    print('Calling: {}'.format(call))
     subprocess.check_call(
-        [
-            os.path.join(venv_bin, 'python'),
-            'configure.py',
-            '--static',
-            '--sysroot={}'.format(sysroot),
-            '--no-tools',
-            '--use-qmake',
-            '--configuration=sip-win.cfg',
-            '--platform=win32-{}{}'.format(compiler_name, year)
-        ],
+        call,
         cwd=sip,
     )
+
+    call = [
+        qmake,
+    ]
+    print('Calling: {}'.format(call))
     subprocess.check_call(
-        [
-            qmake
-        ],
+        call,
         cwd=sip,
     )
+
+    call = [
+        nmake,
+    ]
+    print('Calling: {}'.format(call))
     subprocess.check_call(
-        [
-            nmake,
-        ],
+        call,
         cwd=sip,
         env=os.environ,
     )
+
+    call = [
+        nmake,
+        'install',
+    ]
+    print('Calling: {}'.format(call))
     subprocess.check_call(
-        [
-            nmake,
-            'install',
-        ],
+        call,
         cwd=sip,
         env=os.environ,
     )
