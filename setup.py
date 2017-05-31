@@ -15,6 +15,8 @@ version = '.'.join((
     version.version,
 ))
 
+sys.stderr.write('another stderr test from {}\n'.format(__file__))
+
 build.main()
 
 long_description = '''
