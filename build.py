@@ -423,6 +423,7 @@ plat-name = {plat_name}'''.format(**locals()))
         ],
         cwd=pyqt5,
     )
+    sys.stderr.write('another stderr test\n')
     subprocess.check_call(
         [
             nmake,
@@ -430,7 +431,6 @@ plat-name = {plat_name}'''.format(**locals()))
         cwd=pyqt5,
         env=os.environ,
     )
-    sys.stderr.write('another stderr test\n')
     subprocess.check_call(
         [
             nmake,
