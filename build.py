@@ -415,6 +415,7 @@ plat-name = {plat_name}'''.format(**locals()))
     subprocess.check_call(
         command,
         cwd=pyqt5,
+        env=os.environ,
     )
     subprocess.check_call(
         [
