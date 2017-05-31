@@ -118,6 +118,7 @@ def main():
     compiler_dir = ''.join((compiler_name, compiler_year, compiler_bits_string))
 
     qt_bin_path = os.path.join(os.environ['QT_BASE_PATH'], compiler_dir, 'bin')
+    os.environ['PATH'] = os.pathsep.join((os.environ['PATH'], qt_bin_path))
 
     with open('setup.cfg', 'w') as cfg:
         plat_names = {
@@ -390,25 +391,29 @@ plat-name = {plat_name}'''.format(**locals()))
     designer_pro = os.path.join(pyqt5, 'designer', 'designer.pro-in')
     with open(designer_pro, 'a') as f:
         f.write('\nDEFINES     += PYTHON_LIB=\'"\\\\\\"@PYSHLIB@\\\\\\""\'\n')
+    command = [
+        os.path.join(venv_bin, 'python'),
+        r'configure.py',
+        r'--static',
+        r'--sysroot={}'.format(sysroot),
+        r'--no-tools',
+        r'--no-qsci-api',
+        r'--no-qml-plugin',
+        r'--configuration={}'.format(pyqt5_cfg),
+        r'--confirm-license',
+        r'--sip={}\sip.exe'.format(native),
+        r'--bindir={}\pyqt5-install\bin'.format(sysroot),
+        r'--destdir={}\pyqt5-install\dest'.format(sysroot),
+        r'--designer-plugindir={}\pyqt5-install\designer'.format(sysroot),
+        r'--enable=QtDesigner',
+        '--target-py-version={}'.format('.'.join(python_major_minor)),
+    ]
+
+    if tuple(int(x) for x in pyqt5_version.split('.')) >= (5, 6):
+        command.append(r'--qmake={}'.format(qmake))
+
     subprocess.check_call(
-        [
-            os.path.join(venv_bin, 'python'),
-            r'configure.py',
-            r'--static',
-            r'--sysroot={}'.format(sysroot),
-            r'--no-tools',
-            r'--no-qsci-api',
-            r'--no-qml-plugin',
-            r'--configuration={}'.format(pyqt5_cfg),
-            r'--qmake={}'.format(qmake),
-            r'--confirm-license',
-            r'--sip={}\sip.exe'.format(native),
-            r'--bindir={}\pyqt5-install\bin'.format(sysroot),
-            r'--destdir={}\pyqt5-install\dest'.format(sysroot),
-            r'--designer-plugindir={}\pyqt5-install\designer'.format(sysroot),
-            r'--enable=QtDesigner',
-            '--target-py-version={}'.format('.'.join(python_major_minor)),
-        ],
+        command,
         cwd=pyqt5,
     )
     subprocess.check_call(
