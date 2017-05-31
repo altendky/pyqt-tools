@@ -1,4 +1,4 @@
 import sys
 
 
-sys.stderr.write('testing standard error')
+sys.stderr.write('testing standard error\n')
