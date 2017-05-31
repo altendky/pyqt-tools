@@ -352,7 +352,11 @@ plat-name = {plat_name}'''.format(**locals()))
         env=os.environ,
     )
 
-    pyqt5_name = 'PyQt5_gpl-{}'.format(pyqt5_version)
+    if pyqt5_version.split('.') >= (5, 6):
+        pyqt5_name = 'PyQt5_gpl-{}'.format(pyqt5_version)
+    else:
+        pyqt5_name = 'PyQt-gpl-{}'.format(pyqt5_version)
+
     r = requests.get(
         'http://downloads.sourceforge.net'
         '/project/pyqt/PyQt5/PyQt-{}/{}.zip'.format(
