@@ -452,10 +452,15 @@ plat-name = {plat_name}'''.format(**locals()))
     redist_path = os.path.join(
         vs_path, 'VC', 'redist', plat, 'Microsoft.VC{}0.CRT'.format(msvc_version)
     )
+
     redist_files = [
         'msvcp{}0.dll'.format(msvc_version),
-        'vcruntime{}0.dll'.format(msvc_version),
     ]
+    if int(msvc_version) >= 14:
+        redist_files.append('vcruntime{}0.dll'.format(msvc_version))
+    else:
+        redist_files.append('msvcr{}0.dll'.format(msvc_version))
+
     for file in redist_files:
         dest = os.path.join(destination, file)
         shutil.copyfile(os.path.join(redist_path, file), dest)
