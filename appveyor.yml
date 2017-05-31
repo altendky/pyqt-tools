@@ -69,8 +69,8 @@ init:
   - ps: if (Get-ChildItem Env:ENABLE_RDP -ErrorAction SilentlyContinue) {iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))} else {echo RDP not enabled}
 
 build_script:
-  - "%PYTHON%\\python venv.py"
-  - copy "%PYTHON%\\python3.dll" "venv\\Scripts"
+  - "%PYTHON%%PYTHON_SUFFIX%\\python venv.py"
+  - copy "%PYTHON%%PYTHON_SUFFIX%\\python3.dll" "venv\\Scripts"
   # Build the compiled extension
   - "%TARGET_PYTHON%\\python stderr.py"
   - "%TARGET_PYTHON%\\python -m virtualenv target_venv"
