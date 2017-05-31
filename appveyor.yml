@@ -7,9 +7,11 @@ environment:
     # See: http://stackoverflow.com/a/13751649/163740
     CMD_IN_ENV: "cmd /E:ON /V:ON /C .\\ci\\run_with_env.cmd"
     PYTHON: "C:\\Python36"
+    PYTHON_SUFFIX: ""
 
   matrix:
     -  TARGET_PYTHON: "C:\\Python34-x64"
+       PYTHON_SUFFIX: "-x64"
        PYQT5_VERSION: 5.5.1
        QT_BASE_PATH: c:\\Qt\\5.5
 
@@ -22,6 +24,7 @@ environment:
        QT_BASE_PATH: c:\\Qt\\5.8
 
     -  TARGET_PYTHON: "C:\\Python36-x64"
+       PYTHON_SUFFIX: "-x64"
        PYQT5_VERSION: 5.8.2
        QT_BASE_PATH: c:\\Qt\\5.8
 
@@ -30,6 +33,7 @@ environment:
        QT_BASE_PATH: c:\\Qt\\5.7
 
     -  TARGET_PYTHON: "C:\\Python36-x64"
+       PYTHON_SUFFIX: "-x64"
        PYQT5_VERSION: 5.7.1
        QT_BASE_PATH: c:\\Qt\\5.7
 
@@ -38,6 +42,7 @@ environment:
        QT_BASE_PATH: c:\\Qt\\5.8
 
     -  TARGET_PYTHON: "C:\\Python35-x64"
+       PYTHON_SUFFIX: "-x64"
        PYQT5_VERSION: 5.8.2
        QT_BASE_PATH: c:\\Qt\\5.8
 
@@ -46,6 +51,7 @@ environment:
        QT_BASE_PATH: c:\\Qt\\5.7
 
     -  TARGET_PYTHON: "C:\\Python35-x64"
+       PYTHON_SUFFIX: "-x64"
        PYQT5_VERSION: 5.7.1
        QT_BASE_PATH: c:\\Qt\\5.7
 
@@ -54,6 +60,7 @@ environment:
        QT_BASE_PATH: c:\\Qt\\5.6
 
     -  TARGET_PYTHON: "C:\\Python35-x64"
+       PYTHON_SUFFIX: "-x64"
        PYQT5_VERSION: 5.6
        QT_BASE_PATH: c:\\Qt\\5.6
 
