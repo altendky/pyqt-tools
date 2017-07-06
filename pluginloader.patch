@@ -1,6 +1,6 @@
 --- pluginloader.cpp	2017-07-06 10:17:19.373575300 -0700
 +++ pluginloader.cpp	2017-07-06 11:06:16.320507700 -0700
-@@ -37,6 +37,178 @@
+@@ -37,6 +37,181 @@
  #include "../qpy/QtDesigner/qpydesignercustomwidgetplugin.h"
  
  
@@ -11,6 +11,8 @@
 +import traceback\
 +\
 +from PyQt5 import QtCore, QtWidgets\
++\
++QtCore.qDebug('Importing module for exception dialogs')\
 +\
 +def exception_message_box(excType=None, excValue=None, tracebackobj=None):\
 +    message = traceback.format_exception(excType, excValue, tracebackobj)\
@@ -172,6 +174,7 @@
 +\
 +    return box.exec()\
 +\
++QtCore.qDebug('Setting sys.excepthook to provide dialog')\
 +sys.excepthook = exception_message_box\
 +";
 +
@@ -179,7 +182,7 @@
  // Construct the collection of Python widgets.
  PyCustomWidgets::PyCustomWidgets(QObject *parent) : QObject(parent),
          sys_path(0), sip_unwrapinstance(0), qtdesigner_custom(0)
-@@ -134,6 +306,22 @@
+@@ -134,6 +309,22 @@
          PyGILState_STATE gil_state = PyGILState_Ensure();
  #endif
  
