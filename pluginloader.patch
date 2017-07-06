@@ -194,7 +194,7 @@
          PyGILState_STATE gil_state = PyGILState_Ensure();
  #endif
  
-+        qDebug << 'Preparing to import module\n';
++        qDebug() << 'Preparing to import module\n';
 +
 +        // https://stackoverflow.com/a/42853449/228539
 +        PyObject *pyModule = PyModule_New(moduleName);
@@ -204,7 +204,7 @@
 +        PyObject *builtins = PyEval_GetBuiltins();  // Returns a borrowed reference: no need to Py_DECREF() it once we are done
 +        PyDict_SetItemString(localDict, "__builtins__", builtins);
 +
-+        qDebug << 'About to import module\n';
++        qDebug() << 'About to import module\n';
 +
 +        // Define code in the newly created module
 +        PyObject *pyValue = PyRun_String(moduleCode, Py_file_input, localDict, localDict);
@@ -217,7 +217,7 @@
 +            Py_DECREF(pyValue);
 +        }
 +
-+        qDebug << 'Done to importing module\n';
++        qDebug() << 'Done to importing module\n';
 +
          bool fatal = importPlugins(dir, plugins);
  
