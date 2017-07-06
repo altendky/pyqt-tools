@@ -366,7 +366,19 @@ plat-name = {plat_name}'''.format(**locals()))
     )
     z = zipfile.ZipFile(io.BytesIO(r.content))
     z.extractall(path=src)
+
     pyqt5 = os.path.join(src, pyqt5_name)
+
+    call = [
+        'patch',
+        os.path.join(pyqt5, 'designer', 'pluginloader.cpp'),
+        'pluginloader.patch',
+    ]
+    print('Calling: {}'.format(call))
+    subprocess.check_call(
+        call,
+    )
+
     subprocess.check_call(
         [
             os.path.join(venv_bin, 'pyqtdeploycli'),
