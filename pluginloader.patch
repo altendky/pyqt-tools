@@ -1,197 +1,197 @@
---- PyQt5_gpl-5.9/PyQt5_gpl-5.9/designer/pluginloader.cpp	2017-07-06 10:17:19.373575300 -0700
-+++ pluginloader.cpp	2017-07-06 10:20:54.830283500 -0700
+--- pluginloader.cpp	2017-07-06 10:17:19.373575300 -0700
++++ pluginloader.cpp	2017-07-06 11:06:16.320507700 -0700
 @@ -37,6 +37,196 @@
  #include "../qpy/QtDesigner/qpydesignercustomwidgetplugin.h"
  
  
-+const char * moduleName = "exceptiondialog"
-+const char * moduleCode = "
-+import functools
-+import sys
-+import traceback
-+
-+from PyQt5 import QtCore, QtWidgets, QtGui
-+
-+def exception_message_box(excType=None, excValue=None, tracebackobj=None):
-+    message = ''.join(traceback.format_exception(tracebackobj))
-+
-+    dialog(
-+        parent=parent,
-+        title='Exception',
-+        message=complete,
-+        icon=QtWidgets.QMessageBox.Critical,
-+    )
-+
-+sys.excepthook = exception_message_box
-+
-+# http://stackoverflow.com/a/35902894/228539
-+def message_handler(mode, context, message):
-+    mode_strings = {
-+        QtCore.QtInfoMsg: 'INFO',
-+        QtCore.QtWarningMsg: 'WARNING',
-+        QtCore.QtCriticalMsg: 'CRITICAL',
-+        QtCore.QtFatalMsg: 'FATAL'
-+    }
-+
-+    mode = mode_strings.get(mode, 'DEBUG')
-+
-+    print('qt_message_handler: f:{file} l:{line} f():{function}'.format(
-+        file=context.file,
-+        line=context.line,
-+        function=context.function
-+    ))
-+    print('  {}: {}\n'.format(mode, message))
-+
-+
-+class FittedTextBrowser(QtWidgets.QTextBrowser):
-+    def sizeHint(self):
-+        default = super().sizeHint()
-+
-+        if not default.isValid():
-+            return default
-+
-+        document_size = self.document().size()
-+
-+        desktops = QtWidgets.QApplication.desktop()
-+        screen_number = desktops.screenNumber(self.parent())
-+        geometry = desktops.screenGeometry(screen_number)
-+
-+        if document_size.width() == 0:
-+            document_size.setWidth(geometry.width() * 0.25)
-+        if document_size.height() == 0:
-+            document_size.setHeight(geometry.height() * 0.4)
-+
-+        scrollbar_width = QtWidgets.QApplication.style().pixelMetric(
-+            QtWidgets.QStyle.PM_ScrollBarExtent
-+        )
-+
-+        width = sum((
-+            document_size.width(),
-+            self.contentsMargins().left(),
-+            self.contentsMargins().right(),
-+            scrollbar_width,
-+        ))
-+
-+        height = sum((
-+            document_size.height(),
-+            self.contentsMargins().top(),
-+            self.contentsMargins().bottom(),
-+            scrollbar_width,
-+        ))
-+
-+        return QtCore.QSize(width, height)
-+
-+
-+class DialogUi:
-+    def __init__(self, parent):
-+        self.layout = QtWidgets.QGridLayout(parent)
-+        self.icon = QtWidgets.QLabel(parent)
-+        self.message = FittedTextBrowser(parent)
-+        self.copy = QtWidgets.QPushButton(parent)
-+        self.buttons = QtWidgets.QDialogButtonBox(parent)
-+
-+        self.copy.setText('Copy To Clipboard')
-+
-+        self.layout.addWidget(self.icon, 0, 0)
-+        self.layout.addWidget(self.message, 0, 1, 1, 2)
-+        self.layout.addWidget(self.copy, 1, 1)
-+        self.layout.addWidget(self.buttons, 1, 2)
-+
-+        self.layout.setAlignment(self.copy, QtCore.Qt.AlignLeft)
-+
-+        self.layout.setRowStretch(0, 1)
-+        self.layout.setColumnStretch(1, 1)
-+
-+
-+class Dialog(QtWidgets.QDialog):
-+    def __init__(self, *args, cancellable=False, **kwargs):
-+        super().__init__(*args, **kwargs)
-+
-+        self.ui = DialogUi(parent=self)
-+
-+        self.ui.buttons.accepted.connect(self.accept)
-+        self.ui.buttons.rejected.connect(self.reject)
-+
-+        self.ui.copy.clicked.connect(self.copy)
-+
-+        self.setLayout(self.ui.layout)
-+        buttons = QtWidgets.QDialogButtonBox.Ok
-+        if cancellable:
-+            buttons |= QtWidgets.QDialogButtonBox.Cancel
-+
-+        self.ui.buttons.setStandardButtons(buttons)
-+
-+        self.text = None
-+        self.html = None
-+
-+        self.cached_maximum_size = self.maximumSize()
-+
-+        desktops = QtWidgets.QApplication.desktop()
-+        screen_number = desktops.screenNumber(self.parent())
-+        geometry = desktops.screenGeometry(screen_number)
-+
-+        self.setMaximumHeight(geometry.height() * 0.7)
-+        self.setMaximumWidth(geometry.width() * 0.7)
-+
-+    def copy(self):
-+        QtWidgets.QApplication.clipboard().setText(
-+            self.ui.message.toPlainText() + '\\n'
-+        )
-+
-+    def set_text(self, text):
-+        self.ui.message.setPlainText(text)
-+
-+        self.html = None
-+        self.text = text
-+
-+        self.ui.message.setLineWrapMode(QtWidgets.QTextEdit.NoWrap)
-+
-+    def set_html(self, html):
-+        self.ui.message.setHtml(html)
-+
-+        self.html = html
-+        self.text = None
-+
-+        self.ui.message.setLineWrapMode(QtWidgets.QTextEdit.WidgetWidth)
-+
-+    def set_message_box_icon(self, icon):
-+        self.ui.icon.setPixmap(QtWidgets.QMessageBox.standardIcon(icon))
-+
-+    def exec(self):
-+        QtCore.QTimer.singleShot(10, functools.partial(
-+                self.setMaximumSize,
-+                self.cached_maximum_size,
-+        ))
-+
-+        return super().exec()
-+
-+
-+def dialog(parent, message, title=None, icon=None,
-+           rich_text=False, cancellable=False):
-+    box = Dialog(parent=parent, cancellable=cancellable)
-+
-+    if rich_text:
-+        box.set_html(message)
-+    else:
-+        box.set_text(message)
-+
-+    if icon is not None:
-+        box.set_message_box_icon(icon)
-+
-+    if title is not None:
-+        parent_title = QtWidgets.QApplication.instance().applicationName()
-+
-+        if len(parent_title) > 0:
-+            title = ' - '.join((
-+                parent_title,
-+                title,
-+            ))
-+
-+
-+        box.setWindowTitle(title)
-+
-+    return box.exec()
-+"
++const char * moduleName = "exceptiondialog";
++const char * moduleCode = "\
++import functools\
++import sys\
++import traceback\
++\
++from PyQt5 import QtCore, QtWidgets, QtGui\
++\
++def exception_message_box(excType=None, excValue=None, tracebackobj=None):\
++    message = ''.join(traceback.format_exception(tracebackobj))\
++\
++    dialog(\
++        parent=parent,\
++        title='Exception',\
++        message=complete,\
++        icon=QtWidgets.QMessageBox.Critical,\
++    )\
++\
++sys.excepthook = exception_message_box\
++\
++# http://stackoverflow.com/a/35902894/228539\
++def message_handler(mode, context, message):\
++    mode_strings = {\
++        QtCore.QtInfoMsg: 'INFO',\
++        QtCore.QtWarningMsg: 'WARNING',\
++        QtCore.QtCriticalMsg: 'CRITICAL',\
++        QtCore.QtFatalMsg: 'FATAL'\
++    }\
++\
++    mode = mode_strings.get(mode, 'DEBUG')\
++\
++    print('qt_message_handler: f:{file} l:{line} f():{function}'.format(\
++        file=context.file,\
++        line=context.line,\
++        function=context.function\
++    ))\
++    print('  {}: {}\n'.format(mode, message))\
++\
++\
++class FittedTextBrowser(QtWidgets.QTextBrowser):\
++    def sizeHint(self):\
++        default = super().sizeHint()\
++\
++        if not default.isValid():\
++            return default\
++\
++        document_size = self.document().size()\
++\
++        desktops = QtWidgets.QApplication.desktop()\
++        screen_number = desktops.screenNumber(self.parent())\
++        geometry = desktops.screenGeometry(screen_number)\
++\
++        if document_size.width() == 0:\
++            document_size.setWidth(geometry.width() * 0.25)\
++        if document_size.height() == 0:\
++            document_size.setHeight(geometry.height() * 0.4)\
++\
++        scrollbar_width = QtWidgets.QApplication.style().pixelMetric(\
++            QtWidgets.QStyle.PM_ScrollBarExtent\
++        )\
++\
++        width = sum((\
++            document_size.width(),\
++            self.contentsMargins().left(),\
++            self.contentsMargins().right(),\
++            scrollbar_width,\
++        ))\
++\
++        height = sum((\
++            document_size.height(),\
++            self.contentsMargins().top(),\
++            self.contentsMargins().bottom(),\
++            scrollbar_width,\
++        ))\
++\
++        return QtCore.QSize(width, height)\
++\
++\
++class DialogUi:\
++    def __init__(self, parent):\
++        self.layout = QtWidgets.QGridLayout(parent)\
++        self.icon = QtWidgets.QLabel(parent)\
++        self.message = FittedTextBrowser(parent)\
++        self.copy = QtWidgets.QPushButton(parent)\
++        self.buttons = QtWidgets.QDialogButtonBox(parent)\
++\
++        self.copy.setText('Copy To Clipboard')\
++\
++        self.layout.addWidget(self.icon, 0, 0)\
++        self.layout.addWidget(self.message, 0, 1, 1, 2)\
++        self.layout.addWidget(self.copy, 1, 1)\
++        self.layout.addWidget(self.buttons, 1, 2)\
++\
++        self.layout.setAlignment(self.copy, QtCore.Qt.AlignLeft)\
++\
++        self.layout.setRowStretch(0, 1)\
++        self.layout.setColumnStretch(1, 1)\
++\
++\
++class Dialog(QtWidgets.QDialog):\
++    def __init__(self, *args, cancellable=False, **kwargs):\
++        super().__init__(*args, **kwargs)\
++\
++        self.ui = DialogUi(parent=self)\
++\
++        self.ui.buttons.accepted.connect(self.accept)\
++        self.ui.buttons.rejected.connect(self.reject)\
++\
++        self.ui.copy.clicked.connect(self.copy)\
++\
++        self.setLayout(self.ui.layout)\
++        buttons = QtWidgets.QDialogButtonBox.Ok\
++        if cancellable:\
++            buttons |= QtWidgets.QDialogButtonBox.Cancel\
++\
++        self.ui.buttons.setStandardButtons(buttons)\
++\
++        self.text = None\
++        self.html = None\
++\
++        self.cached_maximum_size = self.maximumSize()\
++\
++        desktops = QtWidgets.QApplication.desktop()\
++        screen_number = desktops.screenNumber(self.parent())\
++        geometry = desktops.screenGeometry(screen_number)\
++\
++        self.setMaximumHeight(geometry.height() * 0.7)\
++        self.setMaximumWidth(geometry.width() * 0.7)\
++\
++    def copy(self):\
++        QtWidgets.QApplication.clipboard().setText(\
++            self.ui.message.toPlainText() + '\\n'\
++        )\
++\
++    def set_text(self, text):\
++        self.ui.message.setPlainText(text)\
++\
++        self.html = None\
++        self.text = text\
++\
++        self.ui.message.setLineWrapMode(QtWidgets.QTextEdit.NoWrap)\
++\
++    def set_html(self, html):\
++        self.ui.message.setHtml(html)\
++\
++        self.html = html\
++        self.text = None\
++\
++        self.ui.message.setLineWrapMode(QtWidgets.QTextEdit.WidgetWidth)\
++\
++    def set_message_box_icon(self, icon):\
++        self.ui.icon.setPixmap(QtWidgets.QMessageBox.standardIcon(icon))\
++\
++    def exec(self):\
++        QtCore.QTimer.singleShot(10, functools.partial(\
++                self.setMaximumSize,\
++                self.cached_maximum_size,\
++        ))\
++\
++        return super().exec()\
++\
++\
++def dialog(parent, message, title=None, icon=None,\
++           rich_text=False, cancellable=False):\
++    box = Dialog(parent=parent, cancellable=cancellable)\
++\
++    if rich_text:\
++        box.set_html(message)\
++    else:\
++        box.set_text(message)\
++\
++    if icon is not None:\
++        box.set_message_box_icon(icon)\
++\
++    if title is not None:\
++        parent_title = QtWidgets.QApplication.instance().applicationName()\
++\
++        if len(parent_title) > 0:\
++            title = ' - '.join((\
++                parent_title,\
++                title,\
++            ))\
++\
++\
++        box.setWindowTitle(title)\
++\
++    return box.exec()\
++";
 +
 +
  // Construct the collection of Python widgets.
@@ -210,7 +210,7 @@
 +        PyDict_SetItemString(localDict, "__builtins__", builtins);
 +
 +        // Define code in the newly created module
-+        PyObject *pyValue = PyRun_String(MyModuleCode, Py_file_input, localDict, localDict);
++        PyObject *pyValue = PyRun_String(moduleCode, Py_file_input, localDict, localDict);
 +        if (pyValue == NULL) {
 +            // Handle error
 +        }
