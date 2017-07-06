@@ -1,6 +1,6 @@
 --- pluginloader.cpp	2017-07-06 10:17:19.373575300 -0700
 +++ pluginloader.cpp	2017-07-06 11:06:16.320507700 -0700
-@@ -37,6 +37,196 @@
+@@ -37,6 +37,178 @@
  #include "../qpy/QtDesigner/qpydesignercustomwidgetplugin.h"
  
  
@@ -10,10 +10,11 @@
 +import sys\
 +import traceback\
 +\
-+from PyQt5 import QtCore, QtWidgets, QtGui\
++from PyQt5 import QtCore, QtWidgets\
 +\
 +def exception_message_box(excType=None, excValue=None, tracebackobj=None):\
-+    message = ''.join(traceback.format_exception(tracebackobj))\
++    message = traceback.format_exception(excType, excValue, tracebackobj)\
++    message = ''.join(message)\
 +\
 +    dialog(\
 +        parent=None,\
@@ -21,25 +22,6 @@
 +        message=message,\
 +        icon=QtWidgets.QMessageBox.Critical,\
 +    )\
-+\
-+# http://stackoverflow.com/a/35902894/228539\
-+def message_handler(mode, context, message):\
-+    mode_strings = {\
-+        QtCore.QtInfoMsg: 'INFO',\
-+        QtCore.QtWarningMsg: 'WARNING',\
-+        QtCore.QtCriticalMsg: 'CRITICAL',\
-+        QtCore.QtFatalMsg: 'FATAL'\
-+    }\
-+\
-+    mode = mode_strings.get(mode, 'DEBUG')\
-+\
-+    print('qt_message_handler: f:{file} l:{line} f():{function}'.format(\
-+        file=context.file,\
-+        line=context.line,\
-+        function=context.function\
-+    ))\
-+    print('  {}: {}\n'.format(mode, message))\
-+\
 +\
 +class FittedTextBrowser(QtWidgets.QTextBrowser):\
 +    def sizeHint(self):\
@@ -197,7 +179,7 @@
  // Construct the collection of Python widgets.
  PyCustomWidgets::PyCustomWidgets(QObject *parent) : QObject(parent),
          sys_path(0), sip_unwrapinstance(0), qtdesigner_custom(0)
-@@ -134,6 +324,22 @@
+@@ -134,6 +306,22 @@
          PyGILState_STATE gil_state = PyGILState_Ensure();
  #endif
  
