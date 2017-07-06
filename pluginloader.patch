@@ -1,6 +1,14 @@
 --- pluginloader.cpp	2017-07-06 10:17:19.373575300 -0700
 +++ pluginloader.cpp	2017-07-06 11:06:16.320507700 -0700
-@@ -37,6 +37,181 @@
+@@ -25,6 +25,7 @@
+ 
+ #include <stdlib.h>
+ 
++#include <QDebug>
+ #include <QtGlobal>
+ #include <QtPlugin>
+ #include <QCoreApplication>
+@@ -37,6 +38,181 @@
  #include "../qpy/QtDesigner/qpydesignercustomwidgetplugin.h"
  
  
@@ -182,10 +190,12 @@
  // Construct the collection of Python widgets.
  PyCustomWidgets::PyCustomWidgets(QObject *parent) : QObject(parent),
          sys_path(0), sip_unwrapinstance(0), qtdesigner_custom(0)
-@@ -134,6 +309,22 @@
+@@ -134,6 +310,28 @@
          PyGILState_STATE gil_state = PyGILState_Ensure();
  #endif
  
++        qDebug << 'Preparing to import module';
++
 +        // https://stackoverflow.com/a/42853449/228539
 +        PyObject *pyModule = PyModule_New(moduleName);
 +        // Set properties on the new module object
@@ -194,6 +204,8 @@
 +        PyObject *builtins = PyEval_GetBuiltins();  // Returns a borrowed reference: no need to Py_DECREF() it once we are done
 +        PyDict_SetItemString(localDict, "__builtins__", builtins);
 +
++        qDebug << 'About to import module';
++
 +        // Define code in the newly created module
 +        PyObject *pyValue = PyRun_String(moduleCode, Py_file_input, localDict, localDict);
 +        if (pyValue == NULL) {
@@ -201,6 +213,8 @@
 +        }
 +        else
 +            Py_DECREF(pyValue);
++
++        qDebug << 'Done to importing module';
 +
          bool fatal = importPlugins(dir, plugins);
  
