@@ -16,13 +16,11 @@
 +    message = ''.join(traceback.format_exception(tracebackobj))\
 +\
 +    dialog(\
-+        parent=parent,\
++        parent=None,\
 +        title='Exception',\
-+        message=complete,\
++        message=message,\
 +        icon=QtWidgets.QMessageBox.Critical,\
 +    )\
-+\
-+sys.excepthook = exception_message_box\
 +\
 +# http://stackoverflow.com/a/35902894/228539\
 +def message_handler(mode, context, message):\
@@ -191,6 +189,8 @@
 +        box.setWindowTitle(title)\
 +\
 +    return box.exec()\
++\
++sys.excepthook = exception_message_box\
 +";
 +
 +
