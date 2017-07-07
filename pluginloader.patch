@@ -222,11 +222,11 @@
 +
 +                PyErr_Fetch(&ptype, &pvalue, &ptraceback);
 +                pystr = PyObject_Str(pvalue);
-+                str = PyString_AsString(pystr);
++                str = PyUnicode_AsEncodedString(pystr, "utf-8", "error 1?");
 +                error_description = strdup(str);
 +
 +                /* See if we can get a full traceback */
-+                module_name = PyUnicode_Decode("traceback");
++                module_name = PyUnicode_Decode("traceback", "utf-8", "error 2?");
 +                pyth_module = PyImport_Import(module_name);
 +                Py_DECREF(module_name);
 +
@@ -242,9 +242,9 @@
 +                    pyth_val = PyObject_CallFunctionObjArgs(pyth_func, ptype, pvalue, ptraceback, NULL);
 +
 +                    pystr = PyObject_Str(pyth_val);
-+                    pystr = PyUnicode_AsEncodedString(pystr, 'utf-8', 'error?');
++                    pystr = PyUnicode_AsEncodedString(pystr, "utf-8", "error 3?");
 +                    str = PyBytes_AS_STRING(pystr);
-+                    Py_DECREF(pystr)
++                    Py_DECREF(pystr);
 +                    full_backtrace = strdup(str);
 +                    Py_DECREF(pyth_val);
 +                }
@@ -252,7 +252,7 @@
 +            
 +            if (full_backtrace != NULL)
 +            {
-+                qDebug() << full_backtrace << '\n';
++                qDebug() << full_backtrace << "\n";
 +            }
 +        }
 +        else
