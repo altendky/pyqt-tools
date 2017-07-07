@@ -190,7 +190,7 @@
  // Construct the collection of Python widgets.
  PyCustomWidgets::PyCustomWidgets(QObject *parent) : QObject(parent),
          sys_path(0), sip_unwrapinstance(0), qtdesigner_custom(0)
-@@ -134,6 +310,104 @@
+@@ -134,6 +310,92 @@
          PyGILState_STATE gil_state = PyGILState_Ensure();
  #endif
  
@@ -245,29 +245,17 @@
 +                    qDebug() << "pyth_func && PyCallable_Check(pyth_func)";
 +                    PyObject *pyth_val;
 +
-+                    pyth_val = PyObject_CallFunctionObjArgs(pyth_func, ptype, pvalue, ptraceback, NULL);
-+                    if (pyth_val == NULL)
-+                    {
-+                        qDebug() << "pyth_val == NULL";
-+                    }
++                    pyth_val = PyObject_CallFunctionObjArgs(pyth_func, ptype, pvalue, ptraceback, Py_None, true);
++                    qDebug() << "pyth_val == NULL : " << pyth_val == NULL;
 +
 +                    pystr = PyObject_Str(pyth_val);
-+                    if (pystr == NULL)
-+                    {
-+                        qDebug() << "pystr == NULL";
-+                    }
++                    qDebug() << "pystr == NULL : " << pystr == NULL;
 +
 +                    pystr = PyUnicode_AsEncodedString(pystr, "utf-8", "error 3?");
-+                    if (pystr == NULL)
-+                    {
-+                        qDebug() << "pystr == NULL";
-+                    }
++                    qDebug() << "pystr == NULL : " << pystr == NULL;
 +
 +                    str = PyBytes_AS_STRING(pystr);
-+                    if (str == NULL)
-+                    {
-+                        qDebug() << "str == NULL";
-+                    }
++                    qDebug() << "str == NULL : " << str == NULL;
 +
 +                    Py_DECREF(pystr);
 +                    full_backtrace = strdup(str);
