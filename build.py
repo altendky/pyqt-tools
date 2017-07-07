@@ -80,6 +80,11 @@ def get_environment_from_batch_command(env_cmd, initial=None):
     return result
 
 
+def report_and_check_call(command, *args, **kwargs):
+    print('\nCalling: {}'.format(command))
+    subprocess.check_call(command, *args, **kwargs)
+
+
 def main():
     bits = int(platform.architecture()[0][0:2])
     python_major_minor = '{}{}'.format(
@@ -182,10 +187,10 @@ plat-name = {plat_name}'''.format(**locals()))
 
         shutil.copy(application_path, destination)
 
-        subprocess.check_call(
-            [
+        report_and_check_call(
+            command=[
                 windeployqt_path,
-                os.path.basename(application)
+                os.path.basename(application),
             ],
             cwd=destination,
         )
@@ -216,8 +221,8 @@ plat-name = {plat_name}'''.format(**locals()))
     native = os.path.join(sysroot, 'native')
     os.makedirs(native)
 
-    subprocess.check_call(
-        [
+    report_and_check_call(
+        command=[
             os.path.join(venv_bin, 'pyqtdeploycli'),
             '--sysroot', sysroot,
             '--package', 'python',
@@ -261,94 +266,78 @@ plat-name = {plat_name}'''.format(**locals()))
     if year == '2013':
         year = '2010'
 
-    call = [
-        os.path.join(venv_bin, 'python'),
-        'configure.py',
-        '--static',
-        '--sysroot={}'.format(native),
-        '--platform=win32-{}{}'.format(compiler_name, year),
-        '--target-py-version={}'.format('.'.join(python_major_minor)),
-    ]
-    print('Calling: {}'.format(call))
-    subprocess.check_call(
-        call,
+    report_and_check_call(
+        command=[
+            os.path.join(venv_bin, 'python'),
+            'configure.py',
+            '--static',
+            '--sysroot={}'.format(native),
+            '--platform=win32-{}{}'.format(compiler_name, year),
+            '--target-py-version={}'.format('.'.join(python_major_minor)),
+        ],
         cwd=native_sip,
     )
-    call = [
-        nmake,
-    ]
-    print('Calling: {}'.format(call))
-    subprocess.check_call(
-        call,
+    report_and_check_call(
+        command=[
+            nmake,
+        ],
         cwd=native_sip,
         env=os.environ,
     )
-    call = [
-        nmake,
-        'install',
-    ]
-    print('Calling: {}'.format(call))
-    subprocess.check_call(
-        call,
+    report_and_check_call(
+        command=[
+            nmake,
+            'install',
+        ],
         cwd=native_sip,
         env=os.environ,
     )
 
-    call = [
-        os.path.join(venv_bin, 'pyqtdeploycli'),
-        '--package', 'sip',
-        '--target', 'win-{}'.format(bits),
-        'configure',
-    ]
-    print('Calling: {}'.format(call))
-    subprocess.check_call(
-        call,
+    report_and_check_call(
+        command=[
+            os.path.join(venv_bin, 'pyqtdeploycli'),
+            '--package', 'sip',
+            '--target', 'win-{}'.format(bits),
+            'configure',
+        ],
         cwd=sip,
     )
 
-    call = [
-        os.path.join(venv_bin, 'python'),
-        'configure.py',
-        '--static',
-        '--sysroot={}'.format(sysroot),
-        '--no-tools',
-        '--use-qmake',
-        '--configuration=sip-win.cfg',
-        '--platform=win32-{}{}'.format(compiler_name, year),
-        '--target-py-version={}'.format('.'.join(python_major_minor)),
-    ]
-    print('Calling: {}'.format(call))
-    subprocess.check_call(
-        call,
+    report_and_check_call(
+        command=[
+            os.path.join(venv_bin, 'python'),
+            'configure.py',
+            '--static',
+            '--sysroot={}'.format(sysroot),
+            '--no-tools',
+            '--use-qmake',
+            '--configuration=sip-win.cfg',
+            '--platform=win32-{}{}'.format(compiler_name, year),
+            '--target-py-version={}'.format('.'.join(python_major_minor)),
+        ],
         cwd=sip,
     )
 
-    call = [
-        qmake,
-    ]
-    print('Calling: {}'.format(call))
-    subprocess.check_call(
-        call,
+    report_and_check_call(
+        command=[
+            qmake,
+        ],
         cwd=sip,
     )
 
-    call = [
-        nmake,
-    ]
-    print('Calling: {}'.format(call))
-    subprocess.check_call(
-        call,
+    report_and_check_call(
+        command=[
+            nmake,
+        ],
         cwd=sip,
         env=os.environ,
     )
 
-    call = [
-        nmake,
-        'install',
-    ]
-    print('Calling: {}'.format(call))
-    subprocess.check_call(
-        call,
+    report_and_check_call(
+        command=[
+            nmake,
+            'install',
+        ],
         cwd=sip,
         env=os.environ,
     )
@@ -367,8 +356,8 @@ plat-name = {plat_name}'''.format(**locals()))
     z = zipfile.ZipFile(io.BytesIO(r.content))
     z.extractall(path=src)
     pyqt5 = os.path.join(src, pyqt5_name)
-    subprocess.check_call(
-        [
+    report_and_check_call(
+        command=[
             os.path.join(venv_bin, 'pyqtdeploycli'),
             '--package', 'pyqt5',
             '--target', 'win-{}'.format(bits),
@@ -412,13 +401,13 @@ plat-name = {plat_name}'''.format(**locals()))
     if tuple(int(x) for x in pyqt5_version.split('.')) >= (5, 6):
         command.append(r'--qmake={}'.format(qmake))
 
-    subprocess.check_call(
-        command,
+    report_and_check_call(
+        command=command,
         cwd=pyqt5,
         env=os.environ,
     )
-    subprocess.check_call(
-        [
+    report_and_check_call(
+        command=[
             qmake
         ],
         cwd=pyqt5,
@@ -426,15 +415,15 @@ plat-name = {plat_name}'''.format(**locals()))
 
     sys.stderr.write('another stderr test from {}\n'.format(__file__))
 
-    subprocess.check_call(
-        [
+    report_and_check_call(
+        command=[
             nmake,
         ],
         cwd=pyqt5,
         env=os.environ,
     )
-    subprocess.check_call(
-        [
+    report_and_check_call(
+        command=[
             nmake,
             'install',
         ],
