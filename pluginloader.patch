@@ -194,7 +194,7 @@
          PyGILState_STATE gil_state = PyGILState_Ensure();
  #endif
  
-+        qDebug() << "Preparing to import module\n"
++        qDebug() << "Preparing to import module\n";
 +
 +        // https://stackoverflow.com/a/42853449/228539
 +        PyObject *pyModule = PyModule_New(moduleName);
