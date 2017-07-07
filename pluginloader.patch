@@ -246,16 +246,16 @@
 +                    PyObject *pyth_val;
 +
 +                    pyth_val = PyObject_CallFunctionObjArgs(pyth_func, ptype, pvalue, ptraceback, Py_None, true);
-+                    qDebug() << "pyth_val == NULL : " << pyth_val == NULL;
++                    qDebug() << "pyth_val == NULL : " << (pyth_val == NULL);
 +
 +                    pystr = PyObject_Str(pyth_val);
-+                    qDebug() << "pystr == NULL : " << pystr == NULL;
++                    qDebug() << "pystr == NULL : " << (pystr == NULL);
 +
 +                    pystr = PyUnicode_AsEncodedString(pystr, "utf-8", "error 3?");
-+                    qDebug() << "pystr == NULL : " << pystr == NULL;
++                    qDebug() << "pystr == NULL : " << (pystr == NULL);
 +
 +                    str = PyBytes_AS_STRING(pystr);
-+                    qDebug() << "str == NULL : " << str == NULL;
++                    qDebug() << "str == NULL : " << (str == NULL);
 +
 +                    Py_DECREF(pystr);
 +                    full_backtrace = strdup(str);
