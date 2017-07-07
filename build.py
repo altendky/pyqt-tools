@@ -82,6 +82,7 @@ def get_environment_from_batch_command(env_cmd, initial=None):
 
 def report_and_check_call(command, *args, **kwargs):
     print('\nCalling: {}'.format(command))
+    sys.stdout.flush()
     subprocess.check_call(command, *args, **kwargs)
 
 
