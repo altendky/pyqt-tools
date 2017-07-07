@@ -228,7 +228,7 @@
 +                error_description = strdup(str);
 +
 +                /* See if we can get a full traceback */
-+                module_name = PyUnicode_Decode("traceback", "utf-8", "error 2?");
++                module_name = PyUnicode_Decode("traceback", 9, "utf-8", "error 2?");
 +                pyth_module = PyImport_Import(module_name);
 +                Py_DECREF(module_name);
 +
