@@ -190,7 +190,7 @@
  // Construct the collection of Python widgets.
  PyCustomWidgets::PyCustomWidgets(QObject *parent) : QObject(parent),
          sys_path(0), sip_unwrapinstance(0), qtdesigner_custom(0)
-@@ -134,6 +310,92 @@
+@@ -134,6 +310,107 @@
          PyGILState_STATE gil_state = PyGILState_Ensure();
  #endif
  
@@ -222,19 +222,34 @@
 +                char *error_description;
 +
 +                PyErr_Fetch(&ptype, &pvalue, &ptraceback);
++                qDebug() << "ptype == NULL : " << (ptype == NULL);
++                qDebug() << "pvalue == NULL : " << (pvalue == NULL);
++                qDebug() << "ptraceback == NULL : " << (ptraceback == NULL);
 +                pystr = PyObject_Str(pvalue);
++                qDebug() << "pystr == NULL : " << (pystr == NULL);
 +                pystr = PyUnicode_AsEncodedString(pystr, "utf-8", "error 1?");
++                qDebug() << "pystr == NULL : " << (pystr == NULL);
 +                str = PyBytes_AS_STRING(pystr);
++                qDebug() << "str == NULL : " << (str == NULL);
++                if (str != NULL)
++                {
++                    qDebug() << "str: " << str;
++                }
 +                Py_DECREF(pystr);
 +                error_description = strdup(str);
++                qDebug() << "error_description == NULL : " << (error_description == NULL);
++                if (error_description != NULL)
++                {
++                    qDebug() << "error_description: " << error_description;
++                }
 +
 +                /* See if we can get a full traceback */
 +                module_name = PyUnicode_Decode("traceback", 9, "utf-8", "error 2?");
 +                pyth_module = PyImport_Import(module_name);
 +                Py_DECREF(module_name);
 +
++                qDebug() << "pyth_module == NULL : " << (pyth_module == NULL);
 +                if (pyth_module == NULL) {
-+                    qDebug() << "pyth_module == NULL";
 +                    full_backtrace = NULL;
 +                    return;
 +                }
