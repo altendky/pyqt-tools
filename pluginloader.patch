@@ -190,11 +190,11 @@
  // Construct the collection of Python widgets.
  PyCustomWidgets::PyCustomWidgets(QObject *parent) : QObject(parent),
          sys_path(0), sip_unwrapinstance(0), qtdesigner_custom(0)
-@@ -134,6 +310,76 @@
+@@ -134,6 +310,81 @@
          PyGILState_STATE gil_state = PyGILState_Ensure();
  #endif
  
-+        qDebug() << "Preparing to import module\n";
++        qDebug() << "Preparing to import module";
 +
 +        // https://stackoverflow.com/a/42853449/228539
 +        PyObject *pyModule = PyModule_New(moduleName);
@@ -204,17 +204,18 @@
 +        PyObject *builtins = PyEval_GetBuiltins();  // Returns a borrowed reference: no need to Py_DECREF() it once we are done
 +        PyDict_SetItemString(localDict, "__builtins__", builtins);
 +
-+        qDebug() << "About to import module\n";
++        qDebug() << "About to import module";
 +
 +        // Define code in the newly created module
 +        PyObject *pyValue = PyRun_String(moduleCode, Py_file_input, localDict, localDict);
 +        if (pyValue == NULL)
 +        {
-+            qDebug() << "An error occurred while importing the module\n";
++            qDebug() << "An error occurred while importing the module";
 +
 +            char * full_backtrace = NULL;
 +            
 +            if (PyErr_Occurred() != NULL) {
++                qDebug() << "PyErr_Occurred() != NULL";
 +                PyObject *ptype, *pvalue, *ptraceback;
 +                PyObject *pystr, *module_name, *pyth_module, *pyth_func;
 +                char *str;
@@ -233,12 +234,15 @@
 +                Py_DECREF(module_name);
 +
 +                if (pyth_module == NULL) {
++                    qDebug() << "pyth_module == NULL";
 +                    full_backtrace = NULL;
 +                    return;
 +                }
 +
 +                pyth_func = PyObject_GetAttrString(pyth_module, "format_exception");
-+                if (pyth_func && PyCallable_Check(pyth_func)) {
++                if (pyth_func && PyCallable_Check(pyth_func))
++                {
++                    qDebug() << "pyth_func && PyCallable_Check(pyth_func)";
 +                    PyObject *pyth_val;
 +
 +                    pyth_val = PyObject_CallFunctionObjArgs(pyth_func, ptype, pvalue, ptraceback, NULL);
@@ -254,7 +258,8 @@
 +            
 +            if (full_backtrace != NULL)
 +            {
-+                qDebug() << full_backtrace << "\n";
++                qDebug() << "About to print backtrace";
++                qDebug() << full_backtrace;
 +            }
 +        }
 +        else
@@ -262,7 +267,7 @@
 +            Py_DECREF(pyValue);
 +        }
 +
-+        qDebug() << "Done to importing module\n";
++        qDebug() << "Done to importing module";
 +
          bool fatal = importPlugins(dir, plugins);
  
