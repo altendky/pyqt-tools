@@ -364,7 +364,6 @@ plat-name = {plat_name}'''.format(**locals()))
         report_and_check_call(
             command=[
                 'patch',
-                os.path.join(pyqt5, 'designer', 'pluginloader.cpp'),
                 'pluginloader.patch',
             ],
         )
