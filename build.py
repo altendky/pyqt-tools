@@ -362,11 +362,9 @@ plat-name = {plat_name}'''.format(**locals()))
     # TODO: make a patch for the lower versions as well
     if tuple(int(x) for x in pyqt5_version.split('.')) >= (5, 7):
         report_and_check_call(
-            command=[
-                'patch',
-                os.path.join(pyqt5, 'designer', 'pluginloader.cpp'),
-                'pluginloader.patch',
-            ],
+            command='patch < ..\\..\\pluginloader.patch',
+            shell=True, # TODO: don't do this
+            cwd=pyqt5,
         )
 
     report_and_check_call(
