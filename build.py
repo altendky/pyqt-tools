@@ -325,6 +325,7 @@ plat-name = {plat_name}'''.format(**locals()))
             qmake,
         ],
         cwd=sip,
+        env=os.environ,
     )
 
     report_and_check_call(
@@ -413,6 +414,7 @@ plat-name = {plat_name}'''.format(**locals()))
             qmake
         ],
         cwd=pyqt5,
+        env=os.environ,
     )
 
     sys.stderr.write('another stderr test from {}\n'.format(__file__))
