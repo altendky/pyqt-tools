@@ -243,6 +243,7 @@ plat-name = {plat_name}'''.format(**locals()))
         '5.6': '4.19',
         '5.7.1': '4.19',
         '5.8.2': '4.19.2',
+        '5.9': '4.19.3',
     }[pyqt5_version]
 
     sip_name = 'sip-{}'.format(sip_version)
@@ -324,6 +325,7 @@ plat-name = {plat_name}'''.format(**locals()))
             qmake,
         ],
         cwd=sip,
+        env=os.environ,
     )
 
     report_and_check_call(
@@ -422,6 +424,7 @@ plat-name = {plat_name}'''.format(**locals()))
             qmake
         ],
         cwd=pyqt5,
+        env=os.environ,
     )
 
     sys.stderr.write('another stderr test from {}\n'.format(__file__))
