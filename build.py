@@ -358,7 +358,17 @@ plat-name = {plat_name}'''.format(**locals()))
     )
     z = zipfile.ZipFile(io.BytesIO(r.content))
     z.extractall(path=src)
+
     pyqt5 = os.path.join(src, pyqt5_name)
+
+    # TODO: make a patch for the lower versions as well
+    if tuple(int(x) for x in pyqt5_version.split('.')) >= (5, 7):
+        report_and_check_call(
+            command='patch -p 1 < ..\\..\\pluginloader.patch',
+            shell=True, # TODO: don't do this
+            cwd=pyqt5,
+        )
+
     report_and_check_call(
         command=[
             os.path.join(venv_bin, 'pyqtdeploycli'),
