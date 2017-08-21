@@ -11,8 +11,12 @@ version = vcversioner.find_version(
                      '--tags', '--long', '--abbrev=999'],
     )
 
+def pad_version(v):
+    split = v.split('.')
+    return '.'.join(split + ['0'] * (3 - len(split)))
+
 version = '.'.join((
-    os.environ['PYQT5_VERSION'],
+    pad_version(os.environ['PYQT5_VERSION']),
     version.version,
 ))
 
