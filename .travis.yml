@@ -7,6 +7,11 @@ cache:
     directories:
         - Qt
 
+addons:
+    apt:
+        packages:
+          - tree
+
 before_install:
     - if [ ! -e Qt/5.9.1 ] ; then
           rm -rf Qt ;
