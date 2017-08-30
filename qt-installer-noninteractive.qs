@@ -1,7 +1,7 @@
 // http://stackoverflow.com/a/34032216/78204
 
 function Controller() {
-    qDebug() << "Entering Controller()"
+    print("Entering Controller()")
     installer.autoRejectMessageBoxes();
     installer.setMessageBoxAutomaticAnswer("OverwriteTargetDirectory", QMessageBox.Yes);
     installer.installationFinished.connect(function() {
@@ -10,23 +10,23 @@ function Controller() {
 }
 
 Controller.prototype.WelcomePageCallback = function() {
-    qDebug() << "Entering WelcomePageCallback()"
+    print("Entering WelcomePageCallback()")
     gui.clickButton(buttons.NextButton);
 }
 
 Controller.prototype.CredentialsPageCallback = function() {
-    qDebug() << "Entering CredentialsPageCallback()"
+    print("Entering CredentialsPageCallback()")
     gui.clickButton(buttons.NextButton);
 }
 
 Controller.prototype.IntroductionPageCallback = function() {
-    qDebug() << "Entering IntroductionPageCallback()"
+    print("Entering IntroductionPageCallback()")
     gui.clickButton(buttons.NextButton);
 }
 
 Controller.prototype.TargetDirectoryPageCallback = function()
 {
-    qDebug() << "Entering TargetDirectoryPageCallback()"
+    print("Entering TargetDirectoryPageCallback()")
     //gui.currentPageWidget().TargetDirectoryLineEdit.setText(installer.value("HomeDir") + "/Qt");
     gui.currentPageWidget().TargetDirectoryLineEdit.setText(installer.value("InstallerDirPath") + "/Qt");
     //gui.currentPageWidget().TargetDirectoryLineEdit.setText("/scratch/Qt");
@@ -34,7 +34,7 @@ Controller.prototype.TargetDirectoryPageCallback = function()
 }
 
 Controller.prototype.ComponentSelectionPageCallback = function() {
-    qDebug() << "Entering ComponentSelectionPageCallback()"
+    print("Entering ComponentSelectionPageCallback()")
     var widget = gui.currentPageWidget();
 
     widget.selectAll();
@@ -44,24 +44,24 @@ Controller.prototype.ComponentSelectionPageCallback = function() {
 }
 
 Controller.prototype.LicenseAgreementPageCallback = function() {
-    qDebug() << "Entering LicenseAgreementPageCallback()"
+    print("Entering LicenseAgreementPageCallback()")
     gui.currentPageWidget().AcceptLicenseRadioButton.setChecked(true);
     gui.clickButton(buttons.NextButton);
 }
 
 Controller.prototype.StartMenuDirectoryPageCallback = function() {
-    qDebug() << "Entering StartMenuDirectoryPageCallback()"
+    print("Entering StartMenuDirectoryPageCallback()")
     gui.clickButton(buttons.NextButton);
 }
 
 Controller.prototype.ReadyForInstallationPageCallback = function()
 {
-    qDebug() << "Entering ReadyForInstallationPageCallback()"
+    print("Entering ReadyForInstallationPageCallback()")
     gui.clickButton(buttons.NextButton);
 }
 
 Controller.prototype.FinishedPageCallback = function() {
-    qDebug() << "Entering FinishedPageCallback()"
+    print("Entering FinishedPageCallback()")
     var checkBoxForm = gui.currentPageWidget().LaunchQtCreatorCheckBoxForm
     if (checkBoxForm && checkBoxForm.launchQtCreatorCheckBox) {
         checkBoxForm.launchQtCreatorCheckBox.checked = false;
