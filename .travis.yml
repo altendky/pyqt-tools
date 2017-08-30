@@ -14,7 +14,7 @@ before_install:
     - chmod a+x linuxdeployqt-continuous-x86_64.AppImage
 
 script:
-    - python --version
+    - python -c 'import sys; print(sys.version)'
     - python buildlinux.py
 
 addons:
