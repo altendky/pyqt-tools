@@ -15,10 +15,7 @@ before_install:
     - chmod a+x linuxdeployqt-continuous-x86_64.AppImage
 
 script:
-    - export CMAKE_PREFIX_PATH=$PWD/Qt/5.9.1/gcc_64/lib/cmake
-    - python -m unittest discover -v sunspec
-    - python -m pip wheel --wheel-dir dist --no-deps .
-    - python setup.py sdist
+    - buildlinux.py
 
 addons:
     artifacts: true
