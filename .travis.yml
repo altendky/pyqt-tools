@@ -3,6 +3,10 @@ language: python
 python:
     - 3.6
 
+env:
+    global:
+        - QT_QPA_PLATFORM=offscreen
+
 before_install:
     - if [ ! -e Qt/5.9.1 ] ; then
           rm -rf Qt ;
