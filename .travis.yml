@@ -14,7 +14,8 @@ before_install:
     - chmod a+x linuxdeployqt-continuous-x86_64.AppImage
 
 script:
-    - buildlinux.py
+    - python --version
+    - python buildlinux.py
 
 addons:
     artifacts: true
