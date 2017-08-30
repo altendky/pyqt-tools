@@ -5,7 +5,7 @@ python:
 
 env:
     global:
-        - QT_QPA_PLATFORM=offscreen
+        - QT_QPA_PLATFORM=minimal
 
 before_install:
     - if [ ! -e Qt/5.9.1 ] ; then
