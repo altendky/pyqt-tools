@@ -20,6 +20,7 @@ before_install:
 script:
     - python -c 'import sys; print(sys.version)'
     - python buildlinux.py
+    - tree
 
 addons:
     artifacts: true
