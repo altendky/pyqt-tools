@@ -19,7 +19,10 @@ def main():
     destination = os.path.join(build, 'pyqt5-tools')
     os.makedirs(destination, exist_ok=True)
 
-    deployqt_path = 'linuxdeployqt-continuous-x86_64.AppImage'
+    deployqt_path = os.path.join(
+        build,
+        'linuxdeployqt-continuous-x86_64.AppImage',
+    )
 
     for application in os.listdir(qt_bin_path):
         application_path = os.path.join(qt_bin_path, application)
