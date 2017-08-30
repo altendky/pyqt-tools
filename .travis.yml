@@ -1,0 +1,26 @@
+language: python
+
+python:
+    - 3.6
+
+before_install:
+    - if [ ! -e Qt/5.9.1 ] ; then
+          rm -rf Qt ;
+          wget http://download.qt.io/official_releases/qt/5.9/5.9.1/qt-opensource-linux-x64-5.9.1.run ;
+          chmod +x ./qt-opensource-linux-x64-5.9.1.run ;
+          ./qt-opensource-linux-x64-5.9.1.run ;
+      fi
+#          ./qt-opensource-linux-x64-5.9.1.run --platform minimal --script qt-installer-noninteractive.qs --no-force-installations ;
+    - wget https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage
+    - chmod a+x linuxdeployqt-continuous-x86_64.AppImage
+
+script:
+    - export CMAKE_PREFIX_PATH=$PWD/Qt/5.9.1/gcc_64/lib/cmake
+    - python -m unittest discover -v sunspec
+    - python -m pip wheel --wheel-dir dist --no-deps .
+    - python setup.py sdist
+
+addons:
+    artifacts: true
+    paths:
+    - dist/*
