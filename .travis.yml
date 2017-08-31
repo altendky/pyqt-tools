@@ -6,7 +6,7 @@ python:
 
 cache:
   directories:
-    - Qt
+    - deploy_qt
 
 addons:
   apt:
@@ -23,11 +23,12 @@ env:
 
 before_install:
   - tree -L 4
-  - if [ ! -e Qt/5.9.1 ] ; then
+  - if [ ! -e deploy_qt ] ; then
         rm -rf Qt ;
         wget -nv http://download.qt.io/official_releases/qt/5.9/5.9.1/qt-opensource-linux-x64-5.9.1.run ;
         chmod +x ./qt-opensource-linux-x64-5.9.1.run ;
         ./qt-opensource-linux-x64-5.9.1.run --platform minimal --script qt-installer-noninteractive.qs --no-force-installations ;
+        python linux/deploy_qt.py;
     fi
   - wget -nv https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage
   - chmod a+x linuxdeployqt-continuous-x86_64.AppImage
