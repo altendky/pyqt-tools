@@ -23,6 +23,10 @@ env:
 
 before_install:
   - tree -L 4
+  - wget -nv https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage
+  - chmod a+x linuxdeployqt-continuous-x86_64.AppImage
+  - ./linuxdeployqt-continuous-x86_64.AppImage --appimage-extract
+  - mv squashfs-root linuxdeployqt
   - if [ ! -e deploy_qt/designer ] ; then
         rm -rf Qt ;
         wget -nv http://download.qt.io/official_releases/qt/5.9/5.9.1/qt-opensource-linux-x64-5.9.1.run ;
@@ -30,10 +34,6 @@ before_install:
         ./qt-opensource-linux-x64-5.9.1.run --platform minimal --script qt-installer-noninteractive.qs --no-force-installations ;
         python linux/deploy_qt.py;
     fi
-  - wget -nv https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage
-  - chmod a+x linuxdeployqt-continuous-x86_64.AppImage
-  - ./linuxdeployqt-continuous-x86_64.AppImage --appimage-extract
-  - mv squashfs-root linuxdeployqt
 
 script:
   - python venv.py
