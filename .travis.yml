@@ -12,7 +12,7 @@ addons:
   apt:
     packages:
       - tree
-      - virtualenv
+      - python3-virtualenv
   artifacts: true
   paths:
     - dist/*
