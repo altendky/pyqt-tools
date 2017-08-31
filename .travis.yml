@@ -12,6 +12,7 @@ addons:
   apt:
     packages:
       - tree
+      - virtualenv
   artifacts: true
   paths:
     - dist/*

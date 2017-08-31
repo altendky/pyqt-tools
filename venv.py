@@ -80,9 +80,12 @@ def main():
 
         activate = os.path.join(bin, 'activate')
 
-        pip_install('virtualenv', args.no_ssl_verify)
+        if sys.platform == 'win32':
+            pip_install('virtualenv', args.no_ssl_verify)
+            virtualenv_command = [sys.executable, '-m', 'virtualenv', '--system-site-packages', args.virtualenv]
+        else:
+            virtualenv_command = ['virtualenv', args.virtualenv]
 
-        virtualenv_command = [sys.executable, '-m', 'virtualenv', '--system-site-packages', args.virtualenv]
         returncode = subprocess.call(virtualenv_command)
 
         if returncode != 0:
