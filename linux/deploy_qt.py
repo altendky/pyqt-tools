@@ -9,7 +9,7 @@ def report_and_check_call(**kwargs):
 
     for kwarg in ('command', 'cwd'):
         if kwarg in kwargs:
-            print('    {}: {}'.format(kwarg, kwargs[kwargs]))
+            print('    {}: {}'.format(kwarg, kwargs[kwarg]))
 
     # may only be required on AppVeyor
     sys.stdout.flush()
