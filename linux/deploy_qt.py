@@ -61,7 +61,7 @@ def main():
         command=[
             'tree'
         ],
-        cwd=destination,
+        cwd=deployed_qt,
     )
 
 
