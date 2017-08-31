@@ -30,5 +30,6 @@ before_install:
   - mv squashfs-root linuxdeployqt
 
 script:
-  - python buildlinux.py
+  - python venv.py
+  - venv/bin/python setup.py bdist_wheel
   - tree -L 4

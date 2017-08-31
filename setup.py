@@ -1,9 +1,14 @@
 import os
 import sys
 
-import build
 import setuptools
 import vcversioner
+
+if sys.platform == 'win32':
+    import build
+else:
+    import buildlinux as build
+
 
 version = vcversioner.find_version(
         version_module_paths=['_version.py'],
