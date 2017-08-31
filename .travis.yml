@@ -13,6 +13,7 @@ addons:
       - tree
 
 before_install:
+  - tree
   - if [ ! -e Qt/5.9.1 ] ; then
         rm -rf Qt ;
         wget http://download.qt.io/official_releases/qt/5.9/5.9.1/qt-opensource-linux-x64-5.9.1.run ;
