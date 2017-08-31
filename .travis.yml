@@ -14,6 +14,7 @@ addons:
       - tree
       - python-virtualenv
   artifacts:
+    s3_region: "us-east-2"
     paths:
       - $(ls $TRAVIS_BUILD_DIR/dist/*.whl | tr "\n" ":")
 
