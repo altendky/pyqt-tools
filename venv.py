@@ -72,10 +72,6 @@ def main():
 
             return 1
 
-        # TODO: test/add linux support
-        if sys.platform not in ['win32']:
-            raise Exception("Unsupported sys.platform: {}".format(sys.platform))
-
         if sys.platform == 'win32':
             bin = 'Scripts'
         else:
