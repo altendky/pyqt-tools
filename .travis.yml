@@ -30,5 +30,5 @@ before_install:
   - mv squashfs-root linuxdeployqt
 
 script:
-  - python buildlinux.py
+#  - python buildlinux.py
   - tree
