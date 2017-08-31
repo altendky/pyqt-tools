@@ -84,7 +84,7 @@ def main():
             pip_install('virtualenv', args.no_ssl_verify)
             virtualenv_command = [sys.executable, '-m', 'virtualenv', '--system-site-packages', args.virtualenv]
         else:
-            virtualenv_command = ['virtualenv', args.virtualenv]
+            virtualenv_command = ['virtualenv', '-p', 'python', args.virtualenv]
 
         returncode = subprocess.call(virtualenv_command)
 
