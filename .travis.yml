@@ -12,6 +12,9 @@ addons:
   apt:
     packages:
       - tree
+  artifacts: true
+  paths:
+    - dist/*
 
 before_install:
   - tree
@@ -30,8 +33,3 @@ script:
   - python -c 'import sys; print(sys.version)'
   - python buildlinux.py
   - tree
-
-addons:
-  artifacts: true
-  paths:
-  - dist/*
