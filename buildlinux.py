@@ -25,7 +25,16 @@ def main():
         'linuxdeployqt',
     )
 
+    applications_to_skip = (
+        'fixqt4headers',
+        'fixqt4headers.pl',
+        'syncqt.pl',
+    )
+
     for application in os.listdir(qt_bin_path):
+        if application in applications_to_skip:
+            continue
+
         application_path = os.path.join(qt_bin_path, application)
 
         shutil.copy(application_path, destination)
