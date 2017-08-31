@@ -30,6 +30,5 @@ before_install:
   - mv squashfs-root linuxdeployqt
 
 script:
-  - python -c 'import sys; print(sys.version)'
   - python buildlinux.py
   - tree
