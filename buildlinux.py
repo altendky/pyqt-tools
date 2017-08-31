@@ -24,7 +24,7 @@ def main():
         'linuxdeployqt',
         'usr',
         'bin',
-        'linuxdeployqt-continuous-x86_64.AppImage',
+        'linuxdeployqt',
     )
 
     for application in os.listdir(qt_bin_path):
