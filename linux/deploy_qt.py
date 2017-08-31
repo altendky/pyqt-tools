@@ -13,7 +13,10 @@ def report_and_check_call(**kwargs):
 
     # may only be required on AppVeyor
     sys.stdout.flush()
-    subprocess.check_call(**kwargs)
+
+    command = kwargs.pop('command')
+
+    subprocess.check_call(command, **kwargs)
 
 
 def main():
