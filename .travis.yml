@@ -17,7 +17,7 @@ addons:
     - dist/*
 
 before_install:
-  - tree
+  - tree -L 4
   - if [ ! -e Qt/5.9.1 ] ; then
         rm -rf Qt ;
         wget http://download.qt.io/official_releases/qt/5.9/5.9.1/qt-opensource-linux-x64-5.9.1.run ;
@@ -31,4 +31,4 @@ before_install:
 
 script:
 #  - python buildlinux.py
-  - tree
+  - tree -L 4
