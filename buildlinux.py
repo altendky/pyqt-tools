@@ -22,6 +22,8 @@ def main():
     deployqt_path = os.path.join(
         build,
         'linuxdeployqt',
+        'usr',
+        'bin',
         'linuxdeployqt-continuous-x86_64.AppImage',
     )
 
