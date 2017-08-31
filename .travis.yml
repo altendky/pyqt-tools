@@ -15,7 +15,7 @@ addons:
       - python-virtualenv
   artifacts:
     paths:
-      - dist/*
+      - $(ls $TRAVIS_BUILD_DIR/dist/*.whl | tr "\n" ":")
 
 env:
   - PYQT5_VERSION=5.9
