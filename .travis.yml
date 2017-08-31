@@ -13,9 +13,9 @@ addons:
     packages:
       - tree
       - python-virtualenv
-  artifacts: true
-  paths:
-    - dist/*
+  artifacts:
+    paths:
+      - dist/*
 
 env:
   - PYQT5_VERSION=5.9
