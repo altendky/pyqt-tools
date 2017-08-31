@@ -21,7 +21,7 @@ before_install:
     fi
   - wget https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage
   - chmod a+x linuxdeployqt-continuous-x86_64.AppImage
-  - linuxdeployqt-continuous-x86_64.AppImage --appimage-extract
+  - ./linuxdeployqt-continuous-x86_64.AppImage --appimage-extract
   - mv squashfs-root linuxdeployqt
 
 script:
