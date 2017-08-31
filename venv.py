@@ -87,7 +87,7 @@ def main():
 
         if returncode != 0:
             raise Exception("Received return code {} when running {}"
-                            .format(result.returncode, virtualenv_command))
+                            .format(returncode, virtualenv_command))
 
         virtualenv_python = os.path.realpath(os.path.join(bin, 'python'))
         virtualenv_python_command = [virtualenv_python,
