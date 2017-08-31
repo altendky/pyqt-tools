@@ -37,5 +37,8 @@ before_install:
 
 script:
   - python venv.py
+  - git --git-dir /home/travis/build/altendky/pyqt5-tools/.git tag
+  - git --git-dir /home/travis/build/altendky/pyqt5-tools/.git log
+  - git --git-dir /home/travis/build/altendky/pyqt5-tools/.git describe --tags --long --abbrev=999
   - venv/bin/python setup.py bdist_wheel
   - tree -L 4
