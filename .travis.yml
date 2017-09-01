@@ -39,4 +39,6 @@ script:
   - git fetch --unshallow
   - python venv.py
   - venv/bin/python setup.py bdist_wheel
+
+before_cache:
   - tree -L 4
