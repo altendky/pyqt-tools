@@ -36,7 +36,7 @@ before_install:
     fi
 
 script:
-  - git fetch --tags
+  - git fetch --unshallow
   - python venv.py
   - git --git-dir /home/travis/build/altendky/pyqt5-tools/.git tag
   - git --git-dir /home/travis/build/altendky/pyqt5-tools/.git log
