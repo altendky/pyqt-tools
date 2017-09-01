@@ -6,7 +6,7 @@ python:
 
 cache:
   directories:
-    - deploy_qt
+    - deployed_qt
 
 addons:
   apt:
