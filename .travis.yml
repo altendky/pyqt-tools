@@ -19,8 +19,8 @@ addons:
       - $(ls $TRAVIS_BUILD_DIR/dist/*.whl | tr "\n" ":")
 
 env:
-  - PYQT5_VERSION=5.9
-  - TARGET_PYTHON=python3.5
+  matrix:
+    - PYQT5_VERSION=5.9 TARGET_PYTHON=python3.5
 
 before_install:
   - tree -L 4
