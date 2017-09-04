@@ -110,7 +110,7 @@ pyqt_to_qt_version_map = {
 }
 
 pyqt_to_qt_version_map = {
-    Version.from_sequence(k): Version.from_sequence(v)
+    Version.from_sequence(*k): Version.from_sequence(*v)
     for k, v in pyqt_to_qt_version_map.items()
 }
 
