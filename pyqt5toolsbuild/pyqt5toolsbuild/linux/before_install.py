@@ -33,7 +33,7 @@ def install_qt(path, version, build_path):
     utils.report_and_check_call(
         command=[
             installer_path,
-            ' --platform', 'minimal',
+            '--platform', 'minimal',
             '--script',
             os.path.join(build_path, 'qt-installer-noninteractive.qs'),
             '--no-force-installations',
