@@ -7,7 +7,7 @@ import tempfile
 from .. import utils
 
 
-def install_qt(path, version):
+def install_qt(path, version, build_path):
     installed_path = os.path.join(path, 'Qt')
     if os.path.exists(installed_path):
         shutil.rmtree(installed_path)
@@ -34,7 +34,8 @@ def install_qt(path, version):
         command=[
             installer_path,
             ' --platform minimal',
-            '--script', 'qt-installer-noninteractive.qs',
+            '--script',
+            os.path.join(build_path, 'qt-installer-noninteractive.qs'),
             '--no-force-installations',
         ],
         cwd=path,
@@ -87,7 +88,7 @@ def main():
 
     with tempfile.TemporaryDirectory() as temp_path:
         if not os.path.isfile(os.path.join('deployed_qt', 'designer')):
-            qt_path = install_qt(temp_path, qt_version)
+            qt_path = install_qt(temp_path, qt_version, build_path)
             qt_bin_path = os.path.join(qt_path, str(qt_version), 'gcc_64', 'bin')
 
             deploy_qt.deploy_qt(
