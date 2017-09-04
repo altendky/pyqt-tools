@@ -15,6 +15,7 @@ addons:
     packages:
       - tree
       - python-virtualenv
+      - python3.6
 
   artifacts:
     s3_region: $ARTIFACTS_REGION
