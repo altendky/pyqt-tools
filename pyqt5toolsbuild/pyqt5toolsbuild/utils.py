@@ -4,6 +4,7 @@ import subprocess
 import sys
 import urllib
 
+import attr
 import requests
 
 
@@ -43,3 +44,75 @@ def save_url_to_file(
             handle.write(block)
 
     return path
+
+
+@attr.s(frozen=True)
+class Version:
+    raw_string = attr.ib(cmp=False)
+    raw_sequence = attr.ib(hash=True)
+
+    @classmethod
+    def from_string(cls, s):
+        return cls(raw_string=s)
+
+    @classmethod
+    def from_sequence(cls, *s):
+        # TODO: use this comment instead once you can make it work
+        # return cls(raw_sequence=s)
+        return cls(raw_string='.'.join(str(n) for n in s))
+
+    @raw_string.default
+    def _(self):
+        return '.'.join(str(x) for x in self.raw_sequence)
+
+    @raw_sequence.default
+    def _(self):
+        return tuple(int(s) for s in self.raw_string.split('.'))
+
+    def pad(self, levels=3):
+        sequence = self.raw_sequence + (0,) * (levels - len(self.raw_sequence))
+
+        return type(self).from_sequence(*sequence)
+
+    def exactly(self, levels=3):
+        sequence = self.raw_sequence[:levels]
+
+        sequence = sequence + (0,) * (levels - len(sequence))
+
+        return type(self).from_sequence(*sequence)
+
+    def __str__(self):
+        return self.raw_string
+
+
+def twiddle_version():
+    a = Version.from_string('5.9.1')
+    for n in range(1, 5):
+        print(a.exactly(n))
+    b = Version.from_sequence(5, 9)
+
+    print(a == b)
+    print(a.exactly(2) == b.exactly(2))
+    print(a < b)
+    print(a > b)
+
+    d = {
+        a: b
+    }
+
+    print(d[Version.from_sequence(5, 9, 1)])
+
+
+pyqt_to_qt_version_map = {
+    (5, 9, 0): (5, 9, 1),
+    (5, 8, 1): (5, 8, 0),
+    (5, 8, 0): (5, 8, 0),
+}
+
+pyqt_to_qt_version_map = {
+    Version.from_sequence(k): Version.from_sequence(v)
+    for k, v in pyqt_to_qt_version.items()
+}
+
+def pyqt_to_qt_version(pyqt_version):
+    return pyqt_to_qt_version_map[pyqt_version.pad(3)]

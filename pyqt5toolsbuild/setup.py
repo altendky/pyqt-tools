@@ -11,6 +11,7 @@ setuptools.setup(
         ]
     },
     install_requires=[
+        'attrs',
         'requests',
     ],
 )

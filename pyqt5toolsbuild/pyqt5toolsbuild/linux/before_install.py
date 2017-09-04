@@ -7,21 +7,17 @@ import tempfile
 from .. import utils
 
 
-pyqt_to_qt_version = {
-    (5, 9, 0): (5, 9, 1),
-    (5, 8, 1): (5, 8, 0),
-    (5, 8, 0): (5, 8, 0),
-}
-
-
-def install_qt(path):
+def install_qt(path, version):
     installed_path = os.path.join(path, 'Qt')
     shutil.rmtree(installed_path)
 
-    file_name = 'qt-opensource-linux-x64-5.9.1.run'
+    file_name = 'qt-opensource-linux-x64-{}.run'.format(version.exactly(3))
     url = ''.join((
         'http://download.qt.io',
-        '/official_releases/qt/5.9/5.9.1/',
+        '/official_releases/qt/{}/{}/'.format(
+            version.exactly(2),
+            version.exactly(3),
+        ),
         file_name,
     ))
 
@@ -77,6 +73,9 @@ def main():
     deployed_qt_path = os.path.join(build_path, 'deployed_qt')
     os.makedirs(deployed_qt_path, exist_ok=True)
 
+    pyqt5_version = utils.Version.from_string(os.environ['PYQT5_VERSION'])
+    qt_version = utils.pyqt_to_qt_version(pyqt5_version)
+
     linuxdeployqt_path = os.path.join(
         build_path,
         'linuxdeployqt',
@@ -87,8 +86,8 @@ def main():
 
     with tempfile.TemporaryDirectory() as temp_path:
         if not os.path.isfile(os.path.join('deployed_qt', 'designer')):
-            qt_path = install_qt(temp_path)
-            qt_bin_path = os.path.join(qt_path, '5.9.1', 'gcc_64', 'bin')
+            qt_path = install_qt(temp_path, qt_version)
+            qt_bin_path = os.path.join(qt_path, str(qt_version), 'gcc_64', 'bin')
 
             deploy_qt.deploy_qt(
                 linuxdeployqt_path=linuxdeployqt_path,
