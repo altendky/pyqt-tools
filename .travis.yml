@@ -28,6 +28,10 @@ env:
 
 before_install:
   - tree -L 4
+  - python3.6 venv.py
+  - venv/bin/python -m pip install buildtools
+  - venv/bin/python -c 'import sys; print(sys.version); print(sys.executable)'
+  - venv/bin/python -m pip freeze
   - wget -nv https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage
   - chmod a+x linuxdeployqt-continuous-x86_64.AppImage
   - ./linuxdeployqt-continuous-x86_64.AppImage --appimage-extract
@@ -37,14 +41,12 @@ before_install:
         wget -nv http://download.qt.io/official_releases/qt/5.9/5.9.1/qt-opensource-linux-x64-5.9.1.run ;
         chmod +x ./qt-opensource-linux-x64-5.9.1.run ;
         ./qt-opensource-linux-x64-5.9.1.run --platform minimal --script qt-installer-noninteractive.qs --no-force-installations ;
-        python linux/deploy_qt.py;
+        venv/bin/deploy_qt;
     fi
 
 script:
   - git fetch --unshallow
-  - python3.6 venv.py
-  - venv/bin/python -c 'import sys; print(sys.version); print(sys.executable)'
-  - venv/bin/python -m pip freeze
+  - venv/bin/buildlinux
   - virtualenv -p $TARGET_PYTHON target_venv
   - target_venv/bin/python -m pip install requests==2.13.0
   - target_venv/bin/python -m pip install vcversioner==2.16.0.0

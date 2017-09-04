@@ -1,6 +1,5 @@
 import os
 import shutil
-import sys
 
 
 def main():
@@ -11,7 +10,3 @@ def main():
     print('copying {}'.format(deployed_qt))
     print('     to {}'.format(package))
     shutil.copytree(deployed_qt, package)
-
-
-if __name__ == '__main__':
-    sys.exit(main())

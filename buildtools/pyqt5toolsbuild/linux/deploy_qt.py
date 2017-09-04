@@ -66,7 +66,3 @@ def main():
         ],
         cwd=deployed_qt,
     )
-
-
-if __name__ == '__main__':
-    sys.exit(main())

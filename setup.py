@@ -4,11 +4,6 @@ import sys
 import setuptools
 import vcversioner
 
-if sys.platform == 'win32':
-    import build
-else:
-    import buildlinux as build
-
 
 version = vcversioner.find_version(
         version_module_paths=['_version.py'],
@@ -27,7 +22,10 @@ version = '.'.join((
 
 sys.stderr.write('another stderr test from {}\n'.format(__file__))
 
-build.main()
+if sys.platform == 'win32':
+    import build
+    build.main()
+
 
 long_description = '''
 The PyQt5 wheels do not provide tools such as Qt Designer that
