@@ -29,7 +29,7 @@ env:
 before_install:
   - tree -L 4
   - virtualenv -p python3.6 venv
-  - venv/bin/python -m pip install buildtools
+  - venv/bin/python -m pip install pyqt5toolsbuild
   - venv/bin/python -c 'import sys; print(sys.version); print(sys.executable)'
   - venv/bin/python -m pip freeze
   - wget -nv https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage
