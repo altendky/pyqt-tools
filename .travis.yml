@@ -28,7 +28,8 @@ env:
 
 before_install:
   - tree -L 4
-  - python3.6 venv.py
+  - python3.6 -m pip install --user virtualenv
+  - python3.6 -m virtualenv venv
   - venv/bin/python -m pip install buildtools
   - venv/bin/python -c 'import sys; print(sys.version); print(sys.executable)'
   - venv/bin/python -m pip freeze
