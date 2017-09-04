@@ -9,7 +9,8 @@ from .. import utils
 
 def install_qt(path, version):
     installed_path = os.path.join(path, 'Qt')
-    shutil.rmtree(installed_path)
+    if os.path.exists(installed_path):
+        shutil.rmtree(installed_path)
 
     file_name = 'qt-opensource-linux-x64-{}.run'.format(version.exactly(3))
     url = ''.join((
