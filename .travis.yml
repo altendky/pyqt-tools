@@ -47,7 +47,7 @@ script:
   - venv/bin/python -m pip freeze
   - virtualenv -p $TARGET_PYTHON target_venv
   - target_venv/bin/python -m pip install requests==2.13.0
-  - target_venv/bin/python -m pip install vcversioner=2.16.0.0
+  - target_venv/bin/python -m pip install vcversioner==2.16.0.0
   - target_venv/bin/python -m pip install wheel==0.30.0a0
   - target_venv/bin/python -c 'import sys; print(sys.version); print(sys.executable)'
   - target_venv/bin/python -m pip freeze
