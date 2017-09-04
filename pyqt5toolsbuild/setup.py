@@ -7,8 +7,10 @@ setuptools.setup(
     entry_points={
         'console_scripts': [
             'before_install = pyqt5toolsbuild.linux.before_install:main',
-            'deploy_qt = pyqt5toolsbuild.linux.deploy_qt:main',
             'buildlinux = pyqt5toolsbuild.linux.build:main',
         ]
     },
+    install_requires=[
+        'requests',
+    ],
 )
