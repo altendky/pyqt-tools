@@ -49,7 +49,14 @@ def install_qt(path, version, build_path):
 
 def deploy_qt(linuxdeployqt_path, qt_bin_path, deployed_qt_path):
     skipped = []
-    for application in os.listdir(qt_bin_path):
+
+    try:
+        applications = os.listdir(qt_bin_path)
+    except FileNotFoundError:
+        utils.list_missing_directories(qt_bin_path)
+        raise
+
+    for application in applications:
         application_path = os.path.join(qt_bin_path, application)
 
         shutil.copy(application_path, deployed_qt_path)

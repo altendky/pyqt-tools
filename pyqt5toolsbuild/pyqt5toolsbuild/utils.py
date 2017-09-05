@@ -130,3 +130,22 @@ pyqt_to_qt_version_map = {
 
 def pyqt_to_qt_version(pyqt_version):
     return pyqt_to_qt_version_map[pyqt_version.padded(3)]
+
+
+def list_missing_directories(path):
+    if os.path.exists(path):
+        return
+
+    path, filename = os.path.split(path)
+    paths = (os.path.join(*path[:n]) for n in range(1, len(path)))
+
+    for path in paths:
+        if not os.path.isdir(path):
+            break
+
+    report_and_check_call(
+        command=[
+            'tree',
+        ],
+        cwd=os.path.dirname(path),
+    )
