@@ -30,15 +30,17 @@ def install_qt(path, version, build_path):
 
     os.chmod(installer_path, stat.S_IXUSR)
 
+    env = dict(os.environ)
+    env['QT_QPA_PLATFORM'] = 'minimal'
     utils.report_and_check_call(
         command=[
             installer_path,
-            '--platform', 'minimal',
             '--script',
             os.path.join(build_path, 'qt-installer-noninteractive.qs'),
             '--no-force-installations',
         ],
         cwd=path,
+        env=env,
     )
 
     return installed_path
