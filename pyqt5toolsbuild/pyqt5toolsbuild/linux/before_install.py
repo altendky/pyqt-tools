@@ -99,9 +99,15 @@ def main():
     with tempfile.TemporaryDirectory() as temp_path:
         if not os.path.isfile(os.path.join('deployed_qt', 'designer')):
             qt_path = install_qt(temp_path, qt_version, build_path)
+
+            if qt_version >= utils.Version(5, 8):
+                qt_version_subdir = str(qt_version.stripped())
+            else:
+                qt_version_subdir = str(qt_version.exactly(2))
+
             qt_bin_path = os.path.join(
                 qt_path,
-                str(qt_version.stripped()),
+                qt_version_subdir,
                 'gcc_64',
                 'bin',
             )
