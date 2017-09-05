@@ -139,9 +139,11 @@ def list_missing_directories(path):
     print('Path not found, breaking it down: {}'.format(path))
 
     path, filename = os.path.split(path.rstrip(os.path.sep))
-    paths = (path[:i] for i, x in enumerate(path, 1) if x == os.path.sep)
+    paths = tuple(path[:i] for i, x in enumerate(path, 1) if x == os.path.sep)
 
+    print('Searching through:')
     for path in paths:
+        print('    {}'.format(path))
         if not os.path.isdir(path):
             print('Failed to find as directory: {}'.format(path))
             break
