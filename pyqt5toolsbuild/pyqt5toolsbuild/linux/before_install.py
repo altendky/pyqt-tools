@@ -44,13 +44,6 @@ def install_qt(path, version, build_path):
         env=env,
     )
 
-    utils.report_and_check_call(
-        command=[
-            'tree',
-        ],
-        cwd=path,
-    )
-
     return installed_path
 
 
