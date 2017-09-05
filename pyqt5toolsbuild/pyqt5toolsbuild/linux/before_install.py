@@ -100,7 +100,7 @@ def main():
         if not os.path.isfile(os.path.join('deployed_qt', 'designer')):
             qt_path = install_qt(temp_path, qt_version, build_path)
 
-            if qt_version >= utils.Version(5, 8):
+            if qt_version >= utils.Version.from_sequence(5, 8):
                 qt_version_subdir = str(qt_version.stripped())
             else:
                 qt_version_subdir = str(qt_version.exactly(2))
