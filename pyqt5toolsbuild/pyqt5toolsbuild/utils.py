@@ -136,16 +136,21 @@ def list_missing_directories(path):
     if os.path.exists(path):
         return
 
-    path, filename = os.path.split(path)
-    paths = (os.path.join(*path[:n]) for n in range(1, len(path)))
+    print('Path not found, breaking it down: {}'.format(path))
+
+    path, filename = os.path.split(path.rstrip(os.path.sep))
+    paths = (path[:i] for i, x in enumerate(path, 1) if x == os.path.sep)
 
     for path in paths:
         if not os.path.isdir(path):
             break
 
+    last_valid = os.path.dirname(path)
+    print('Deepest path found: {}'.format(last_valid))
+
     report_and_check_call(
         command=[
             'tree',
         ],
-        cwd=os.path.dirname(path),
+        cwd=last_valid,
     )
