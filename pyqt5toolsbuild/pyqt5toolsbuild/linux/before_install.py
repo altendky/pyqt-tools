@@ -28,7 +28,8 @@ def install_qt(path, version, build_path):
         file_name=file_name,
     )
 
-    os.chmod(installer_path, stat.S_IXUSR)
+    mode = os.stat(installer_path).st_mode
+    os.chmod(installer_path, mode | stat.S_IXUSR)
 
     env = dict(os.environ)
     env['QT_QPA_PLATFORM'] = 'minimal'
