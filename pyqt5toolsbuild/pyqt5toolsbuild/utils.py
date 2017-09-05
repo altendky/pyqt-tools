@@ -143,6 +143,7 @@ def list_missing_directories(path):
 
     for path in paths:
         if not os.path.isdir(path):
+            print('Failed to find as directory: {}'.format(path))
             break
 
     last_valid = os.path.dirname(path)
