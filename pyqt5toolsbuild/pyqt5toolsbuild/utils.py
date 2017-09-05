@@ -148,7 +148,7 @@ def list_missing_directories(path):
             print('Failed to find as directory: {}'.format(path))
             break
 
-    last_valid = os.path.dirname(path)
+    last_valid = os.path.dirname(path.rstrip(os.path.sep))
     print('Deepest path found: {}'.format(last_valid))
 
     report_and_check_call(
