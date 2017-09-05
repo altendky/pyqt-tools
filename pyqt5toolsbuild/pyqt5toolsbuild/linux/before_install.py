@@ -92,7 +92,12 @@ def main():
     with tempfile.TemporaryDirectory() as temp_path:
         if not os.path.isfile(os.path.join('deployed_qt', 'designer')):
             qt_path = install_qt(temp_path, qt_version, build_path)
-            qt_bin_path = os.path.join(qt_path, str(qt_version), 'gcc_64', 'bin')
+            qt_bin_path = os.path.join(
+                qt_path,
+                str(qt_version.stripped()),
+                'gcc_64',
+                'bin',
+            )
 
             deploy_qt(
                 linuxdeployqt_path=linuxdeployqt_path,

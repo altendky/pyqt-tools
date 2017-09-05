@@ -69,7 +69,20 @@ class Version:
     def _(self):
         return tuple(int(s) for s in self.raw_string.split('.'))
 
-    def pad(self, levels=3):
+    def stripped(self):
+        nonzero = False
+        stripped = []
+
+        for x in reversed(self.raw_sequence):
+            if x != 0:
+                nonzero = True
+
+            if nonzero:
+                stripped.append(x)
+
+        return type(self).from_sequence(*reversed(stripped))
+
+    def padded(self, levels=3):
         sequence = self.raw_sequence + (0,) * (levels - len(self.raw_sequence))
 
         return type(self).from_sequence(*sequence)
@@ -105,8 +118,8 @@ def twiddle_version():
 
 pyqt_to_qt_version_map = {
     (5, 9, 0): (5, 9, 1),
-    (5, 8, 1): (5, 8, 0),
-    (5, 8, 0): (5, 8, 0),
+    (5, 8, 1): (5, 8),
+    (5, 8, 0): (5, 8),
 }
 
 pyqt_to_qt_version_map = {
@@ -115,4 +128,4 @@ pyqt_to_qt_version_map = {
 }
 
 def pyqt_to_qt_version(pyqt_version):
-    return pyqt_to_qt_version_map[pyqt_version.pad(3)]
+    return pyqt_to_qt_version_map[pyqt_version.padded(3)]
