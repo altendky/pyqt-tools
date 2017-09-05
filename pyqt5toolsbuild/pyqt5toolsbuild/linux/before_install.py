@@ -94,7 +94,7 @@ def main():
             qt_path = install_qt(temp_path, qt_version, build_path)
             qt_bin_path = os.path.join(qt_path, str(qt_version), 'gcc_64', 'bin')
 
-            deploy_qt.deploy_qt(
+            deploy_qt(
                 linuxdeployqt_path=linuxdeployqt_path,
                 qt_bin_path=qt_bin_path,
                 deployed_qt_path=deployed_qt_path,
