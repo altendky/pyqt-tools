@@ -17,6 +17,7 @@ addons:
       - tree
       - python-virtualenv
       - python3.6
+      - libmysqlclient-dev
 
   artifacts:
     s3_region: $ARTIFACTS_REGION
