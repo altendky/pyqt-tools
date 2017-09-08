@@ -28,7 +28,7 @@ env:
   matrix:
     - PYQT5_VERSION=5.9
     - PYQT5_VERSION=5.8.1
-    - PYQT5_VERSION=5.7.1
+#    - PYQT5_VERSION=5.7.1
 
 before_install:
   - tree -L 4
