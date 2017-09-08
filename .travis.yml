@@ -40,10 +40,10 @@ before_install:
   - ./linuxdeployqt-continuous-x86_64.AppImage --appimage-extract
   - mv squashfs-root linuxdeployqt
   - mkdir LD_LIBRARY_PATH
-  - if [ -z "$LD_LIBRARY_PATH" ]; then \
-      export LD_LIBRARY_PATH=$PWD/LD_LIBRARY_PATH \
-    else \
-      export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PWD/LD_LIBRARY_PATH \
+  - if [ -z "$LD_LIBRARY_PATH" ]; then
+      export LD_LIBRARY_PATH=$PWD/LD_LIBRARY_PATH;
+    else
+      export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PWD/LD_LIBRARY_PATH;
     fi
   - echo LD_LIBRARY_PATH    $LD_LIBRARY_PATH
   - ldconfig -p
