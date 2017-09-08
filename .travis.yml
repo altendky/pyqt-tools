@@ -41,6 +41,8 @@ before_install:
   - mv squashfs-root linuxdeployqt
   - mkdir LD_LIBRARY_PATH
   - ln -s /lib/x86_64-linux-gnu/libssl.so.1.0.0 LD_LIBRARY_PATH/libssl.so.10
+  - ln -s /lib/x86_64-linux-gnu/libcrypto.so.1.0.0 LD_LIBRARY_PATH/libcrypto.so.10
+#  libbluetooth.so.3
   - if [ -z "$LD_LIBRARY_PATH" ]; then
       export LD_LIBRARY_PATH=$PWD/LD_LIBRARY_PATH;
     else
