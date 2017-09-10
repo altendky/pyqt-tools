@@ -120,12 +120,12 @@ def twiddle_version():
 
 pyqt_to_qt_version_map = {
     Version.from_sequence(*k): Version.from_sequence(*v)
-    for k, v in (
-        (5, 9, 0), (5, 9, 1),
-        (5, 8, 1), (5, 8),
-        (5, 8, 0), (5, 8),
-        (5, 7, 1), (5, 7, 1),
-    )
+    for k, v in {
+        (5, 9, 0): (5, 9, 1),
+        (5, 8, 1): (5, 8),
+        (5, 8, 0): (5, 8),
+        (5, 7, 1): (5, 7, 1),
+    }
 }
 
 pyqt_to_qt_version_map = {
@@ -166,13 +166,13 @@ def list_missing_directories(path):
 
 pyqt_to_sip_version_map = {
     Version.from_sequence(*k): Version.from_sequence(*v)
-    for k, v in (
-        (5, 5, 1), (4, 17),
-        (5, 6, 0), (4, 19),
-        (5, 7, 1), (4, 19),
-        (5, 8, 2), (4, 19, 2),
-        (5, 9, 0), (4, 19, 3),
-    )
+    for k, v in {
+        (5, 5, 1): (4, 17),
+        (5, 6, 0): (4, 19),
+        (5, 7, 1): (4, 19),
+        (5, 8, 2): (4, 19, 2),
+        (5, 9, 0): (4, 19, 3),
+    }
 }
 
 def pyqt_to_sip_version(pyqt_version):
