@@ -13,4 +13,4 @@ def cli():
 def ppa(version):
     f = 'ppa:beineri/opt-qt{}-trusty'
     version = pyqt5toolsbuild.utils.Version.from_string(version)
-    print(f.format(version.stripped().replace('.', '')))
+    print(f.format(str(version.stripped()).replace('.', '')))
