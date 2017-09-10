@@ -1,50 +1,8 @@
 import os
 import shutil
-import stat
 import subprocess
-import tempfile
 
 from .. import utils
-
-
-def install_qt(path, version, build_path):
-    installed_path = os.path.join(path, 'Qt')
-    if os.path.exists(installed_path):
-        shutil.rmtree(installed_path)
-
-    file_name = 'qt-opensource-linux-x64-{}.run'.format(version.exactly(3))
-    url = ''.join((
-        'http://download.qt.io',
-        '/official_releases/qt/{}/{}/'.format(
-            version.exactly(2),
-            version.exactly(3),
-        ),
-        file_name,
-    ))
-
-    installer_path = utils.save_url_to_file(
-        url=url,
-        file_path=path,
-        file_name=file_name,
-    )
-
-    mode = os.stat(installer_path).st_mode
-    os.chmod(installer_path, mode | stat.S_IXUSR)
-
-    env = dict(os.environ)
-    env['QT_QPA_PLATFORM'] = 'minimal'
-    utils.report_and_check_call(
-        command=[
-            installer_path,
-            '--script',
-            os.path.join(build_path, 'qt-installer-noninteractive.qs'),
-            '--no-force-installations',
-        ],
-        cwd=path,
-        env=env,
-    )
-
-    return installed_path
 
 
 def deploy_qt(linuxdeployqt_path, qt_bin_path, deployed_qt_path):
@@ -96,24 +54,11 @@ def main():
         'linuxdeployqt',
     )
 
-    with tempfile.TemporaryDirectory() as temp_path:
-        if not os.path.isfile(os.path.join('deployed_qt', 'designer')):
-            qt_path = install_qt(temp_path, qt_version, build_path)
+    if not os.path.isfile(os.path.join('deployed_qt', 'designer')):
+        qt_bin_path = utils.qt_bin_path(qt_version)
 
-            if qt_version >= utils.Version.from_sequence(5, 8):
-                qt_version_subdir = str(qt_version.stripped())
-            else:
-                qt_version_subdir = str(qt_version.exactly(2))
-
-            qt_bin_path = os.path.join(
-                qt_path,
-                qt_version_subdir,
-                'gcc_64',
-                'bin',
-            )
-
-            deploy_qt(
-                linuxdeployqt_path=linuxdeployqt_path,
-                qt_bin_path=qt_bin_path,
-                deployed_qt_path=deployed_qt_path,
-            )
+        deploy_qt(
+            linuxdeployqt_path=linuxdeployqt_path,
+            qt_bin_path=qt_bin_path,
+            deployed_qt_path=deployed_qt_path,
+        )

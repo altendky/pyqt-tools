@@ -1,8 +1,10 @@
+import io
 import os
 import posixpath
 import subprocess
 import sys
 import urllib
+import zipfile
 
 import attr
 import requests
@@ -117,10 +119,13 @@ def twiddle_version():
 
 
 pyqt_to_qt_version_map = {
-    (5, 9, 0): (5, 9, 1),
-    (5, 8, 1): (5, 8),
-    (5, 8, 0): (5, 8),
-    (5, 7, 1): (5, 7, 1),
+    Version.from_sequence(*k): Version.from_sequence(*v)
+    for k, v in (
+        (5, 9, 0), (5, 9, 1),
+        (5, 8, 1), (5, 8),
+        (5, 8, 0), (5, 8),
+        (5, 7, 1), (5, 7, 1),
+    )
 }
 
 pyqt_to_qt_version_map = {
@@ -157,3 +162,50 @@ def list_missing_directories(path):
         ],
         cwd=last_valid,
     )
+
+
+pyqt_to_sip_version_map = {
+    Version.from_sequence(*k): Version.from_sequence(*v)
+    for k, v in (
+        (5, 5, 1), (4, 17),
+        (5, 6, 0), (4, 19),
+        (5, 7, 1), (4, 19),
+        (5, 8, 2), (4, 19, 2),
+        (5, 9, 0), (4, 19, 3),
+    )
+}
+
+def pyqt_to_sip_version(pyqt_version):
+    return pyqt_to_sip_version_map[pyqt_version.padded(3)]
+
+
+def sip_name_url(version):
+    name = 'sip-{}'.format(version)
+
+    return name, (
+        'http://downloads.sourceforge.net'
+        '/project/pyqt/sip/{name}/{name}.zip'
+        .format(name=name)
+    )
+
+
+def extract_zip_url(url, destination):
+    r = requests.get(url)
+
+    z = zipfile.ZipFile(io.BytesIO(r.content))
+    z.extractall(path=destination)
+
+
+def qt_path(version):
+    return os.path.join('/', 'opt', str(version.stripped()))
+
+def qt_bin_path(version):
+    qt_version_subdir = str(version.exactly(2)).replace('.', '')
+
+    return os.path.join(
+        qt_path,
+        qt_version_subdir,
+        'gcc_64',
+        'bin',
+    )
+

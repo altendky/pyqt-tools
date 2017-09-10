@@ -8,10 +8,13 @@ setuptools.setup(
         'console_scripts': [
             'before_install = pyqt5toolsbuild.linux.before_install:main',
             'buildlinux = pyqt5toolsbuild.linux.build:main',
+            'version = pyqt5toolsbuild.cli.version:cli',
+            'beineri = pyqt5toolsbuild.cli.beineri:cli',
         ]
     },
     install_requires=[
         'attrs',
+        'click',
         'requests',
     ],
 )

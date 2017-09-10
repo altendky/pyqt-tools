@@ -1,4 +1,4 @@
-sudo: false
+sudo: true
 language: python
 
 python:
@@ -36,6 +36,8 @@ before_install:
   - venv/bin/python -m pip install ./pyqt5toolsbuild
   - venv/bin/python -c 'import sys; print(sys.version); print(sys.executable)'
   - venv/bin/python -m pip freeze
+  - sudo add-apt-repository --yes $(venv/bin/beineri ppa --version $(venv/bin/version qt --version $PYQT5_VERSION))
+  - sudo apt-get update -qq
   - wget -nv https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage
   - chmod a+x linuxdeployqt-continuous-x86_64.AppImage
   - ./linuxdeployqt-continuous-x86_64.AppImage --appimage-extract
@@ -55,7 +57,7 @@ before_install:
 
 script:
   - git fetch --unshallow
-  - venv/bin/buildlinux
+  - venv/bin/buildlinux --venv-bin target_venv/bin
   - virtualenv -p python target_venv
   - target_venv/bin/python -m pip install requests==2.13.0
   - target_venv/bin/python -m pip install vcversioner==2.16.0.0
