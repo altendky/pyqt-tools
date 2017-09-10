@@ -125,7 +125,7 @@ pyqt_to_qt_version_map = {
         (5, 8, 1): (5, 8),
         (5, 8, 0): (5, 8),
         (5, 7, 1): (5, 7, 1),
-    }
+    }.items()
 }
 
 pyqt_to_qt_version_map = {
@@ -172,7 +172,7 @@ pyqt_to_sip_version_map = {
         (5, 7, 1): (4, 19),
         (5, 8, 2): (4, 19, 2),
         (5, 9, 0): (4, 19, 3),
-    }
+    }.items()
 }
 
 def pyqt_to_sip_version(pyqt_version):
