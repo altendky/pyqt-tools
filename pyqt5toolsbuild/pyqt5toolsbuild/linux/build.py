@@ -7,7 +7,7 @@ import click
 import pyqt5toolsbuild.utils
 
 
-@click.command
+@click.command()
 @click.option('--venv-bin')
 def main(venv_bin):
     build = os.environ['TRAVIS_BUILD_DIR']
