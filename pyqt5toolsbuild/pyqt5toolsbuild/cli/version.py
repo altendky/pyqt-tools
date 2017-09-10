@@ -12,7 +12,7 @@ def cli():
 @click.option('--version')
 @click.option('--levels', type=int)
 def exact(version, levels):
-    version = pyqt5toolsbuild.utilVersion.from_string(version)
+    version = pyqt5toolsbuild.util.Version.from_string(version)
 
     print(version.exactly(levels=levels))
 
