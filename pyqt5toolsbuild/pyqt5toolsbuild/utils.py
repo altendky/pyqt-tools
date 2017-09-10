@@ -195,7 +195,7 @@ def qt_path(version):
     return os.path.join(
         '/',
         'opt',
-        'qt{}'.format(str(version.stripped()).replace('.', '')),
+        'qt{}'.format(str(version.exactly(2)).replace('.', '')),
     )
 
 def qt_bin_path(version):
