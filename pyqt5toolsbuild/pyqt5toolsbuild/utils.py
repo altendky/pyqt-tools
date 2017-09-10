@@ -199,12 +199,8 @@ def qt_path(version):
     )
 
 def qt_bin_path(version):
-    qt_version_subdir = str(version.exactly(2)).replace('.', '')
-
     return os.path.join(
         qt_path(version),
-        qt_version_subdir,
-        'gcc_64',
         'bin',
     )
 
