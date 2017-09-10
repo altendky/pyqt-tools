@@ -1,6 +1,6 @@
 import click
 
-import pyqt5toolsbuild.util
+import pyqt5toolsbuild.utils
 
 
 @click.group
@@ -12,5 +12,5 @@ def cli():
 @click.option('--version')
 def ppa(version):
     f = 'ppa:beineri/opt-qt{}-trusty'
-    version = pyqt5toolsbuild.util.Version.from_string(version)
+    version = pyqt5toolsbuild.utils.Version.from_string(version)
     print(f.format(version.strip().replace('.', '')))

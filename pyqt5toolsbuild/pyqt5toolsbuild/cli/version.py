@@ -1,6 +1,6 @@
 import click
 
-import pyqt5toolsbuild.util
+import pyqt5toolsbuild.utils
 
 
 @click.group
@@ -20,6 +20,6 @@ def exact(version, levels):
 @cli.command
 @click.option('--version')
 def qt(version):
-    version = pyqt5toolsbuild.util.Version.from_string(version)
+    version = pyqt5toolsbuild.utils.Version.from_string(version)
 
-    print(pyqt5toolsbuild.util.pyqt_to_qt_version(version))
+    print(pyqt5toolsbuild.utils.pyqt_to_qt_version(version))
