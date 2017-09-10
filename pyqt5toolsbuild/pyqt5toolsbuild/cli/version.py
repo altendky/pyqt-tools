@@ -3,12 +3,12 @@ import click
 import pyqt5toolsbuild.utils
 
 
-@click.group
+@click.group()
 def cli():
     pass
 
 
-@cli.command
+@cli.command()
 @click.option('--version')
 @click.option('--levels', type=int)
 def exact(version, levels):
@@ -17,7 +17,7 @@ def exact(version, levels):
     print(version.exactly(levels=levels))
 
 
-@cli.command
+@cli.command()
 @click.option('--version')
 def qt(version):
     version = pyqt5toolsbuild.utils.Version.from_string(version)

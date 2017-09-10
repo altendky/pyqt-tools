@@ -3,12 +3,12 @@ import click
 import pyqt5toolsbuild.utils
 
 
-@click.group
+@click.group()
 def cli():
     pass
 
 
-@cli.command
+@cli.command()
 @click.option('--version')
 def ppa(version):
     f = 'ppa:beineri/opt-qt{}-trusty'
