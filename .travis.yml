@@ -38,7 +38,7 @@ before_install:
   - venv/bin/python -m pip freeze
   - sudo add-apt-repository --yes $(venv/bin/beineri ppa --version $(venv/bin/version qt --version $PYQT5_VERSION))
   - sudo apt-get update -qq
-  - sudo apt-get install -y qt$(venv/bin/version exact --levels 2 --version $(venv/bin/version qt --version $PYQT5_VERSION))-meta-full
+  - sudo apt-get install -y qt$(venv/bin/version exact --remove-dots --levels 2 --version $(venv/bin/version qt --version $PYQT5_VERSION))-meta-full
   - wget -nv https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage
   - chmod a+x linuxdeployqt-continuous-x86_64.AppImage
   - ./linuxdeployqt-continuous-x86_64.AppImage --appimage-extract
