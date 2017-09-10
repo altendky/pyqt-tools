@@ -18,7 +18,7 @@ def exact(version, levels, remove_dots):
     s = str(version.exactly(levels=levels))
 
     if remove_dots:
-        s.replace('.', '')
+        s = s.replace('.', '')
 
     print(s)
 
