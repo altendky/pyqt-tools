@@ -15,7 +15,7 @@ def cli():
 def exact(version, levels, remove_dots):
     version = pyqt5toolsbuild.utils.Version.from_string(version)
 
-    s = version.exactly(levels=levels)
+    s = str(version.exactly(levels=levels))
 
     if remove_dots:
         s.replace('.', '')
