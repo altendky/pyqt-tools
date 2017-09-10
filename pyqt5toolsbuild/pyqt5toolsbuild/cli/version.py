@@ -11,7 +11,7 @@ def cli():
 @cli.command()
 @click.option('--version')
 @click.option('--levels', type=int)
-@click.option('--remove-dots', default=False)
+@click.option('--remove-dots', is_flag=True)
 def exact(version, levels, remove_dots):
     version = pyqt5toolsbuild.utils.Version.from_string(version)
 
