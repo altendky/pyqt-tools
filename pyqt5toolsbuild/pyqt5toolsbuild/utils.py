@@ -192,7 +192,7 @@ def extract_zip_url(url, destination):
 
 
 def qt_path(version):
-    return os.path.join('/', 'opt', str(version.stripped()))
+    return os.path.join('/', 'opt', str(version.stripped()).replace('.', ''))
 
 def qt_bin_path(version):
     qt_version_subdir = str(version.exactly(2)).replace('.', '')
