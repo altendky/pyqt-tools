@@ -11,6 +11,8 @@ import pyqt5toolsbuild.utils
 @click.command()
 @click.option('--venv-bin')
 def main(venv_bin):
+    venv_bin = os.path.abspath(venv_bin)
+
     build = os.environ['TRAVIS_BUILD_DIR']
     deployed_qt = os.path.join(build, 'deployed_qt')
     destination = os.path.join(build, 'pyqt5-tools')
