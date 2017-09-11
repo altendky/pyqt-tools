@@ -21,6 +21,7 @@ def main(venv_bin):
     native_sysroot = os.path.join(sysroot, 'native')
 
     os.makedirs(sysroot)
+    os.makedirs(native_sysroot)
     os.makedirs(src_path)
 
     bits = int(platform.architecture()[0][0:2])
