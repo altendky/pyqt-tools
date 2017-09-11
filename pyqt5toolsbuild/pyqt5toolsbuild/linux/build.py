@@ -43,7 +43,7 @@ def main(venv_bin):
     qt_version = pyqt5toolsbuild.utils.pyqt_to_qt_version(pyqt5_version)
     sip_version = pyqt5toolsbuild.utils.pyqt_to_sip_version(pyqt5_version)
 
-    sip_name, sip_url = pyqt5toolsbuild.sip_name_url(sip_version)
+    sip_name, sip_url = pyqt5toolsbuild.utils.sip_name_url(sip_version)
     sip_path = os.path.join(src_path, sip_name)
     native_sip_path = sip_path + '-native'
 
