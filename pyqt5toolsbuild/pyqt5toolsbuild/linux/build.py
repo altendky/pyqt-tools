@@ -42,6 +42,7 @@ def main(venv_bin):
 
     pyqt_version = os.environ['PYQT5_VERSION']
 
+    qt_version = pyqt5toolsbuild.utils.pyqt_to_qt_version(pyqt5_version)
     sip_version = pyqt5toolsbuild.utils.pyqt_to_sip_version(pyqt_version)
 
     sip_name, sip_url = pyqt5toolsbuild.sip_name_url(sip_version)
