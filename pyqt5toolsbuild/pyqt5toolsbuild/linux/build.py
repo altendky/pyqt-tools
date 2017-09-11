@@ -47,12 +47,12 @@ def main(venv_bin):
     sip_path = os.path.join(src_path, sip_name)
     native_sip_path = sip_path + '-native'
 
-    pyqt5toolsbuild.extract_zip_url(
+    pyqt5toolsbuild.utils.extract_zip_url(
         url=sip_url,
         destination=src_path,
     )
 
-    pyqt5toolsbuild.report_and_check_call(
+    pyqt5toolsbuild.utils.report_and_check_call(
         command=[
             os.path.join(venv_bin, 'python'),
             'configure.py',
@@ -63,14 +63,14 @@ def main(venv_bin):
         ],
         cwd=native_sip_path,
     )
-    pyqt5toolsbuild.report_and_check_call(
+    pyqt5toolsbuild.utils.report_and_check_call(
         command=[
             make,
         ],
         cwd=native_sip_path,
         env=os.environ,
     )
-    pyqt5toolsbuild.report_and_check_call(
+    pyqt5toolsbuild.utils.report_and_check_call(
         command=[
             make,
             'install',
@@ -79,7 +79,7 @@ def main(venv_bin):
         env=os.environ,
     )
 
-    pyqt5toolsbuild.report_and_check_call(
+    pyqt5toolsbuild.utils.report_and_check_call(
         command=[
             os.path.join(venv_bin, 'pyqtdeploycli'),
             '--package', 'sip',
@@ -89,7 +89,7 @@ def main(venv_bin):
         cwd=sip_path,
     )
 
-    pyqt5toolsbuild.report_and_check_call(
+    pyqt5toolsbuild.utils.report_and_check_call(
         command=[
             os.path.join(venv_bin, 'python'),
             'configure.py',
@@ -104,7 +104,7 @@ def main(venv_bin):
         cwd=sip_path,
     )
 
-    pyqt5toolsbuild.report_and_check_call(
+    pyqt5toolsbuild.utils.report_and_check_call(
         command=[
             qmake,
         ],
@@ -112,7 +112,7 @@ def main(venv_bin):
         env=os.environ,
     )
 
-    pyqt5toolsbuild.report_and_check_call(
+    pyqt5toolsbuild.utils.report_and_check_call(
         command=[
             make,
         ],
@@ -120,7 +120,7 @@ def main(venv_bin):
         env=os.environ,
     )
 
-    pyqt5toolsbuild.report_and_check_call(
+    pyqt5toolsbuild.utils.report_and_check_call(
         command=[
             make,
             'install',
