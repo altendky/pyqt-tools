@@ -122,8 +122,7 @@ pyqt_to_qt_version_map = {
     Version.from_sequence(*k): Version.from_sequence(*v)
     for k, v in {
         (5, 9, 0): (5, 9, 1),
-        (5, 8, 1): (5, 8),
-        (5, 8, 0): (5, 8),
+        (5, 8, 2): (5, 8),
         (5, 7, 1): (5, 7, 1),
     }.items()
 }
