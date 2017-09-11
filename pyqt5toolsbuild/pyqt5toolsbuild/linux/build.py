@@ -52,6 +52,8 @@ def main(venv_bin):
         destination=src_path,
     )
 
+    shutil.copytree(sip_path, native_sip_path)
+
     pyqt5toolsbuild.utils.report_and_check_call(
         command=[
             os.path.join(venv_bin, 'python'),
