@@ -9,9 +9,10 @@ import pyqt5toolsbuild.utils
 
 
 @click.command()
-@click.option('--venv-bin')
-def main(venv_bin):
-    venv_bin = os.path.abspath(venv_bin)
+def main():
+    build_venv_bin = os.path.dirname(sys.executable)
+    build_python_path = sys.executable
+    build_pyqtdeploycli_path = os.path.join(build_venv_bin, 'pyqtdeploycli')
 
     build = os.environ['TRAVIS_BUILD_DIR']
     deployed_qt = os.path.join(build, 'deployed_qt')
@@ -59,7 +60,7 @@ def main(venv_bin):
 
     pyqt5toolsbuild.utils.report_and_check_call(
         command=[
-            os.path.join(venv_bin, 'python'),
+            build_python_path,
             'configure.py',
             '--static',
             '--sysroot={}'.format(native_sysroot),
@@ -86,7 +87,7 @@ def main(venv_bin):
 
     pyqt5toolsbuild.utils.report_and_check_call(
         command=[
-            os.path.join(venv_bin, 'pyqtdeploycli'),
+            build_pyqtdeploycli_path,
             '--package', 'sip',
             '--target', 'linux-{}'.format(bits),
             'configure',
@@ -96,7 +97,7 @@ def main(venv_bin):
 
     pyqt5toolsbuild.utils.report_and_check_call(
         command=[
-            os.path.join(venv_bin, 'python'),
+            build_python_path,
             'configure.py',
             '--static',
             '--sysroot={}'.format(sysroot),
