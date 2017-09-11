@@ -129,7 +129,7 @@ pyqt_to_qt_version_map = {
 }
 
 def pyqt_to_qt_version(pyqt_version):
-    return pyqt_to_qt_version_map[pyqt_version].padded(3)
+    return pyqt_to_qt_version_map[pyqt_version.padded(3)]
 
 
 def list_missing_directories(path):
@@ -171,7 +171,7 @@ pyqt_to_sip_version_map = {
 }
 
 def pyqt_to_sip_version(pyqt_version):
-    return pyqt_to_sip_version_map[pyqt_version].padded(3)
+    return pyqt_to_sip_version_map[pyqt_version.padded(3)]
 
 
 def sip_name_url(version):
