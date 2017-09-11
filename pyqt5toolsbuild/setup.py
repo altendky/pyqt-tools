@@ -16,6 +16,7 @@ setuptools.setup(
         'attrs',
         'click',
         'requests',
+        'pyqt5',
         'pyqtdeploy',
     ],
 )
