@@ -26,9 +26,11 @@ def main():
     os.makedirs(src_path)
 
     bits = int(platform.architecture()[0][0:2])
-    python_major_minor = '{}{}'.format(
+    # TODO: use full version info
+    python_version = pyqt5toolsbuild.utils.Version.from_sequence(
         sys.version_info.major,
-        sys.version_info.minor
+        sys.version_info.minor,
+        sys.version_info.micro,
     )
 
     print('copying {}'.format(deployed_qt))
@@ -46,6 +48,22 @@ def main():
 
     qt_version = pyqt5toolsbuild.utils.pyqt_to_qt_version(pyqt5_version)
     sip_version = pyqt5toolsbuild.utils.pyqt_to_sip_version(pyqt5_version)
+
+    pyqt5toolsbuild.utils.report_and_check_call(
+        command=[
+            build_pyqtdeploycli_path,
+            '--sysroot', sysroot,
+            '--package', 'python',
+            '--system-python', '.'.join(str(python_version.exactly(2))),
+            'install',
+        ],
+    )
+
+    os.environ['CL'] = '/I"{}"'.format(os.path.join(
+        sysroot,
+        'include',
+        'python{}'.format('.'.join(str(python_version.exactly(2)))),
+    ))
 
     sip_name, sip_url = pyqt5toolsbuild.utils.sip_name_url(sip_version)
     sip_path = os.path.join(src_path, sip_name)
@@ -65,7 +83,9 @@ def main():
             '--static',
             '--sysroot={}'.format(native_sysroot),
             '--platform=linux-g++',
-            '--target-py-version={}'.format('.'.join(python_major_minor)),
+            '--target-py-version={}'.format(
+                '.'.join(str(python_version.exactly(2)))
+            ),
         ],
         cwd=native_sip_path,
     )
@@ -105,7 +125,9 @@ def main():
             '--use-qmake',
             '--configuration=sip-linux.cfg',
             '--platform=linux-g++',
-            '--target-py-version={}'.format('.'.join(python_major_minor)),
+            '--target-py-version={}'.format(
+                '.'.join(str(python_version.exactly(2)))
+            ),
         ],
         cwd=sip_path,
     )
