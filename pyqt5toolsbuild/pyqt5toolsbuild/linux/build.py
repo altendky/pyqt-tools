@@ -40,7 +40,7 @@ def main():
     )
     qt_version = pyqt5toolsbuild.utils.pyqt_to_qt_version(pyqt5_version)
 
-    qt_bin_path = pyqt5toolsbuild.utils.qt_path(qt_version)
+    qt_bin_path = os.path.join(pyqt5toolsbuild.utils.qt_path(qt_version), 'bin')
     qmake = os.path.join(qt_bin_path, 'qmake.exe')
     make = 'make'
 
