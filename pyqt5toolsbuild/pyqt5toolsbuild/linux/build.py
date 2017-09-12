@@ -103,7 +103,7 @@ def main():
             '--sysroot={}'.format(sysroot),
             '--no-tools',
             '--use-qmake',
-            '--configuration=sip-win.cfg',
+            '--configuration=sip-linux.cfg',
             '--platform=linux-g++',
             '--target-py-version={}'.format('.'.join(python_major_minor)),
         ],
