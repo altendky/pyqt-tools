@@ -48,15 +48,49 @@ def main():
 
     qt_version = pyqt5toolsbuild.utils.pyqt_to_qt_version(pyqt5_version)
     sip_version = pyqt5toolsbuild.utils.pyqt_to_sip_version(pyqt5_version)
+    python_version = pyqt5toolsbuild.utils.python_version()
+
+    python_name, python_url = pyqt5toolsbuild.utils.python_name_url(
+        python_version
+    )
+    python_path = os.path.join(src_path, python_name)
+
+    pyqt5toolsbuild.utils.extract_tar_url(
+        url=python_url,
+        destination=src_path,
+    )
 
     pyqt5toolsbuild.utils.report_and_check_call(
         command=[
             build_pyqtdeploycli_path,
-            '--sysroot', sysroot,
             '--package', 'python',
-            '--system-python', '.'.join(str(python_version.exactly(2))),
+            '--target', 'linux-{}'.format(bits),
+            'configure',
+        ],
+        cwd=python_path,
+    )
+
+    pyqt5toolsbuild.utils.report_and_check_call(
+        command=[
+            qmake,
+            'SYSROOT={}'.format(sysroot),
+        ],
+        cwd=python_path,
+    )
+
+    pyqt5toolsbuild.utils.report_and_check_call(
+        command=[
+            'make',
+        ],
+        cwd=python_path,
+    )
+
+    pyqt5toolsbuild.utils.report_and_check_call(
+        command=[
+            'make',
             'install',
         ],
+        cwd=python_path,
     )
 
     os.environ['CL'] = '/I"{}"'.format(os.path.join(

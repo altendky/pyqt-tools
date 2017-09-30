@@ -3,6 +3,7 @@ import os
 import posixpath
 import subprocess
 import sys
+import tarfile
 import urllib
 import zipfile
 
@@ -22,7 +23,7 @@ def report_and_check_call(**kwargs):
 
     command = kwargs.pop('command')
 
-    subprocess.check_call(command, **kwargs)
+    return subprocess.check_output(command, **kwargs)
 
 
 def save_url_to_file(
@@ -181,6 +182,43 @@ def sip_name_url(version):
         '/project/pyqt/sip/{name}/{name}.zip'
         .format(name=name)
     )
+
+
+def python_version():
+    version = report_and_check_call(
+        command=[
+            'python',
+            '-c',
+            'import sys; print(".".join(str(x) for x in sys.version_info[:3]))',
+        ]
+    )
+
+    return Version.from_string(version)
+
+
+def python_name_url(version):
+    name = 'Python-{}'.format(version)
+
+    return name, (
+        'https://www.python.org'
+        '/ftp/python/{version}/{name}.tar.xz'
+        .format(version=version, name=name)
+    )
+
+
+def extract_tar_url(url, destination):
+    extension = url.rsplit('.', 1)[1]
+    extension = {
+        'tgz': 'gz',
+    }.get(extension, extension)
+
+    r = requests.get(url)
+
+    t = tarfile.TarFile(
+        mode='r:{}'.format(extension),
+        fileobj=io.BytesIO(r.content),
+    )
+    t.extractall(path=destination)
 
 
 def extract_zip_url(url, destination):
