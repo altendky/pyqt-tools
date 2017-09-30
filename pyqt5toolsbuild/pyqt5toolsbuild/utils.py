@@ -216,7 +216,7 @@ def extract_tar_url(url, destination):
     r = requests.get(url)
 
     t = tarfile.open(
-        mode='r|{}'.format(extension),
+        mode='r:{}'.format(extension),
         fileobj=io.BytesIO(r.content),
     )
     t.extractall(path=destination)
