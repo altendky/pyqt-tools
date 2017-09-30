@@ -23,7 +23,8 @@ def report_and_check_call(**kwargs):
 
     command = kwargs.pop('command')
 
-    return subprocess.check_output(command, **kwargs)
+    # TODO: maybe actually pay attention to the encoding?
+    return subprocess.check_output(command, **kwargs).decode()
 
 
 def save_url_to_file(
