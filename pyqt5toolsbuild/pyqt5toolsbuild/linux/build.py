@@ -117,9 +117,7 @@ def main():
             '--static',
             '--sysroot={}'.format(native_sysroot),
             '--platform=linux-g++',
-            '--target-py-version={}'.format(
-                '.'.join(str(python_version.exactly(2)))
-            ),
+            '--target-py-version={}'.format(str(python_version.exactly(2))),
         ],
         cwd=native_sip_path,
     )
@@ -159,8 +157,7 @@ def main():
             '--use-qmake',
             '--configuration=sip-linux.cfg',
             '--platform=linux-g++',
-            '--target-py-version={}'.format(
-                '.'.join(str(python_version.exactly(2)))
+            '--target-py-version={}'.format(str(python_version.exactly(2))),
             ),
         ],
         cwd=sip_path,
