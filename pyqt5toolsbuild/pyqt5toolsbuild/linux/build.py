@@ -158,7 +158,6 @@ def main():
             '--configuration=sip-linux.cfg',
             '--platform=linux-g++',
             '--target-py-version={}'.format(str(python_version.exactly(2))),
-            ),
         ],
         cwd=sip_path,
     )
