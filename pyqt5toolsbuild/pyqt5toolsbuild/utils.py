@@ -214,6 +214,7 @@ def extract_tar_url(url, destination):
     }.get(extension, extension)
 
     r = requests.get(url)
+    r.raise_for_status()
 
     t = tarfile.open(
         mode='r:{}'.format(extension),
@@ -224,6 +225,7 @@ def extract_tar_url(url, destination):
 
 def extract_zip_url(url, destination):
     r = requests.get(url)
+    r.raise_for_status()
 
     z = zipfile.ZipFile(io.BytesIO(r.content))
     z.extractall(path=destination)
