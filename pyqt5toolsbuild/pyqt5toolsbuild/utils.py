@@ -198,6 +198,7 @@ def python_version():
 
 
 def python_name_url(version):
+    version = version.exactly(3)
     name = 'Python-{}'.format(version)
 
     return name, (
