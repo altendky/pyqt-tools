@@ -261,8 +261,6 @@ def main():
         env=os.environ,
     )
 
-    sys.stderr.write('another stderr test from {}\n'.format(__file__))
-
     pyqt5toolsbuild.utils.report_and_check_call(
         command=[
             make,
