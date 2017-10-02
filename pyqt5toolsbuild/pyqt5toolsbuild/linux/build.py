@@ -192,6 +192,7 @@ def main():
     )
 
     pyqt5_path = os.path.join(src_path, pyqt5_name)
+    pyqt5_install_path = os.path.join(sysroot, 'pyqt5-install')
 
     # TODO: enable the patch
     # # TODO: make a patch for the lower versions as well
@@ -237,9 +238,18 @@ def main():
         r'--configuration={}'.format(pyqt5_cfg),
         r'--confirm-license',
         r'--sip={}'.format(os.path.join(sysroot, 'native', 'bin', 'sip')),
-        r'--bindir={}\pyqt5-install\bin'.format(sysroot),
-        r'--destdir={}\pyqt5-install\dest'.format(sysroot),
-        r'--designer-plugindir={}\pyqt5-install\designer'.format(sysroot),
+        r'--bindir={}'.format(os.path.join(
+            pyqt5_install_path,
+            'bin',
+        )),
+        r'--destdir={}'.format(os.path.join(
+            pyqt5_install_path,
+            'dest',
+        )),
+        r'--designer-plugindir={}'.format(os.path.join(
+            pyqt5_install_path,
+            'designer',
+        )),
         r'--enable=QtDesigner',
         '--target-py-version={}'.format(str(python_version.exactly(2))),
     ]
@@ -274,4 +284,9 @@ def main():
         ],
         cwd=pyqt5_path,
         env=os.environ,
+    )
+
+    shutil.copytree(
+        os.path.join(pyqt5_install_path, 'designer'),
+        os.path.join(destination, 'plugins'),
     )
