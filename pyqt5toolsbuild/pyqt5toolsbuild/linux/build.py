@@ -80,14 +80,14 @@ def main():
 
     pyqt5toolsbuild.utils.report_and_check_call(
         command=[
-            'make',
+            make,
         ],
         cwd=python_path,
     )
 
     pyqt5toolsbuild.utils.report_and_check_call(
         command=[
-            'make',
+            make,
             'install',
         ],
         cwd=python_path,
