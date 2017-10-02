@@ -220,7 +220,7 @@ def main():
         ))
         for line in original:
             if line.startswith('py_pylib_lib'):
-                f.write('py_pylib_lib = python%(py_major)%(py_minor)\n')
+                f.write('py_pylib_lib = python%(py_major).%(py_minor)\n')
             else:
                 f.write(line)
     designer_pro = os.path.join(pyqt5_path, 'designer', 'designer.pro-in')
