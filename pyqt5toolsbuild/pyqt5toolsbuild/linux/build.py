@@ -29,7 +29,7 @@ def main():
     bits = int(platform.architecture()[0][0:2])
     # TODO: use full version info
     python_version = pyqt5toolsbuild.utils.Version.from_sequence(
-        *sys.version[:3],
+        *sys.version_info[:3],
     )
 
     print('copying {}'.format(deployed_qt))
