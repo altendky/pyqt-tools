@@ -214,9 +214,11 @@ def extract_tar_url(url, destination):
         'tgz': 'gz',
     }.get(extension, extension)
 
+    print('Downloading: {}'.format(url))
     r = requests.get(url)
     r.raise_for_status()
 
+    print('Untarring into: {}'.format(destination))
     t = tarfile.open(
         mode='r:{}'.format(extension),
         fileobj=io.BytesIO(r.content),
@@ -225,9 +227,11 @@ def extract_tar_url(url, destination):
 
 
 def extract_zip_url(url, destination):
+    print('Downloading: {}'.format(url))
     r = requests.get(url)
     r.raise_for_status()
 
+    print('Unzipping into: {}'.format(destination))
     z = zipfile.ZipFile(io.BytesIO(r.content))
     z.extractall(path=destination)
 
