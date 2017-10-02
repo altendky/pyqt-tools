@@ -29,9 +29,7 @@ def main():
     bits = int(platform.architecture()[0][0:2])
     # TODO: use full version info
     python_version = pyqt5toolsbuild.utils.Version.from_sequence(
-        sys.version_info.major,
-        sys.version_info.minor,
-        sys.version_info.micro,
+        *sys.version[:3],
     )
 
     print('copying {}'.format(deployed_qt))
@@ -49,7 +47,6 @@ def main():
 
     qt_version = pyqt5toolsbuild.utils.pyqt_to_qt_version(pyqt5_version)
     sip_version = pyqt5toolsbuild.utils.pyqt_to_sip_version(pyqt5_version)
-    python_version = pyqt5toolsbuild.utils.python_version()
 
     python_name, python_url = pyqt5toolsbuild.utils.python_name_url(
         python_version
