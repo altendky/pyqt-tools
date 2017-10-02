@@ -1,3 +1,4 @@
+import io
 import os
 import platform
 import shutil
@@ -184,5 +185,99 @@ def main():
             'install',
         ],
         cwd=sip_path,
+        env=os.environ,
+    )
+
+    pyqt5_name, pyqt5_url = pyqt5toolsbuild.utils.pyqt5_name_url(pyqt5_version)
+
+    pyqt5toolsbuild.utils.extract_zip_url(
+        url=pyqt5_url,
+        destination=src_path,
+    )
+
+    pyqt5_path = os.path.join(src_path, pyqt5_name)
+
+    # TODO: enable the patch
+    # # TODO: make a patch for the lower versions as well
+    # if tuple(int(x) for x in pyqt5_version.split('.')) >= (5, 7):
+    #     report_and_check_call(
+    #         command='patch -p 1 < ..\\..\\pluginloader.patch',
+    #         shell=True, # TODO: don't do this
+    #         cwd=pyqt5,
+    #     )
+
+    pyqt5toolsbuild.utils.report_and_check_call(
+        command=[
+            build_pyqtdeploycli_path,
+            '--package', 'pyqt5',
+            '--target', 'win-{}'.format(bits),
+            'configure',
+        ],
+        cwd=pyqt5_path,
+    )
+    pyqt5_cfg = os.path.join(pyqt5_path, 'pyqt5-win.cfg')
+    with open(pyqt5_cfg) as f:
+        original = io.StringIO(f.read())
+    with open(pyqt5_cfg, 'w') as f:
+        f.write('\npy_pyshlib = python{}.dll\n'.format(
+            python_version.exactly(2),
+        ))
+        for line in original:
+            if line.startswith('py_pylib_lib'):
+                f.write('py_pylib_lib = python%(py_major)%(py_minor)\n')
+            else:
+                f.write(line)
+    designer_pro = os.path.join(pyqt5_path, 'designer', 'designer.pro-in')
+    with open(designer_pro, 'a') as f:
+        f.write('\nDEFINES     += PYTHON_LIB=\'"\\\\\\"@PYSHLIB@\\\\\\""\'\n')
+    command = [
+        build_python_path,
+        r'configure.py',
+        r'--static',
+        r'--sysroot={}'.format(sysroot),
+        r'--no-tools',
+        r'--no-qsci-api',
+        r'--no-qml-plugin',
+        r'--configuration={}'.format(pyqt5_cfg),
+        r'--confirm-license',
+        r'--sip={}\sip.exe'.format(native_sip_path),
+        r'--bindir={}\pyqt5-install\bin'.format(sysroot),
+        r'--destdir={}\pyqt5-install\dest'.format(sysroot),
+        r'--designer-plugindir={}\pyqt5-install\designer'.format(sysroot),
+        r'--enable=QtDesigner',
+        '--target-py-version={}'.format(str(python_version.exactly(2))),
+    ]
+
+    if tuple(int(x) for x in pyqt5_version.split('.')) >= (5, 6):
+        command.append(r'--qmake={}'.format(qmake))
+
+    pyqt5toolsbuild.utils.report_and_check_call(
+        command=command,
+        cwd=pyqt5_path,
+        env=os.environ,
+    )
+    pyqt5toolsbuild.utils.report_and_check_call(
+        command=[
+            qmake
+        ],
+        cwd=pyqt5_path,
+        env=os.environ,
+    )
+
+    sys.stderr.write('another stderr test from {}\n'.format(__file__))
+
+    pyqt5toolsbuild.utils.report_and_check_call(
+        command=[
+            make,
+        ],
+        cwd=pyqt5_path,
+        env=os.environ,
+    )
+    pyqt5toolsbuild.utils.report_and_check_call(
+        command=[
+            make,
+            'install',
+        ],
+        cwd=pyqt5_path,
         env=os.environ,
     )

@@ -245,3 +245,17 @@ def qt_bin_path(version):
         'bin',
     )
 
+
+def pyqt5_name_url(version):
+    if version >= Version.from_sequence(5, 6):
+        name = 'PyQt5_gpl-{}'.format(version)
+    else:
+        name = 'PyQt-gpl-{}'.format(version)
+
+    url = (
+        'http://downloads.sourceforge.net'
+        '/project/pyqt/PyQt5/PyQt-{}/{}.zip'
+            .format(version, name)
+    )
+
+    return name, url
