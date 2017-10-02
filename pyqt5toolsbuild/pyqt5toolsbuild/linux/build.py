@@ -248,7 +248,7 @@ def main():
         '--target-py-version={}'.format(str(python_version.exactly(2))),
     ]
 
-    if tuple(int(x) for x in pyqt5_version.split('.')) >= (5, 6):
+    if pyqt5_version >= pyqt5toolsbuild.utils.Version.from_sequence(5, 6):
         command.append(r'--qmake={}'.format(qmake))
 
     pyqt5toolsbuild.utils.report_and_check_call(
