@@ -185,6 +185,18 @@ def sip_name_url(version):
     )
 
 
+def python_version(path='python'):
+    version = report_and_check_call(
+        command=[
+            path,
+            '-c',
+            'import sys; print(".".join(str(x) for x in sys.version_info[:3]))',
+        ]
+    )
+
+    return Version.from_string(version)
+
+
 def python_name_url(version):
     version = version.exactly(3)
     name = 'Python-{}'.format(version)

@@ -27,10 +27,6 @@ def main():
     os.makedirs(src_path)
 
     bits = int(platform.architecture()[0][0:2])
-    # TODO: use full version info
-    python_version = pyqt5toolsbuild.utils.Version.from_sequence(
-        *sys.version_info[:3],
-    )
 
     print('copying {}'.format(deployed_qt))
     print('     to {}'.format(destination))
@@ -47,6 +43,9 @@ def main():
 
     qt_version = pyqt5toolsbuild.utils.pyqt_to_qt_version(pyqt5_version)
     sip_version = pyqt5toolsbuild.utils.pyqt_to_sip_version(pyqt5_version)
+    python_version = pyqt5toolsbuild.utils.Version.from_string(
+        os.environ['TRAVIS_PYTHON_VERSION'],
+    )
 
     python_name, python_url = pyqt5toolsbuild.utils.python_name_url(
         python_version
