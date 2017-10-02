@@ -197,15 +197,15 @@ def main():
     pyqt5_install_path = os.path.join(sysroot, 'pyqt5-install')
 
     # TODO: make a patch for the lower versions as well
-    if pyqt5_version >= pyqt5toolsbuild.utils.Version.from_sequence(5, 7):
-        pyqt5toolsbuild.utils.report_and_check_call(
-            command='patch -p 1 < {}'.format(os.path.join(
-                build,
-                'pluginloader.patch',
-            )),
-            shell=True, # TODO: don't do this
-            cwd=pyqt5_path,
-        )
+    # if pyqt5_version >= pyqt5toolsbuild.utils.Version.from_sequence(5, 7):
+    #     pyqt5toolsbuild.utils.report_and_check_call(
+    #         command='patch -p 1 < {}'.format(os.path.join(
+    #             build,
+    #             'pluginloader.patch',
+    #         )),
+    #         shell=True, # TODO: don't do this
+    #         cwd=pyqt5_path,
+    #     )
 
     pyqt5toolsbuild.utils.report_and_check_call(
         command=[
