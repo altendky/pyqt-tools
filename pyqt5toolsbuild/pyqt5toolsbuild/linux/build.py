@@ -288,5 +288,5 @@ def main():
 
     shutil.copytree(
         os.path.join(pyqt5_install_path, 'designer'),
-        os.path.join(destination, 'plugins'),
+        os.path.join(destination, 'plugins', 'designer'),
     )
