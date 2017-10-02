@@ -240,7 +240,7 @@ def main():
         r'--no-qml-plugin',
         r'--configuration={}'.format(pyqt5_cfg),
         r'--confirm-license',
-        r'--sip={}\sip.exe'.format(native_sip_path),
+        r'--sip={}'.format(os.path.join(native_sip_path, 'sip')),
         r'--bindir={}\pyqt5-install\bin'.format(sysroot),
         r'--destdir={}\pyqt5-install\dest'.format(sysroot),
         r'--designer-plugindir={}\pyqt5-install\designer'.format(sysroot),
