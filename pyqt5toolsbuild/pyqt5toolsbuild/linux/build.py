@@ -43,8 +43,10 @@ def main():
 
     qt_version = pyqt5toolsbuild.utils.pyqt_to_qt_version(pyqt5_version)
     sip_version = pyqt5toolsbuild.utils.pyqt_to_sip_version(pyqt5_version)
-    python_version = pyqt5toolsbuild.utils.Version.from_string(
-        os.environ['TRAVIS_PYTHON_VERSION'],
+    python_version = pyqt5toolsbuild.utils.python_version(
+        pyqt5toolsbuild.utils.Version.from_string(
+            os.environ['TRAVIS_PYTHON_VERSION'],
+        )
     )
 
     python_name, python_url = pyqt5toolsbuild.utils.python_name_url(
@@ -207,18 +209,18 @@ def main():
         command=[
             build_pyqtdeploycli_path,
             '--package', 'pyqt5',
-            '--target', 'win-{}'.format(bits),
+            '--target', 'linux-{}'.format(bits),
             'configure',
         ],
         cwd=pyqt5_path,
     )
-    pyqt5_cfg = os.path.join(pyqt5_path, 'pyqt5-win.cfg')
+    pyqt5_cfg = os.path.join(pyqt5_path, 'pyqt5-linux.cfg')
     with open(pyqt5_cfg) as f:
         original = io.StringIO(f.read())
     with open(pyqt5_cfg, 'w') as f:
-        f.write('\npy_pyshlib = python{}.dll\n'.format(
-            python_version.exactly(2),
-        ))
+        # f.write('\npy_pyshlib = python{}.dll\n'.format(
+        #     python_version.exactly(2),
+        # ))
         for line in original:
             if line.startswith('py_pylib_lib'):
                 f.write('py_pylib_lib = python%(py_major).%(py_minor)\n')

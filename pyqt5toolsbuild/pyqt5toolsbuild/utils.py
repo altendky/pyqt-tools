@@ -185,17 +185,16 @@ def sip_name_url(version):
     )
 
 
-def python_version(path='python'):
-    version = report_and_check_call(
-        command=[
-            path,
-            '-c',
-            'import sys; print(".".join(str(x) for x in sys.version_info[:3]))',
-        ]
-    )
+python_minor_to_latest_micro_version_map = {
+    Version.from_sequence(*k): Version.from_sequence(*v)
+    for k, v in {
+        (3, 6): (3, 6, 2),
+        (3, 5): (3, 5, 4),
+    }.items()
+}
 
-    return Version.from_string(version)
-
+def python_version(version):
+    return python_minor_to_latest_micro_version_map[version.exactly(2)]
 
 def python_name_url(version):
     version = version.exactly(3)
