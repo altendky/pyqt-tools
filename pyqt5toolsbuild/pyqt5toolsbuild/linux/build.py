@@ -220,9 +220,9 @@ def main():
     with open(pyqt5_cfg) as f:
         original = io.StringIO(f.read())
     with open(pyqt5_cfg, 'w') as f:
-        # f.write('\npy_pyshlib = python{}.dll\n'.format(
-        #     python_version.exactly(2),
-        # ))
+        f.write('\npy_pyshlib = python{}.dll\n'.format(
+            python_version.exactly(2),
+        ))
         for line in original:
             if line.startswith('py_pylib_lib'):
                 f.write('py_pylib_lib = python%(py_major).%(py_minor)\n')
