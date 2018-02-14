@@ -24,18 +24,13 @@ sys.stderr.write('another stderr test from {}\n'.format(__file__))
 
 build.main()
 
-long_description = '''
-The PyQt5 wheels do not provide tools such as Qt Designer that
-were included in the old binary installers.  This package aims
-to provide those in a separate package which is useful for
-developers while the official PyQt5 wheels stay focused on
-fulfulling the dependencies of PyQt5 applications.
-'''
+with open('README.rst') as f:
+    readme = f.read()
 
 setuptools.setup(
     name="pyqt5-tools",
     description="Tools to supplement the official PyQt5 wheels",
-    long_description=long_description,
+    long_description=readme,
     url='https://github.com/altendky/pyqt5-tools',
     author="Kyle Altendorf",
     author_email='sda@fstab.net',
