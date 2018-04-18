@@ -31,6 +31,7 @@ setuptools.setup(
     name="pyqt5-tools",
     description="Tools to supplement the official PyQt5 wheels",
     long_description=readme,
+    long_description_content_type='text/x-rst',
     url='https://github.com/altendky/pyqt5-tools',
     author="Kyle Altendorf",
     author_email='sda@fstab.net',
