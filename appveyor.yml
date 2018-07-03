@@ -16,12 +16,12 @@ environment:
 
     -  TARGET_PYTHON: "C:\\Python36"
        PYQT5_VERSION: 5.11.2
-       QT_BASE_PATH: c:\\Qt\\5.11.2
+       QT_BASE_PATH: c:\\Qt\\5.11.0
 
     -  TARGET_PYTHON: "C:\\Python36-x64"
        PYTHON_SUFFIX: "-x64"
        PYQT5_VERSION: 5.11.2
-       QT_BASE_PATH: c:\\Qt\\5.11.2
+       QT_BASE_PATH: c:\\Qt\\5.11.0
 
     -  TARGET_PYTHON: "C:\\Python36"
        PYQT5_VERSION: 5.10.1
