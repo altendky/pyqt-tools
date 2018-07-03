@@ -54,7 +54,7 @@ def main():
         if not virtual:
             pip_parameters.append('--user')
         pip_parameters.append(package)
-        return subprocess.check_call([sys.executable, '-m', *pip_parameters])
+        return subprocess.check_call([sys.executable, '-m', 'pip', *pip_parameters])
 
     if not args.in_virtual:
         if args.rebuild:
