@@ -245,6 +245,7 @@ plat-name = {plat_name}'''.format(**locals()))
         '5.8.2': '4.19.2',
         '5.9': '4.19.7',
         '5.10': '4.19.7',
+        '5.11.2': '4.19.11',
     }[pyqt5_version]
 
     sip_name = 'sip-{}'.format(sip_version)
