@@ -274,7 +274,7 @@ plat-name = {plat_name}'''.format(**locals()))
 
     sip_configure_extras = []
     if pyqt5_version.startswith('5.11'):
-        sip_configure_extras.append('--sip-module', 'PyQt5.sip')
+        sip_configure_extras.extend(('--sip-module', 'PyQt5.sip'))
 
     report_and_check_call(
         command=[
