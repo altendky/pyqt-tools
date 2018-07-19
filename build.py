@@ -272,16 +272,24 @@ plat-name = {plat_name}'''.format(**locals()))
         '5.9.2': '4.19.8',
         '5.10': '4.19.8',
         '5.10.1': '4.19.8',
-        '5.11.2': '4.19.12',
+        '5.11.2': '4.19.13.dev1807141053',
     }[pyqt5_version]
 
     sip_name = 'sip-{}'.format(sip_version)
-    r = requests.get(
-        'http://downloads.sourceforge.net'
-        '/project/pyqt/sip/sip-{}/{}.zip'.format(
-            sip_version, sip_name
+    if 'dev' in sip_version:
+        sip_url = (
+            'https://www.riverbankcomputing.com'
+            '/static/Downloads/sip/sip-{}.zip'.format(sip_version)
         )
-    )
+    else:
+        sip_url = (
+            'http://downloads.sourceforge.net'
+            '/project/pyqt/sip/sip-{}/{}.zip'.format(
+                sip_version, sip_name
+            )
+        )
+
+    r = requests.get(sip_url)
 
     z = zipfile.ZipFile(io.BytesIO(r.content))
     z.extractall(path=src)
