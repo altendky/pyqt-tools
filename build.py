@@ -81,14 +81,16 @@ def get_environment_from_batch_command(env_cmd, initial=None):
     return result
 
 
-def report_and_check_call(command, *args, **kwargs):
-    print('\nCalling: (from {})'.format(callers_line_info()))
+def report_and_check_call(command, *args, cwd, **kwargs):
+    print('\nCalling:')
+    print('    Caller: {}'.format(callers_line_info()))
+    print('    CWD: {}'.format(repr(cwd)))
 
     for arg in command:
         print('    {}'.format(repr(arg)))
 
     sys.stdout.flush()
-    subprocess.check_call(command, *args, **kwargs)
+    subprocess.check_call(command, *args, cwd=cwd, **kwargs)
 
 
 # https://github.com/altendky/altendpy/issues/8
