@@ -81,9 +81,31 @@ def get_environment_from_batch_command(env_cmd, initial=None):
 
 
 def report_and_check_call(command, *args, **kwargs):
-    print('\nCalling: {}'.format(command))
+    print('\nCalling: (from {})'.format(callers_line_info()))
+
+    for arg in command:
+        print('    {}'.format(repr(arg)))
+
     sys.stdout.flush()
     subprocess.check_call(command, *args, **kwargs)
+
+
+# https://github.com/altendky/altendpy/issues/8
+def callers_line_info():
+    here = inspect.currentframe()
+    caller = here.f_back
+
+    if caller is None:
+        return None
+
+    there = caller.f_back
+    info = inspect.getframeinfo(there)
+
+    return 'File "{}", line {}, in {}'.format(
+        info.filename,
+        info.lineno,
+        info.function,
+    )
 
 
 def main():
