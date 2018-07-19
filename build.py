@@ -81,7 +81,7 @@ def get_environment_from_batch_command(env_cmd, initial=None):
     return result
 
 
-def report_and_check_call(command, *args, cwd, **kwargs):
+def report_and_check_call(command, *args, cwd=None, **kwargs):
     print('\nCalling:')
     print('    Caller: {}'.format(callers_line_info()))
     print('    CWD: {}'.format(repr(cwd)))
