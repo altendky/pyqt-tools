@@ -81,13 +81,16 @@ def get_environment_from_batch_command(env_cmd, initial=None):
     return result
 
 
-def report_and_check_call(command, *args, cwd=None, **kwargs):
+def report_and_check_call(command, *args, cwd=None, shell=False, **kwargs):
     print('\nCalling:')
     print('    Caller: {}'.format(callers_line_info()))
     print('    CWD: {}'.format(repr(cwd)))
 
-    for arg in command:
-        print('    {}'.format(repr(arg)))
+    if shell:
+        print('    {}'.format(repr(commnd)))
+    else;
+        for arg in command:
+            print('    {}'.format(repr(arg)))
 
     sys.stdout.flush()
     subprocess.check_call(command, *args, cwd=cwd, **kwargs)
