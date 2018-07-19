@@ -303,7 +303,7 @@ plat-name = {plat_name}'''.format(**locals()))
 
     # https://www.riverbankcomputing.com/pipermail/pyqt/2018-July/040592.html
     report_and_check_call(
-        command='patch -p 1 < ..\\..\\sip.configure.py.patch',
+        command='patch -p 0 < ..\\..\\sip.configure.py.patch',
         shell=True, # TODO: don't do this
         cwd=native_sip,
     )
