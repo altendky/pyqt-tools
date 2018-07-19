@@ -309,13 +309,6 @@ plat-name = {plat_name}'''.format(**locals()))
     if pyqt5_version.startswith('5.11'):
         sip_configure_extras.extend(('--sip-module', 'PyQt5.sip'))
 
-    # https://www.riverbankcomputing.com/pipermail/pyqt/2018-July/040592.html
-    report_and_check_call(
-        command='patch -p 0 < ..\\..\\sip.configure.py.patch',
-        shell=True, # TODO: don't do this
-        cwd=native_sip,
-    )
-
     report_and_check_call(
         command=[
             os.path.join(venv_bin, 'python'),
