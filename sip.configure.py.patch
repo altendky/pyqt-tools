@@ -1,0 +1,14 @@
+--- configure.py        2018-07-19 14:39:55.219679320 -0400
++++ configure.py        2018-07-19 14:40:21.783791098 -0400
+@@ -427,7 +427,10 @@
+     all_installs.extend(module_installs)
+
+     if not opts.no_module:
+-        mod_ext = '.pyd' if sys.platform == 'win32' else '.so'
++        if sys.platform == 'win32':
++            mod_ext = '.lib' if opts.static else '.pyd'
++        else:
++            mod_ext = '.so'
+         all_installs.append(('sip' + mod_ext, cfg.sip_module_dir))
+
+     if opts.use_qmake:
