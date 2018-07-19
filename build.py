@@ -272,6 +272,10 @@ plat-name = {plat_name}'''.format(**locals()))
     if year == '2013':
         year = '2010'
 
+    sip_configure_extras = []
+    if pyqt5_version.startswith('5.11'):
+        sip_configure_extras.append('--sip-module', 'PyQt5.sip')
+
     report_and_check_call(
         command=[
             os.path.join(venv_bin, 'python'),
@@ -280,6 +284,7 @@ plat-name = {plat_name}'''.format(**locals()))
             '--sysroot={}'.format(native),
             '--platform=win32-{}{}'.format(compiler_name, year),
             '--target-py-version={}'.format('.'.join(python_major_minor)),
+            *sip_configure_extras,
         ],
         cwd=native_sip,
     )
