@@ -7,6 +7,7 @@ import itertools
 import os
 import pip
 import platform
+import shlex
 import shutil
 import stat
 import subprocess
