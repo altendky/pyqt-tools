@@ -86,7 +86,10 @@ def report_and_check_call(command, *args, cwd=None, shell=False, **kwargs):
     print('\nCalling:')
     print('    Caller: {}'.format(callers_line_info()))
     print('    CWD: {}'.format(repr(cwd)))
-    print('    Full: {}'.format(' '.join(shlex.quote(x) for x in command)))
+    print('    As passed: {}'.format(repr(command)))
+    print('    Full: {}'.format(
+        ' '.join(shlex.quote(os.fspath(x)) for x in command),
+    ))
 
     if shell:
         print('    {}'.format(repr(command)))
