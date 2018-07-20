@@ -324,7 +324,7 @@ plat-name = {plat_name}'''.format(**locals()))
             os.path.join(venv_bin, 'python'),
             'configure.py',
             '--static',
-            '--sysroot={}'.format(native),
+            '--sysroot={}'.format(venv_bin),
             '--platform=win32-{}{}'.format(compiler_name, year),
             '--target-py-version={}'.format('.'.join(python_major_minor)),
             *sip_configure_extras,
