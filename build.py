@@ -413,9 +413,9 @@ plat-name = {plat_name}'''.format(**locals()))
     pyqt5_version_tuple = tuple(int(x) for x in pyqt5_version.split('.'))
     if pyqt5_version_tuple >= (5, 7):
         if pyqt5_version_tuple >= (5, 11):
-            pluginloader_patch = '..\\..\\pluginloader.patch'
-        else:
             pluginloader_patch = '..\\..\\pluginloader.5.11.patch'
+        else:
+            pluginloader_patch = '..\\..\\pluginloader.patch'
 
         report_and_check_call(
             command='patch -p 1 -i {}'.format(pluginloader_patch),
