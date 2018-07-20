@@ -308,9 +308,11 @@ plat-name = {plat_name}'''.format(**locals()))
     if year == '2013':
         year = '2010'
 
+    pyqt5_version_tuple = tuple(int(x) for x in pyqt5_version.split('.'))
+
     sip_configure_extras = []
-    if pyqt5_version.startswith('5.11'):
-        sip_configure_extras.extend(('--sip-module', 'PyQt5.sip'))
+    if pyqt5_version_tuple >= (5, 11):
+        sip_configure_extras.append('--sip-module=PyQt5.sip')
 
     report_and_check_call(
         command=[
@@ -410,7 +412,6 @@ plat-name = {plat_name}'''.format(**locals()))
     pyqt5 = os.path.join(src, pyqt5_name)
 
     # TODO: make a patch for the lower versions as well
-    pyqt5_version_tuple = tuple(int(x) for x in pyqt5_version.split('.'))
     if pyqt5_version_tuple >= (5, 7):
         if pyqt5_version_tuple >= (5, 11):
             pluginloader_patch = '..\\..\\pluginloader.5.11.patch'
