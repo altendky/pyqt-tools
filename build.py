@@ -192,7 +192,7 @@ plat-name = {plat_name}'''.format(**locals()))
     with open(os.path.join(destination, 'job_id'), 'w') as f:
         f.write(job_id + '\n')
 
-    windeployqt_path = os.path.join(qt_bin_path, 'windeployqt.exe'),
+    windeployqt_path = os.path.join(qt_bin_path, 'windeployqt.exe')
 
     application_paths = glob.glob(os.path.join(qt_bin_path, '*.exe'))
 
