@@ -251,7 +251,8 @@ plat-name = {plat_name}'''.format(**locals()))
 
     src = os.path.join(build, 'src')
     os.makedirs(src)
-    venv_bin = os.path.join(build, 'venv', 'Scripts')
+    venv = os.path.join(build, 'venv')
+    venv_bin = os.path.join(venv, 'Scripts')
     native = os.path.join(sysroot, 'native')
     os.makedirs(native)
 
@@ -324,7 +325,7 @@ plat-name = {plat_name}'''.format(**locals()))
             os.path.join(venv_bin, 'python'),
             'configure.py',
             '--static',
-            '--sysroot={}'.format(venv_bin),
+            '--sysroot={}'.format(venv),
             '--platform=win32-{}{}'.format(compiler_name, year),
             '--target-py-version={}'.format('.'.join(python_major_minor)),
             *sip_configure_extras,
