@@ -88,7 +88,7 @@ def report_and_check_call(command, *args, cwd=None, shell=False, **kwargs):
 
     if shell:
         print('    {}'.format(repr(commnd)))
-    else;
+    else:
         for arg in command:
             print('    {}'.format(repr(arg)))
 
