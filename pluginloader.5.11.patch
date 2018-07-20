@@ -1,6 +1,23 @@
-diff --unified -N designer.original/excepthook.c designer/excepthook.c
---- designer/excepthook.c	1969-12-31 19:00:00.000000000 -0500
-+++ designer/excepthook.c	2018-07-20 09:14:44.200573283 -0400
+From c6b7762c19352d559b4c820ec8cb57003d1c4143 Mon Sep 17 00:00:00 2001
+From: Kyle Altendorf <kyle.altendorf@epcpower.com>
+Date: Fri, 20 Jul 2018 09:59:23 -0400
+Subject: [PATCH] Add sys.excepthook dialog to Designer plugin (5.11)
+
+---
+ designer/excepthook.c               | 500 ++++++++++++++++++++++++++++
+ designer/excepthook.py              | 170 ++++++++++
+ designer/generate_module_literal.py |  35 ++
+ designer/pluginloader.cpp           | 108 ++++++
+ 4 files changed, 813 insertions(+)
+ create mode 100644 designer/excepthook.c
+ create mode 100644 designer/excepthook.py
+ create mode 100644 designer/generate_module_literal.py
+
+diff --git a/designer/excepthook.c b/designer/excepthook.c
+new file mode 100644
+index 0000000..6a575af
+--- /dev/null
++++ b/designer/excepthook.c
 @@ -0,0 +1,500 @@
 +const char * moduleName = "exceptiondialog";
 +
@@ -502,9 +519,11 @@ diff --unified -N designer.original/excepthook.c designer/excepthook.c
 +    0x6f, 0x6e, 0x5f, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65,
 +    0x5f, 0x62, 0x6f, 0x78, 0x0d, 0x0a, 0x00
 +};
-diff --unified -N designer.original/excepthook.py designer/excepthook.py
---- designer/excepthook.py	1969-12-31 19:00:00.000000000 -0500
-+++ designer/excepthook.py	2018-07-20 09:14:44.200573283 -0400
+diff --git a/designer/excepthook.py b/designer/excepthook.py
+new file mode 100644
+index 0000000..1c4aaa9
+--- /dev/null
++++ b/designer/excepthook.py
 @@ -0,0 +1,170 @@
 +import functools
 +import sys
@@ -676,9 +695,11 @@ diff --unified -N designer.original/excepthook.py designer/excepthook.py
 +
 +QtCore.qDebug('Setting sys.excepthook to provide dialog')
 +sys.excepthook = exception_message_box
-diff --unified -N designer.original/generate_module_literal.py designer/generate_module_literal.py
---- designer/generate_module_literal.py	1969-12-31 19:00:00.000000000 -0500
-+++ designer/generate_module_literal.py	2018-07-20 09:14:44.200573283 -0400
+diff --git a/designer/generate_module_literal.py b/designer/generate_module_literal.py
+new file mode 100644
+index 0000000..cc6b4de
+--- /dev/null
++++ b/designer/generate_module_literal.py
 @@ -0,0 +1,35 @@
 +import os
 +import itertools
@@ -715,9 +736,10 @@ diff --unified -N designer.original/generate_module_literal.py designer/generate
 +    for line in lines:
 +        f.write(line)
 +    f.write("\n};\n")
-diff --unified -N designer.original/pluginloader.cpp designer/pluginloader.cpp
---- designer/pluginloader.cpp	2018-07-20 09:14:38.512544066 -0400
-+++ designer/pluginloader.cpp	2018-07-20 09:16:16.853047320 -0400
+diff --git a/designer/pluginloader.cpp b/designer/pluginloader.cpp
+index 3ca8b11..066fe34 100644
+--- a/designer/pluginloader.cpp
++++ b/designer/pluginloader.cpp
 @@ -25,6 +25,7 @@
  
  #include <stdlib.h>
@@ -839,7 +861,7 @@ diff --unified -N designer.original/pluginloader.cpp designer/pluginloader.cpp
  
  // Construct the collection of Python widgets.
  PyCustomWidgets::PyCustomWidgets(QObject *parent) : QObject(parent),
-@@ -140,6 +247,7 @@
+@@ -140,6 +247,7 @@ PyCustomWidgets::PyCustomWidgets(QObject *parent) : QObject(parent),
          PyGILState_STATE gil_state = PyGILState_Ensure();
  #endif
  
@@ -847,3 +869,6 @@ diff --unified -N designer.original/pluginloader.cpp designer/pluginloader.cpp
          bool fatal = importPlugins(dir, plugins);
  
  #if defined(WITH_THREAD)
+-- 
+2.18.0
+
