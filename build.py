@@ -464,7 +464,6 @@ plat-name = {plat_name}'''.format(**locals()))
         r'--configuration={}'.format(pyqt5_cfg),
         r'--confirm-license',
         r'--sip={}\sip.exe'.format(native),
-        r'--sip-incdir={}'.format(os.path.join(sip, 'siplib')),
         r'--bindir={}\pyqt5-install\bin'.format(sysroot),
         r'--destdir={}\pyqt5-install\dest'.format(sysroot),
         r'--designer-plugindir={}\pyqt5-install\designer'.format(sysroot),
