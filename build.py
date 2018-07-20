@@ -362,6 +362,7 @@ plat-name = {plat_name}'''.format(**locals()))
             '--platform=win32-{}{}'.format(compiler_name, year),
             '--target-py-version={}'.format('.'.join(python_major_minor)),
             r'--destdir={}\pyqt5-install\dest'.format(sysroot),
+            r'--no-pyi',
             *sip_configure_extras,
         ],
         cwd=sip,
