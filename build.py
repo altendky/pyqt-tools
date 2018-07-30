@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import decimal
 import glob
 import inspect
 import io
@@ -128,17 +129,34 @@ def main():
     # WARNING: The compiler for Python 3.4 is actually 10 but let's try 12
     #          because that's what Qt offers
     msvc_versions = {
-        '34': '12',
-        '35': '14',
-        '36': '14',
-        '37': '14',
+        '34': '12.0',
+        '35': '14.0',
+        '36': '14.0',
+        '37': '14.14',
     }
+    compiler_year = {
+        '10.0': '2010',
+        '11.0': '2012',
+        '12.0': '2013',
+        '14.0': '2015',
+        '14.1': '2017',
+        '14.14': '2017',
+    }[msvc_version]
     msvc_version = msvc_versions[python_major_minor]
-    vs_path = os.path.join(
-        'C:/', 'Program Files (x86)', 'Microsoft Visual Studio {}.0'.format(
-            msvc_version
+    if decimal.Decimal(msvc_version) >= 14.1:
+        vs_path = os.path.join(
+            'C:/',
+            'Program Files (x86)',
+            'Microsoft Visual Studio',
+            compiler_year,
+            'Community',
         )
-    )
+    else:
+        vs_path = os.path.join(
+            'C:/', 'Program Files (x86)', 'Microsoft Visual Studio {}'.format(
+                msvc_version
+            )
+        )
 
     os.environ = get_environment_from_batch_command(
         [
@@ -149,14 +167,6 @@ def main():
     )
 
     compiler_name = 'msvc'
-    compiler_year = {
-        '9': '2008',
-        '10': '2010',
-        '11': '2012',
-        '12': '2013',
-        '14': '2015',
-        '14.1': '2017',
-    }[msvc_version]
     compiler_bits_string = {32: '', 64: '_64'}[bits]
 
     compiler_dir = ''.join((compiler_name, compiler_year, compiler_bits_string))
@@ -520,17 +530,28 @@ plat-name = {plat_name}'''.format(**locals()))
     # Since windeployqt doesn't actually work with --compiler-runtime,
     # copy it ourselves
     plat = {32: 'x86', 64: 'x64'}[bits]
+    redist_path = os.path.join(vs_path, 'VC', 'redist')\
+
+    if decimal.Decimal(msvc_version) >= 14.1:
+        redist_path = os.path.join(redist_path, 'MSVC')
+        hmm, = os.listdir(redist_path)
+        redist_path = os.path.join(redist_path, hmm)
+
+    msvc_version_for_files = msvc_version.replace('.', '')
+
     redist_path = os.path.join(
-        vs_path, 'VC', 'redist', plat, 'Microsoft.VC{}0.CRT'.format(msvc_version)
+        redist_path,
+        plat,
+        'Microsoft.VC{}.CRT'.format(msvc_version_for_files),
     )
 
     redist_files = [
-        'msvcp{}0.dll'.format(msvc_version),
+        'msvcp{}.dll'.format(msvc_version_for_files),
     ]
-    if int(msvc_version) >= 14:
-        redist_files.append('vcruntime{}0.dll'.format(msvc_version))
+    if decimal.Decimal(msvc_version) >= 14:
+        redist_files.append('vcruntime{}.dll'.format(msvc_version_for_files))
     else:
-        redist_files.append('msvcr{}0.dll'.format(msvc_version))
+        redist_files.append('msvcr{}.dll'.format(msvc_version_for_files))
 
     for file in redist_files:
         dest = os.path.join(destination, file)
