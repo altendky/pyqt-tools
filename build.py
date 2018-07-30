@@ -134,6 +134,7 @@ def main():
         '36': '14.0',
         '37': '14.14',
     }
+    msvc_version = msvc_versions[python_major_minor]
     compiler_year = {
         '10.0': '2010',
         '11.0': '2012',
@@ -142,7 +143,6 @@ def main():
         '14.1': '2017',
         '14.14': '2017',
     }[msvc_version]
-    msvc_version = msvc_versions[python_major_minor]
     if decimal.Decimal(msvc_version) >= 14.1:
         vs_path = os.path.join(
             'C:/',
