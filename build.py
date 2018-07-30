@@ -127,7 +127,12 @@ def main():
     )
     # WARNING: The compiler for Python 3.4 is actually 10 but let's try 12
     #          because that's what Qt offers
-    msvc_versions = {'34': '12', '35': '14', '36': '14'}
+    msvc_versions = {
+        '34': '12',
+        '35': '14',
+        '36': '14',
+        '37': '14',
+    }
     msvc_version = msvc_versions[python_major_minor]
     vs_path = os.path.join(
         'C:/', 'Program Files (x86)', 'Microsoft Visual Studio {}.0'.format(
