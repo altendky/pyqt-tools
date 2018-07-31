@@ -68,11 +68,11 @@ def get_environment_from_batch_command(env_cmd, initial=None):
     print("initial['QT_BASE_PATH']:", initial['QT_BASE_PATH'])
     proc = subprocess.run(cmd, stdout=subprocess.PIPE, env=initial, check=True)
     # parse the output sent to stdout
-    lines = proc.stdout
+    lines = proc.stdout.decode().splitlines()
     # consume whatever output occurs until the tag is reached
     consume(itertools.takewhile(lambda l: tag not in l, lines))
     # define a way to handle each KEY=VALUE line
-    handle_line = lambda l: str(l, 'UTF-8').rstrip().split('=',1)
+    handle_line = lambda l: l.rstrip().split('=',1)
     # parse key/values into pairs
     pairs = map(handle_line, lines)
     # make sure the pairs are valid
