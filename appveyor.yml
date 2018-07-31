@@ -10,27 +10,15 @@ environment:
     PYTHON_SUFFIX: ""
 
   matrix:
-    -  TARGET_PYTHON: "C:\\Python37"
-       PYQT5_VERSION: 5.11.2
-       QT_BASE_PATH: c:\\Qt\\5.11
-
     -  TARGET_PYTHON: "C:\\Python37-x64"
        PYTHON_SUFFIX: "-x64"
        PYQT5_VERSION: 5.11.2
        QT_BASE_PATH: c:\\Qt\\5.11
 
-    -  TARGET_PYTHON: "C:\\Python37"
-       PYQT5_VERSION: 5.10.1
-       QT_BASE_PATH: c:\\Qt\\5.10
-
     -  TARGET_PYTHON: "C:\\Python37-x64"
        PYTHON_SUFFIX: "-x64"
        PYQT5_VERSION: 5.10.1
        QT_BASE_PATH: c:\\Qt\\5.10
-
-    -  TARGET_PYTHON: "C:\\Python37"
-       PYQT5_VERSION: 5.9.2
-       QT_BASE_PATH: c:\\Qt\\5.9
 
     -  TARGET_PYTHON: "C:\\Python37-x64"
        PYTHON_SUFFIX: "-x64"
@@ -41,17 +29,7 @@ environment:
        PYQT5_VERSION: 5.11.2
        QT_BASE_PATH: c:\\Qt\\5.11
 
-    -  TARGET_PYTHON: "C:\\Python36-x64"
-       PYTHON_SUFFIX: "-x64"
-       PYQT5_VERSION: 5.11.2
-       QT_BASE_PATH: c:\\Qt\\5.11
-
     -  TARGET_PYTHON: "C:\\Python36"
-       PYQT5_VERSION: 5.10.1
-       QT_BASE_PATH: c:\\Qt\\5.10
-
-    -  TARGET_PYTHON: "C:\\Python36-x64"
-       PYTHON_SUFFIX: "-x64"
        PYQT5_VERSION: 5.10.1
        QT_BASE_PATH: c:\\Qt\\5.10
 
@@ -59,17 +37,7 @@ environment:
        PYQT5_VERSION: 5.9.2
        QT_BASE_PATH: c:\\Qt\\5.9
 
-    -  TARGET_PYTHON: "C:\\Python36-x64"
-       PYTHON_SUFFIX: "-x64"
-       PYQT5_VERSION: 5.9.2
-       QT_BASE_PATH: c:\\Qt\\5.9
-
     -  TARGET_PYTHON: "C:\\python35"
-       PYQT5_VERSION: 5.11.2
-       QT_BASE_PATH: c:\\Qt\\5.11
-
-    -  TARGET_PYTHON: "C:\\python35-x64"
-       PYTHON_SUFFIX: "-x64"
        PYQT5_VERSION: 5.11.2
        QT_BASE_PATH: c:\\Qt\\5.11
 
@@ -77,17 +45,7 @@ environment:
        PYQT5_VERSION: 5.10.1
        QT_BASE_PATH: c:\\Qt\\5.10
 
-    -  TARGET_PYTHON: "C:\\python35-x64"
-       PYTHON_SUFFIX: "-x64"
-       PYQT5_VERSION: 5.10.1
-       QT_BASE_PATH: c:\\Qt\\5.10
-
     -  TARGET_PYTHON: "C:\\python35"
-       PYQT5_VERSION: 5.9.2
-       QT_BASE_PATH: c:\\Qt\\5.9
-
-    -  TARGET_PYTHON: "C:\\python35-x64"
-       PYTHON_SUFFIX: "-x64"
        PYQT5_VERSION: 5.9.2
        QT_BASE_PATH: c:\\Qt\\5.9
 
