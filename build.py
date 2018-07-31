@@ -66,7 +66,7 @@ def get_environment_from_batch_command(env_cmd, initial=None):
     cmd = 'cmd.exe /s /c "{env_cmd} && echo "{tag}" && set"'.format(**vars())
     # launch the process
     print("initial['QT_BASE_PATH']:", initial['QT_BASE_PATH'])
-    proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, env=initial)
+    proc = subprocess.run(cmd, stdout=subprocess.PIPE, env=initial, check=True)
     # parse the output sent to stdout
     lines = proc.stdout
     # consume whatever output occurs until the tag is reached
@@ -80,8 +80,6 @@ def get_environment_from_batch_command(env_cmd, initial=None):
     # construct a dictionary of the pairs
     result = dict(valid_pairs)
     print('result', result)
-    # let the process finish
-    proc.communicate()
     return result
 
 
