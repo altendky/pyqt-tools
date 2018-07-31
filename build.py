@@ -158,8 +158,6 @@ def main():
             )
         )
 
-    print("os.environ['QT_BASE_PATH']:", os.environ['QT_BASE_PATH'])
-
     vcvarsall = os.path.join(vs_path, 'VC')
     if decimal.Decimal(msvc_version) >= 14.1:
         vcvarsall = os.path.join(vcvarsall, 'Auxiliary', 'Build')
@@ -172,8 +170,6 @@ def main():
         ],
         initial=os.environ
     )
-
-    print("os.environ['QT_BASE_PATH']:", os.environ['QT_BASE_PATH'])
 
     compiler_name = 'msvc'
     compiler_bits_string = {32: '', 64: '_64'}[bits]
