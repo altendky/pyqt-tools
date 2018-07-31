@@ -61,7 +61,7 @@ def get_environment_from_batch_command(env_cmd, initial=None):
     # construct the command that will alter the environment
     env_cmd = subprocess.list2cmdline(env_cmd)
     # create a tag so we can tell in the output when the proc is done
-    tag = bytes('Done running command', 'UTF-8')
+    tag = 'Done running command'
     # construct a cmd.exe command to do accomplish this
     cmd = 'cmd.exe /s /c "{env_cmd} && echo "{tag}" && set"'.format(**vars())
     # launch the process
