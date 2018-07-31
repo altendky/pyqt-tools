@@ -160,9 +160,14 @@ def main():
 
     print("os.environ['QT_BASE_PATH']:", os.environ['QT_BASE_PATH'])
 
+    vcvarsall = os.path.join(vs_path, 'VC')
+    if decimal.Decimal(msvc_version) >= 14.1:
+        vcvarsall = os.path.join(vcvarsall, 'Auxiliary', 'Build')
+    vcvarsall = os.path.join(vcvarsall, 'vcvarsall.bat')
+
     os.environ = get_environment_from_batch_command(
         [
-            os.path.join(vs_path, 'VC', 'vcvarsall.bat'),
+            vcvarsall,
             {32: 'x86', 64: 'x64'}[bits]
         ],
         initial=os.environ
