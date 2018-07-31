@@ -65,6 +65,7 @@ def get_environment_from_batch_command(env_cmd, initial=None):
     # construct a cmd.exe command to do accomplish this
     cmd = 'cmd.exe /s /c "{env_cmd} && echo "{tag}" && set"'.format(**vars())
     # launch the process
+    print("initial['QT_BASE_PATH']:", initial['QT_BASE_PATH'])
     proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, env=initial)
     # parse the output sent to stdout
     lines = proc.stdout
@@ -78,6 +79,7 @@ def get_environment_from_batch_command(env_cmd, initial=None):
     valid_pairs = filter(validate_pair, pairs)
     # construct a dictionary of the pairs
     result = dict(valid_pairs)
+    print('result', result)
     # let the process finish
     proc.communicate()
     return result
