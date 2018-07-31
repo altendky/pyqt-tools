@@ -99,11 +99,9 @@ init:
 build_script:
   - "%PYTHON%%PYTHON_SUFFIX%\\python venv.py"
   - "venv\\Scripts\\python -m pip freeze"
-  - "venv\\Scripts\\python test.py"
   # Build the compiled extension
   - "%TARGET_PYTHON%\\python stderr.py"
   - "%TARGET_PYTHON%\\python -m virtualenv target_venv"
-  - "target_venv\\Scripts\\python test.py"
   - "target_venv\\Scripts\\pip install requests==2.13.0"
   - "target_venv\\Scripts\\pip install vcversioner==2.16.0.0"
   - "target_venv\\Scripts\\pip install wheel==0.30.0a0"
