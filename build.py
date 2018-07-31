@@ -158,6 +158,8 @@ def main():
             )
         )
 
+    print("os.environ['QT_BASE_PATH']:", os.environ['QT_BASE_PATH'])
+
     os.environ = get_environment_from_batch_command(
         [
             os.path.join(vs_path, 'VC', 'vcvarsall.bat'),
@@ -165,6 +167,8 @@ def main():
         ],
         initial=os.environ
     )
+
+    print("os.environ['QT_BASE_PATH']:", os.environ['QT_BASE_PATH'])
 
     compiler_name = 'msvc'
     compiler_bits_string = {32: '', 64: '_64'}[bits]
