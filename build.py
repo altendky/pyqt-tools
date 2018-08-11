@@ -276,7 +276,7 @@ plat-name = {plat_name}'''.format(**locals()))
 
     report_and_check_call(
         command=[
-            os.path.join(venv_bin, 'pyqtdeploycli'),
+            os.path.join(venv_bin, 'pyqtdeploy-build'),
             '--sysroot', sysroot,
             '--package', 'python',
             '--system-python', '.'.join(python_major_minor),
@@ -368,7 +368,7 @@ plat-name = {plat_name}'''.format(**locals()))
 
     report_and_check_call(
         command=[
-            os.path.join(venv_bin, 'pyqtdeploycli'),
+            os.path.join(venv_bin, 'pyqtdeploy-build'),
             '--package', 'sip',
             '--target', 'win-{}'.format(bits),
             'configure',
@@ -449,7 +449,7 @@ plat-name = {plat_name}'''.format(**locals()))
 
     report_and_check_call(
         command=[
-            os.path.join(venv_bin, 'pyqtdeploycli'),
+            os.path.join(venv_bin, 'pyqtdeploy-build'),
             '--package', 'pyqt5',
             '--target', 'win-{}'.format(bits),
             'configure',
