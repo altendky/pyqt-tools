@@ -122,7 +122,7 @@ def main():
         packages = [
             'vcversioner==2.16.0.0',
             'requests==2.13.0',
-            'pyqtdeploy==1.3.2',
+            'pyqtdeploy==2.1',
             'wheel==0.30.0a0',
             'PyQt5==5.11.2',
         ]
