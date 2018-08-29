@@ -81,6 +81,7 @@ def get_environment_from_batch_command(env_cmd, initial=None):
     return result
 
 
+# TODO: CAMPid 079079043724533410718467080456813604134316946765431341384014
 def report_and_check_call(command, *args, cwd=None, shell=False, **kwargs):
     print('\nCalling:')
     print('    Caller: {}'.format(callers_line_info()))
@@ -100,6 +101,7 @@ def report_and_check_call(command, *args, cwd=None, shell=False, **kwargs):
     subprocess.check_call(command, *args, cwd=cwd, **kwargs)
 
 
+# TODO: CAMPid 974597249731467124675t40136706803641679349342342
 # https://github.com/altendky/altendpy/issues/8
 def callers_line_info():
     here = inspect.currentframe()
