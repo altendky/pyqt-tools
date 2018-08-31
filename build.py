@@ -214,7 +214,8 @@ plat-name = {plat_name}'''.format(**locals()))
 
     windeployqt_path = os.path.join(qt_bin_path, 'windeployqt.exe')
 
-    application_paths = glob.glob(os.path.join(qt_bin_path, '*.exe'))
+    # application_paths = glob.glob(os.path.join(qt_bin_path, '*.exe'))
+    application_paths = ()
 
     os.makedirs(destination, exist_ok=True)
 
