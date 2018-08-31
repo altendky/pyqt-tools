@@ -89,7 +89,7 @@ def report_and_check_call(command, *args, cwd=None, shell=False, **kwargs):
     print('    CWD: {}'.format(repr(cwd)))
     print('    As passed: {}'.format(repr(command)))
     print('    Full: {}'.format(
-        ' '.join(shlex.quote(os.fspath(x)) for x in command),
+        ' '.join(shlex.quote(getattr(os, 'fspath', str)(x)) for x in command),
     ))
 
     if shell:
