@@ -65,7 +65,8 @@ def get_environment_from_batch_command(env_cmd, initial=None):
     # construct a cmd.exe command to do accomplish this
     cmd = 'cmd.exe /s /c "{env_cmd} && echo "{tag}" && set"'.format(**vars())
     # launch the process
-    proc = report_and_check_call(cmd, stdout=subprocess.PIPE, env=initial, shell=True)
+    proc = subprocess.run(cmd, stdout=subprocess.PIPE, env=initial, check=True)
+    print('get_environment_from_batch_command: cmd:', cmd)
     # parse the output sent to stdout
     lines = proc.stdout.decode().splitlines()
     # consume whatever output occurs until the tag is reached
