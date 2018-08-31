@@ -65,7 +65,7 @@ def get_environment_from_batch_command(env_cmd, initial=None):
     # construct a cmd.exe command to do accomplish this
     cmd = 'cmd.exe /s /c "{env_cmd} && echo "{tag}" && set"'.format(**vars())
     # launch the process
-    proc = subprocess.run(cmd, stdout=subprocess.PIPE, env=initial, check=True)
+    proc = report_and_check_call(cmd, stdout=subprocess.PIPE, env=initial, check=True)
     # parse the output sent to stdout
     lines = proc.stdout.decode().splitlines()
     # consume whatever output occurs until the tag is reached
@@ -98,7 +98,7 @@ def report_and_check_call(command, *args, cwd=None, shell=False, **kwargs):
             print('    {}'.format(repr(arg)))
 
     sys.stdout.flush()
-    subprocess.check_call(command, *args, cwd=cwd, **kwargs)
+    return subprocess.run(command, *args, cwd=cwd, check=True, **kwargs)
 
 
 # TODO: CAMPid 974597249731467124675t40136706803641679349342342
@@ -162,6 +162,7 @@ def main():
     if decimal.Decimal(msvc_version) >= 14.1:
         vcvarsall = os.path.join(vcvarsall, 'Auxiliary', 'Build')
     vcvarsall = os.path.join(vcvarsall, 'vcvarsall.bat')
+
 
     os.environ = get_environment_from_batch_command(
         [
@@ -269,9 +270,7 @@ plat-name = {plat_name}'''.format(**locals()))
 
     sysroot = os.path.join(build, 'sysroot')
     os.makedirs(sysroot)
-    nmake = os.path.join(vs_path, 'VC', 'BIN', 'nmake')
-    qmake = os.path.join(qt_bin_path, 'qmake.exe')
-    print('qmake: {}'.format(qmake))
+    nmake = shutil.which('nmake')
 
     src = os.path.join(build, 'src')
     os.makedirs(src)
