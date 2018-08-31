@@ -53,7 +53,7 @@ init:
   - ps: if (Get-ChildItem Env:ENABLE_RDP -ErrorAction SilentlyContinue) {iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))} else {echo RDP not enabled}
 
 build_script:
-  - set PATH=%PYTHON%\\Scripts;%PATH%
+  - set PATH=%PYTHON%;%PYTHON%\\Scripts;%PATH%
   - "%PYTHON%\\python -m pip freeze"
   # Build the compiled extension
   - "%PYTHON%\\python stderr.py"
