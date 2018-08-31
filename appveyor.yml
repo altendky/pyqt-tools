@@ -59,8 +59,8 @@ build_script:
   - "%PYTHON%\\Scripts\\pip install requests==2.13.0"
   - "%PYTHON%\\Scripts\\pip install vcversioner==2.16.0.0"
   - "%PYTHON%\\Scripts\\pip install wheel==0.30.0a0"
-  - "%PYTHON%\\Scripts\\python -m pip freeze"
-  - "%PYTHON%\\Scripts\\python setup.py bdist_wheel"
+  - "%PYTHON%\\python -m pip freeze"
+  - "%PYTHON%\\python setup.py bdist_wheel"
   - "copy dist\\*.whl ."
 
 artifacts:
