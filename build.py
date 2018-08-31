@@ -168,6 +168,9 @@ def main():
         ],
         initial=os.environ
     )
+    print('  ---- os.environ:')
+    for k, v in os.environ.items():
+        print('    {}: {}'.format(k, v))
 
     compiler_name = 'msvc'
     compiler_bits_string = {32: '', 64: '_64'}[bits]
