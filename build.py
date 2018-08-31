@@ -275,8 +275,6 @@ plat-name = {plat_name}'''.format(**locals()))
 
     src = os.path.join(build, 'src')
     os.makedirs(src)
-    venv = os.path.join(build, 'venv')
-    venv_bin = os.path.join(venv, 'Scripts')
     native = os.path.join(sysroot, 'native')
     os.makedirs(native)
 
@@ -332,7 +330,7 @@ plat-name = {plat_name}'''.format(**locals()))
 
     report_and_check_call(
         command=[
-            os.path.join(venv_bin, 'python'),
+            os.path.join(os.environ['PYTHON'], 'python'),
             'configure.py',
         ],
         cwd=native_sip,
@@ -359,7 +357,7 @@ plat-name = {plat_name}'''.format(**locals()))
 
     report_and_check_call(
         command=[
-            os.path.join(venv_bin, 'python'),
+            os.path.join(os.environ['PYTHON'], 'python'),
             'configure.py',
             '--no-tools',
             *sip_configure_extras,
@@ -429,7 +427,7 @@ plat-name = {plat_name}'''.format(**locals()))
     with open(designer_pro, 'a') as f:
         f.write('\nDEFINES     += PYTHON_LIB=\'"\\\\\\"@PYSHLIB@\\\\\\""\'\n')
     command = [
-        os.path.join(venv_bin, 'python'),
+        os.path.join(os.environ['PYTHON'], 'python'),
         r'configure.py',
         r'--no-tools',
         r'--no-qsci-api',
