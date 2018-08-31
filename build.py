@@ -409,18 +409,6 @@ plat-name = {plat_name}'''.format(**locals()))
             cwd=pyqt5,
         )
 
-    pyqt5_cfg = os.path.join(pyqt5, 'pyqt5-win.cfg')
-    with open(pyqt5_cfg) as f:
-        original = io.StringIO(f.read())
-    with open(pyqt5_cfg, 'w') as f:
-        f.write('\npy_pyshlib = python{}.dll\n'.format(
-            python_major_minor,
-        ))
-        for line in original:
-            if line.startswith('py_pylib_lib'):
-                f.write('py_pylib_lib = python%(py_major)%(py_minor)\n')
-            else:
-                f.write(line)
     designer_pro = os.path.join(pyqt5, 'designer', 'designer.pro-in')
     with open(designer_pro, 'a') as f:
         f.write('\nDEFINES     += PYTHON_LIB=\'"\\\\\\"@PYSHLIB@\\\\\\""\'\n')
