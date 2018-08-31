@@ -274,16 +274,6 @@ plat-name = {plat_name}'''.format(**locals()))
     native = os.path.join(sysroot, 'native')
     os.makedirs(native)
 
-    report_and_check_call(
-        command=[
-            os.path.join(venv_bin, 'pyqtdeploy-build'),
-            '--sysroot', sysroot,
-            '--package', 'python',
-            '--system-python', '.'.join(python_major_minor),
-            'install',
-        ],
-    )
-
     pyqt5_version = os.environ['PYQT5_VERSION']
     # sip_version = next(
     #     d.version
@@ -334,19 +324,10 @@ plat-name = {plat_name}'''.format(**locals()))
 
     pyqt5_version_tuple = tuple(int(x) for x in pyqt5_version.split('.'))
 
-    sip_configure_extras = []
-    if pyqt5_version_tuple >= (5, 11):
-        sip_configure_extras.append('--sip-module=PyQt5.sip')
-
     report_and_check_call(
         command=[
             os.path.join(venv_bin, 'python'),
             'configure.py',
-            '--static',
-            '--sysroot={}'.format(native),
-            '--platform=win32-{}{}'.format(compiler_name, year),
-            '--target-py-version={}'.format('.'.join(python_major_minor)),
-            *sip_configure_extras,
         ],
         cwd=native_sip,
     )
@@ -366,39 +347,18 @@ plat-name = {plat_name}'''.format(**locals()))
         env=os.environ,
     )
 
-    report_and_check_call(
-        command=[
-            os.path.join(venv_bin, 'pyqtdeploy-build'),
-            '--package', 'sip',
-            '--target', 'win-{}'.format(bits),
-            'configure',
-        ],
-        cwd=sip,
-    )
+    sip_configure_extras = []
+    if pyqt5_version_tuple >= (5, 11):
+        sip_configure_extras.append('--sip-module=PyQt5.sip')
 
     report_and_check_call(
         command=[
             os.path.join(venv_bin, 'python'),
             'configure.py',
-            '--static',
-            '--sysroot={}'.format(sysroot),
             '--no-tools',
-            '--use-qmake',
-            '--configuration=sip-win.cfg',
-            '--platform=win32-{}{}'.format(compiler_name, year),
-            '--target-py-version={}'.format('.'.join(python_major_minor)),
-            r'--no-pyi',
             *sip_configure_extras,
         ],
         cwd=sip,
-    )
-
-    report_and_check_call(
-        command=[
-            qmake,
-        ],
-        cwd=sip,
-        env=os.environ,
     )
 
     report_and_check_call(
@@ -447,15 +407,6 @@ plat-name = {plat_name}'''.format(**locals()))
             cwd=pyqt5,
         )
 
-    report_and_check_call(
-        command=[
-            os.path.join(venv_bin, 'pyqtdeploy-build'),
-            '--package', 'pyqt5',
-            '--target', 'win-{}'.format(bits),
-            'configure',
-        ],
-        cwd=pyqt5,
-    )
     pyqt5_cfg = os.path.join(pyqt5, 'pyqt5-win.cfg')
     with open(pyqt5_cfg) as f:
         original = io.StringIO(f.read())
@@ -474,33 +425,16 @@ plat-name = {plat_name}'''.format(**locals()))
     command = [
         os.path.join(venv_bin, 'python'),
         r'configure.py',
-        r'--static',
-        r'--sysroot={}'.format(sysroot),
         r'--no-tools',
         r'--no-qsci-api',
         r'--no-qml-plugin',
-        r'--configuration={}'.format(pyqt5_cfg),
         r'--confirm-license',
-        r'--sip={}\sip.exe'.format(native),
-        r'--bindir={}\pyqt5-install\bin'.format(sysroot),
-        r'--destdir={}\pyqt5-install\dest'.format(sysroot),
         r'--designer-plugindir={}\pyqt5-install\designer'.format(sysroot),
         r'--enable=QtDesigner',
-        '--target-py-version={}'.format('.'.join(python_major_minor)),
     ]
-
-    if tuple(int(x) for x in pyqt5_version.split('.')) >= (5, 6):
-        command.append(r'--qmake={}'.format(qmake))
 
     report_and_check_call(
         command=command,
-        cwd=pyqt5,
-        env=os.environ,
-    )
-    report_and_check_call(
-        command=[
-            qmake
-        ],
         cwd=pyqt5,
         env=os.environ,
     )
