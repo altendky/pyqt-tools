@@ -54,14 +54,14 @@ init:
 
 build_script:
   - set PATH=%PYTHON%;%PYTHON%\\Scripts;%PATH%
-  - "%PYTHON%\\python -m pip freeze"
+  - "python -m pip freeze"
   # Build the compiled extension
-  - "%PYTHON%\\python stderr.py"
-  - "%PYTHON%\\Scripts\\pip install requests==2.13.0"
-  - "%PYTHON%\\Scripts\\pip install vcversioner==2.16.0.0"
-  - "%PYTHON%\\Scripts\\pip install wheel==0.30.0a0"
-  - "%PYTHON%\\python -m pip freeze"
-  - "%PYTHON%\\python setup.py bdist_wheel"
+  - "python stderr.py"
+  - "pip install requests==2.13.0"
+  - "pip install vcversioner==2.16.0.0"
+  - "pip install wheel==0.30.0a0"
+  - "python -m pip freeze"
+  - "python setup.py bdist_wheel"
   - "copy dist\\*.whl ."
 
 artifacts:
