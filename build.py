@@ -475,13 +475,7 @@ plat-name = {plat_name}'''.format(**locals()))
         'Microsoft.VC{}.CRT'.format(msvc_version_for_files),
     )
 
-    redist_files = [
-        'msvcp{}.dll'.format(msvc_version_for_files),
-    ]
-    if decimal.Decimal(msvc_version) >= 14:
-        redist_files.append('vcruntime{}.dll'.format(msvc_version_for_files))
-    else:
-        redist_files.append('msvcr{}.dll'.format(msvc_version_for_files))
+    redist_files = os.listdir(redist_path)
 
     for file in redist_files:
         dest = os.path.join(destination, file)
