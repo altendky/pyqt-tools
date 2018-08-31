@@ -6,46 +6,44 @@ environment:
     # /E:ON and /V:ON options are not enabled in the batch script intepreter
     # See: http://stackoverflow.com/a/13751649/163740
     CMD_IN_ENV: "cmd /E:ON /V:ON /C .\\ci\\run_with_env.cmd"
-    PYTHON: "C:\\Python36"
-    PYTHON_SUFFIX: ""
 
   matrix:
-    -  TARGET_PYTHON: "C:\\Python37-x64"
+    -  PYTHON: "C:\\Python37-x64"
        PYTHON_SUFFIX: "-x64"
        PYQT5_VERSION: 5.11.2
        QT_BASE_PATH: c:\\Qt\\5.11
 
-    -  TARGET_PYTHON: "C:\\Python37-x64"
+    -  PYTHON: "C:\\Python37-x64"
        PYTHON_SUFFIX: "-x64"
        PYQT5_VERSION: 5.10.1
        QT_BASE_PATH: c:\\Qt\\5.10
 
-    -  TARGET_PYTHON: "C:\\Python37-x64"
+    -  PYTHON: "C:\\Python37-x64"
        PYTHON_SUFFIX: "-x64"
        PYQT5_VERSION: 5.9.2
        QT_BASE_PATH: c:\\Qt\\5.9
 
-    -  TARGET_PYTHON: "C:\\Python36"
+    -  PYTHON: "C:\\Python36"
        PYQT5_VERSION: 5.11.2
        QT_BASE_PATH: c:\\Qt\\5.11
 
-    -  TARGET_PYTHON: "C:\\Python36"
+    -  PYTHON: "C:\\Python36"
        PYQT5_VERSION: 5.10.1
        QT_BASE_PATH: c:\\Qt\\5.10
 
-    -  TARGET_PYTHON: "C:\\Python36"
+    -  PYTHON: "C:\\Python36"
        PYQT5_VERSION: 5.9.2
        QT_BASE_PATH: c:\\Qt\\5.9
 
-    -  TARGET_PYTHON: "C:\\python35"
+    -  PYTHON: "C:\\python35"
        PYQT5_VERSION: 5.11.2
        QT_BASE_PATH: c:\\Qt\\5.11
 
-    -  TARGET_PYTHON: "C:\\python35"
+    -  PYTHON: "C:\\python35"
        PYQT5_VERSION: 5.10.1
        QT_BASE_PATH: c:\\Qt\\5.10
 
-    -  TARGET_PYTHON: "C:\\python35"
+    -  PYTHON: "C:\\python35"
        PYQT5_VERSION: 5.9.2
        QT_BASE_PATH: c:\\Qt\\5.9
 
@@ -55,16 +53,14 @@ init:
   - ps: if (Get-ChildItem Env:ENABLE_RDP -ErrorAction SilentlyContinue) {iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))} else {echo RDP not enabled}
 
 build_script:
-  - "%PYTHON%%PYTHON_SUFFIX%\\python venv.py"
-  - "venv\\Scripts\\python -m pip freeze"
+  - "%PYTHON%\\python -m pip freeze"
   # Build the compiled extension
-  - "%TARGET_PYTHON%\\python stderr.py"
-  - "%TARGET_PYTHON%\\python -m virtualenv target_venv"
-  - "target_venv\\Scripts\\pip install requests==2.13.0"
-  - "target_venv\\Scripts\\pip install vcversioner==2.16.0.0"
-  - "target_venv\\Scripts\\pip install wheel==0.30.0a0"
-  - "target_venv\\Scripts\\python -m pip freeze"
-  - "target_venv\\Scripts\\python setup.py bdist_wheel"
+  - "%PYTHON%\\python stderr.py"
+  - "%PYTHON%\\Scripts\\pip install requests==2.13.0"
+  - "%PYTHON%\\Scripts\\pip install vcversioner==2.16.0.0"
+  - "%PYTHON%\\Scripts\\pip install wheel==0.30.0a0"
+  - "%PYTHON%\\Scripts\\python -m pip freeze"
+  - "%PYTHON%\\Scripts\\python setup.py bdist_wheel"
   - "copy dist\\*.whl ."
 
 artifacts:
