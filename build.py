@@ -466,7 +466,8 @@ plat-name = {plat_name}'''.format(**locals()))
         hmm, = os.listdir(redist_path)
         redist_path = os.path.join(redist_path, hmm)
 
-    msvc_version_for_files = msvc_version.replace('.', '')
+    msvc_version_for_files = {'14.14': '14.1'}.get(msvc_version, msvc_version)
+    msvc_version_for_files = msvc_version_for_files.replace('.', '')
 
     redist_path = os.path.join(
         redist_path,
