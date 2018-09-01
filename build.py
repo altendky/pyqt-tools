@@ -264,7 +264,7 @@ plat-name = {plat_name}'''.format(**locals()))
         application_names.append(pathlib.Path(application).stem)
 
     entry_points_py = pathlib.Path(destination)/'entrypoints.py'
-    with open(entry_points_py, 'a') as f:
+    with open(str(entry_points_py), 'a') as f:
         for name in application_names:
             f.write(textwrap.dedent('''\
             def {name}():
