@@ -259,23 +259,28 @@ plat-name = {plat_name}'''.format(**locals()))
             cwd=destination,
         )
 
+    application_names = [
+        pathlib.Path(application).stem
+        for application in application_paths
+    ]
+
     entry_points_py = pathlib.Path(destination)/'entrypoints.py'
     shutil.copy(
         pathlib.Path(__file__).with_name('entrypoints.py'),
         entry_points_py,
     )
     with open(entry_points_py, 'a') as f:
-        for application in application_paths:
+        for name in application_names:
             f.write(textwrap.dedent('''\
             def {name}():
                 return subprocess.call([here/'{name}.exe', *sys.argv])
 
 
-            '''.format(name=application)))
+            '''.format(name=name)))
 
     console_scripts = [
-        '{name} = pyqt5_tools.entrypoints:{name}'.format(name=application)
-        for application in application_paths
+        '{name} = pyqt5_tools.entrypoints:{name}'.format(name=name)
+        for name in application_names
     ]
 
     platform_path = os.path.join(destination, 'platforms')
