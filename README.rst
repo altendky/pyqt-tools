@@ -8,6 +8,15 @@ the old binary installers. This package aims to provide those in a separate
 package which is useful for developers while the official PyQt5 wheels stay
 focused on fulfilling the dependencies of PyQt5 applications.
 
+For each tool a script is created such that you get files like
+``Scripts\designer.exe`` to launch the programs.
+
+If you want to use ``Form`` > ``View Code...`` from within Designer you can
+run ``Scripts\pyqt5toolsinstalluic.exe`` and it will copy ``pyuic5.exe``
+such that Designer will use it and show you generated Python code.  ``pyqt5``
+must already be installed or this script will be unable to find the original
+``pyuic5.exe`` to copy.
+
 .. |AppVeyor| image:: https://ci.appveyor.com/api/projects/status/g95n2ri0e479uvoe?svg=true
    :alt: AppVeyor build status
 .. _AppVeyor: https://ci.appveyor.com/project/KyleAltendorf/pyqt5-tools
