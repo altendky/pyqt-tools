@@ -47,11 +47,15 @@ setuptools.setup(
         'Topic :: Utilities'
     ],
     keywords='pyqt5 qt designer',
-    packages=setuptools.find_packages(),
+    packages=setuptools.find_packages('src'),
+    package_dir={'': 'src'},
     version=version,
     include_package_data=True,
     entry_points={
-        'console_scripts': results.console_scripts,
+        'console_scripts': [
+            'pyqt5toolsinstalluic = pyqt5_tools.entry_points:pyqt5toolsinstalluic',
+            results.console_scripts,
+        ],
     }
 #    data_files=buildinfo.data_files()
 #    scripts=[
