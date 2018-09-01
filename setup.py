@@ -53,9 +53,12 @@ setuptools.setup(
     include_package_data=True,
     entry_points={
         'console_scripts': [
-            'pyqt5toolsinstalluic = pyqt5_tools.entry_points:pyqt5toolsinstalluic',
+            'pyqt5toolsinstalluic = pyqt5_tools.entry_points:pyqt5toolsinstalluic [pyqt5]',
             results.console_scripts,
         ],
+    },
+    extras_require={
+        'pyqt5': ['pyqt5'],
     }
 #    data_files=buildinfo.data_files()
 #    scripts=[
