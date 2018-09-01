@@ -7,5 +7,5 @@ here = pathlib.Path(__file__).parent
 
 
 # def designer():
-#     return subprocess.call([str(here/'designer.exe'), *sys.argv])
+#     return subprocess.call([str(here/'designer.exe'), *sys.argv[1:]])
 

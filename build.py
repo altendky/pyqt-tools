@@ -276,7 +276,7 @@ plat-name = {plat_name}'''.format(**locals()))
         for name in application_names:
             f.write(textwrap.dedent('''\
             def {name}():
-                return subprocess.call([str(here/'{name}.exe'), *sys.argv])
+                return subprocess.call([str(here/'{name}.exe'), *sys.argv[1:]])
 
 
             '''.format(name=name)))
