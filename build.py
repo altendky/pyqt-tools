@@ -413,13 +413,16 @@ plat-name = {plat_name}'''.format(**locals()))
         f.write('\nDEFINES     += PYTHON_LIB=\'"\\\\\\"@PYSHLIB@\\\\\\""\'\n')
     command = [
         os.path.join(os.environ['PYTHON'], 'python'),
-        r'configure.py',
-        r'--no-tools',
-        r'--no-qsci-api',
-        r'--no-qml-plugin',
-        r'--confirm-license',
-        r'--designer-plugindir={}\pyqt5-install\designer'.format(sysroot),
-        r'--enable=QtDesigner',
+        'configure.py',
+        '--no-tools',
+        '--no-qsci-api',
+        '--no-qml-plugin',
+        '--confirm-license',
+        '--designer-plugindir={}'.format(
+            os.path.join(sysroot, 'pyqt5-install', 'designer'),
+        ),
+        '--enable=QtDesigner',
+        '--verbose',
     ]
 
     report_and_check_call(
