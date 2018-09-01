@@ -228,6 +228,8 @@ plat-name = {plat_name}'''.format(**locals()))
 
     os.makedirs(destination, exist_ok=True)
 
+    application_names = []
+
     for application in application_paths:
         application_path = os.path.join(qt_bin_path, application)
 
@@ -259,10 +261,7 @@ plat-name = {plat_name}'''.format(**locals()))
             cwd=destination,
         )
 
-    application_names = [
-        pathlib.Path(application).stem
-        for application in application_paths
-    ]
+        application_names.append(pathlib.Path(application).stem)
 
     with open(pathlib.Path(destination)/'__init__.py', 'w') as f:
         pass
