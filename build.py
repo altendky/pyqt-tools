@@ -6,6 +6,7 @@ import inspect
 import io
 import itertools
 import os
+import pathlib
 import pip
 import platform
 import shlex
@@ -13,9 +14,15 @@ import shutil
 import stat
 import subprocess
 import sys
+import textwrap
 import zipfile
 
 import requests
+
+
+class Results:
+    def __init__(self, console_scripts):
+        self.console_scripts = console_scripts
 
 
 # http://stackoverflow.com/a/9728478/228539
@@ -251,6 +258,25 @@ plat-name = {plat_name}'''.format(**locals()))
             ],
             cwd=destination,
         )
+
+    entry_points_py = pathlib.Path(destination)/'entrypoints.py'
+    shutil.copy(
+        pathlib.Path(__file__).with_name('entrypoints.py'),
+        entry_points_py,
+    )
+    with open(entry_points_py, 'a') as f:
+        for application in application_paths:
+            f.write(textwrap.dedent('''\
+            def {name}():
+                return subprocess.call([here/'{name}.exe', *sys.argv])
+
+
+            '''.format(name=application)))
+
+    console_scripts = [
+        '{name} = pyqt5_tools.entrypoints:{name}'.format(name=application)
+        for application in application_paths
+    ]
 
     platform_path = os.path.join(destination, 'platforms')
     os.makedirs(platform_path, exist_ok=True)
@@ -503,6 +529,8 @@ For a local copy see:
     c = io.StringIO(r.text)
     with open(redist_license_html, 'w') as f:
         f.write(c.read())
+
+    return Results(console_scripts=console_scripts)
 
 
 if __name__ == '__main__':

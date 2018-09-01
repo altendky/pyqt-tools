@@ -22,7 +22,7 @@ version = '.'.join((
 
 sys.stderr.write('another stderr test from {}\n'.format(__file__))
 
-build.main()
+results = build.main()
 
 with open('README.rst') as f:
     readme = f.read()
@@ -50,6 +50,9 @@ setuptools.setup(
     packages=['pyqt5-tools'],
     version=version,
     include_package_data=True,
+    entry_points={
+        'console_scripts': results.console_scripts,
+    }
 #    data_files=buildinfo.data_files()
 #    scripts=[
 #        {scripts}
