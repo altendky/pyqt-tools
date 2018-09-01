@@ -263,9 +263,6 @@ plat-name = {plat_name}'''.format(**locals()))
 
         application_names.append(pathlib.Path(application).stem)
 
-    with open(pathlib.Path(destination)/'__init__.py', 'w') as f:
-        pass
-
     entry_points_py = pathlib.Path(destination)/'entrypoints.py'
     with open(entry_points_py, 'a') as f:
         for name in application_names:
