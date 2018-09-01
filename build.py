@@ -300,7 +300,6 @@ plat-name = {plat_name}'''.format(**locals()))
     nmake = shutil.which('nmake')
 
     src = os.path.join(build, 'src')
-    os.makedirs(src)
     native = os.path.join(sysroot, 'native')
     os.makedirs(native)
 
