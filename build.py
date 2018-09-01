@@ -211,7 +211,7 @@ plat-name = {plat_name}'''.format(**locals()))
 
     build = os.environ['APPVEYOR_BUILD_FOLDER']
 
-    destination = os.path.join(build, 'pyqt5-tools')
+    destination = os.path.join(build, 'pyqt5_tools')
     os.makedirs(destination, exist_ok=True)
 
     build_id = os.environ['APPVEYOR_BUILD_ID']
@@ -263,6 +263,9 @@ plat-name = {plat_name}'''.format(**locals()))
         pathlib.Path(application).stem
         for application in application_paths
     ]
+
+    with open(pathlib.Path(destination)/'__init__.py', 'w') as f:
+        pass
 
     entry_points_py = pathlib.Path(destination)/'entrypoints.py'
     shutil.copy(

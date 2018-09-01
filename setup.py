@@ -47,7 +47,7 @@ setuptools.setup(
         'Topic :: Utilities'
     ],
     keywords='pyqt5 qt designer',
-    packages=['pyqt5-tools'],
+    packages=setuptools.find_packages(),
     version=version,
     include_package_data=True,
     entry_points={
