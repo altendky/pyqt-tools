@@ -516,7 +516,7 @@ plat-name = {plat_name}'''.format(**locals()))
         shutil.copyfile(os.path.join(redist_path, file), dest)
         os.chmod(dest, stat.S_IWRITE)
 
-    redist_license = os.path.join('pyqt5-tools', 'REDIST.visual_cpp_build_tools')
+    redist_license = os.path.join(destination, 'REDIST.visual_cpp_build_tools')
     redist_license_html = redist_license + '.html'
     with open(redist_license, 'w') as redist:
         redist.write(
