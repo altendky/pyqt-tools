@@ -17,6 +17,10 @@ such that Designer will use it and show you generated Python code.  ``pyqt5``
 must already be installed or this script will be unable to find the original
 ``pyuic5.exe`` to copy.
 
+In addition to the standard features of the official Designer plugin, this
+provides an exception dialog for your widget's Python code.  Otherwise Designer
+in Windows silently crashes on Python exceptions.
+
 .. |AppVeyor| image:: https://ci.appveyor.com/api/projects/status/g95n2ri0e479uvoe?svg=true
    :alt: AppVeyor build status
 .. _AppVeyor: https://ci.appveyor.com/project/KyleAltendorf/pyqt5-tools
