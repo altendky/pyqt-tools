@@ -61,9 +61,6 @@ def pyqt5designer(ctx, widget_paths, designer_help):
         *ctx.args,
     ]
 
-    print('env:', env)
-    print('command:', command)
-
     return subprocess.call(command, env=env)
 
 
