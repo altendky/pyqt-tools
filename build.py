@@ -209,16 +209,16 @@ def main():
 python-tag = {python_tag}
 plat-name = {plat_name}'''.format(**locals()))
 
-    build = os.environ['APPVEYOR_BUILD_FOLDER']
+    build = os.environ.get('APPVEYOR_BUILD_FOLDER', os.getcwd())
 
     destination = os.path.join(build, 'src', 'pyqt5_tools')
     os.makedirs(destination, exist_ok=True)
 
-    build_id = os.environ['APPVEYOR_BUILD_ID']
+    build_id = os.environ.get('APPVEYOR_BUILD_ID', 'local')
     with open(os.path.join(destination, 'build_id'), 'w') as f:
         f.write(build_id + '\n')
 
-    job_id = os.environ['APPVEYOR_JOB_ID']
+    job_id = os.environ.get('APPVEYOR_JOB_ID', 'local')
     with open(os.path.join(destination, 'job_id'), 'w') as f:
         f.write(job_id + '\n')
 
