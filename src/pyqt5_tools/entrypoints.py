@@ -40,7 +40,7 @@ def pyqt5toolsinstalluic():
     is_flag=True,
 )
 def pyqt5designer(ctx, widget_paths, designer_help):
-    dotenv.load_env()
+    dotenv.load_dotenv()
 
     extras = []
 
