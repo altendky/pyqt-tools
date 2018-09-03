@@ -1,5 +1,5 @@
 pyqt5-tools
-======
+===========
 
 |AppVeyor|_
 
@@ -10,6 +10,19 @@ focused on fulfilling the dependencies of PyQt5 applications.
 
 For each tool a script is created such that you get files like
 ``Scripts\designer.exe`` to launch the programs.
+
+There is a ``Scripts\pyqt5designer.exe`` entry point that will help fill out
+``PYQTDESIGNERPATH`` from either command line arguments or a ``.env`` file.
+Unknown arguments are passed through to the original Qt Designer program.
+
+.. code-block::
+
+  Usage: pyqt5designer [OPTIONS]
+
+  Options:
+    -p, --widget-path DIRECTORY  Paths to be combined with PYQTDESIGNERPATH
+    --designer-help              Pass through to get Designer's --help
+    --help                       Show this message and exit.
 
 If you want to use ``Form`` > ``View Code...`` from within Designer you can
 run ``Scripts\pyqt5toolsinstalluic.exe`` and it will copy ``pyuic5.exe``
