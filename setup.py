@@ -51,9 +51,14 @@ setuptools.setup(
     package_dir={'': 'src'},
     version=version,
     include_package_data=True,
+    install_requires=[
+        'click',
+        'python-dotenv',
+    ],
     entry_points={
         'console_scripts': [
             'pyqt5toolsinstalluic = pyqt5_tools.entrypoints:pyqt5toolsinstalluic',
+            'pyqt5designer = pyqt5_tools.entrypoints:pyqt5designer',
             results.console_scripts,
         ],
     },
