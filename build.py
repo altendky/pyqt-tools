@@ -293,12 +293,12 @@ plat-name = {plat_name}'''.format(**locals()))
         )
 
     sysroot = os.path.join(build, 'sysroot')
-    os.makedirs(sysroot)
+    os.makedirs(sysroot, exist_ok=True)
     nmake = shutil.which('nmake')
 
     src = os.path.join(build, 'src')
     native = os.path.join(sysroot, 'native')
-    os.makedirs(native)
+    os.makedirs(native, exist_ok=True)
 
     pyqt5_version = os.environ['PYQT5_VERSION']
     # sip_version = next(
