@@ -420,18 +420,18 @@ plat-name = {plat_name}'''.format(**locals()))
 
     pyqt5 = os.path.join(src, pyqt5_name)
 
-    # # TODO: make a patch for the lower versions as well
-    # if pyqt5_version_tuple >= (5, 7):
-    #     if pyqt5_version_tuple >= (5, 11):
-    #         pluginloader_patch = '..\\..\\pluginloader.5.11.patch'
-    #     else:
-    #         pluginloader_patch = '..\\..\\pluginloader.patch'
-    #
-    #     report_and_check_call(
-    #         command='patch -p 1 -i {}'.format(pluginloader_patch),
-    #         shell=True, # TODO: don't do this
-    #         cwd=pyqt5,
-    #     )
+    # TODO: make a patch for the lower versions as well
+    if pyqt5_version_tuple >= (5, 7):
+        if pyqt5_version_tuple >= (5, 11):
+            pluginloader_patch = '..\\..\\pluginloader.5.11.patch'
+        else:
+            pluginloader_patch = '..\\..\\pluginloader.patch'
+
+        report_and_check_call(
+            command='patch -p 1 -i {}'.format(pluginloader_patch),
+            shell=True, # TODO: don't do this
+            cwd=pyqt5,
+        )
 
     designer_pro = os.path.join(pyqt5, 'designer', 'designer.pro-in')
     with open(designer_pro, 'a') as f:
