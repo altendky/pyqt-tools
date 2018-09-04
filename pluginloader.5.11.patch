@@ -758,7 +758,7 @@ index 3ca8b11..066fe34 100644
 +void setupExceptHookDialog(void)
 +{
 +    qDebug() << "Preparing to import module";
-+    qDebug() << PyUnicode_AsEncodedString(PyObject_Str(PySys_GetObject("path")), "utf-8", "error 1?");
++    qDebug() << PyBytes_AS_STRING(PyUnicode_AsEncodedString(PyObject_Str(PySys_GetObject("path")), "utf-8", "error 1?"));
 +    // https://stackoverflow.com/a/42853449/228539
 +    PyObject *pyModule = PyModule_New(moduleName);
 +    // Set properties on the new module object
