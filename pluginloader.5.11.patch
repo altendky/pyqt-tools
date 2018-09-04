@@ -528,7 +528,7 @@ index 0000000..1c4aaa9
 +import functools
 +import sys
 +import traceback
-+f = open('log', 'a'); f.write(str(sys.path)); f.close()
++
 +from PyQt5 import QtCore, QtWidgets
 +
 +QtCore.qDebug('Importing module for exception dialogs')
@@ -758,7 +758,7 @@ index 3ca8b11..066fe34 100644
 +void setupExceptHookDialog(void)
 +{
 +    qDebug() << "Preparing to import module";
-+
++    qDebug() << PyUnicode_AsEncodedString(PyObject_Str(PySys_GetObject("path")), "utf-8", "error 1?");
 +    // https://stackoverflow.com/a/42853449/228539
 +    PyObject *pyModule = PyModule_New(moduleName);
 +    // Set properties on the new module object
