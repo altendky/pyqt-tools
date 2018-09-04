@@ -31,7 +31,7 @@ def pyqt5toolsinstalluic():
     '-p',
     'widget_paths',
     help='Paths to be combined with PYQTDESIGNERPATH',
-    type=click.Path(exists=True, file_okay=False),
+    type=click.Path(exists=True, file_okay=False, resolve_path=True),
     multiple=True,
 )
 @click.option(
