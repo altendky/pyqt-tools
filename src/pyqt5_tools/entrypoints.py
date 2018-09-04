@@ -54,6 +54,12 @@ def pyqt5designer(ctx, widget_paths, designer_help):
             env.get('PYQTDESIGNERPATH', ''),
         )).strip(os.pathsep)
     )
+    env['PYTHONPATH'] = (
+        os.pathsep.join((
+            *sys.path,
+            env.get('PYTHONPATH', ''),
+        )).strip(os.pathsep)
+    )
 
     command = [
         str(here / 'designer.exe'),
