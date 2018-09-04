@@ -528,7 +528,7 @@ index 0000000..1c4aaa9
 +import functools
 +import sys
 +import traceback
-+
++QtCore.qDebug(sys.path)
 +from PyQt5 import QtCore, QtWidgets
 +
 +QtCore.qDebug('Importing module for exception dialogs')
