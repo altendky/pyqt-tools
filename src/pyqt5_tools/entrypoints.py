@@ -95,6 +95,9 @@ def pyqt5designer(
         ))
     )
 
+    for name in ('PYQTDESIGNERPATH', 'PYTHONPATH'):
+        print('{}: {}'.format(name, env[name]))
+
     command = [
         str(here / 'designer.exe'),
         *extras,
