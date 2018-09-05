@@ -11,7 +11,9 @@ import pyqt5_tools.examplebuttonplugin
 
 
 here = pathlib.Path(__file__).parent
-example_path = str(pathlib.Path(pyqt5_tools.examplebuttonplugin).parent)
+example_path = str(
+    pathlib.Path(pyqt5_tools.examplebuttonplugin.__file__).parent,
+)
 
 
 def pyqt5toolsinstalluic():
