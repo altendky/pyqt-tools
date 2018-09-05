@@ -7,6 +7,7 @@ import sys
 import click
 import dotenv
 
+import pyqt5_tools.badplugin
 import pyqt5_tools.examplebuttonplugin
 
 
