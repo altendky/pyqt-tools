@@ -7,8 +7,11 @@ import sys
 import click
 import dotenv
 
+import pyqt5_tools.examplebuttonplugin
+
 
 here = pathlib.Path(__file__).parent
+example_path = str(pathlib.Path(pyqt5_tools.examplebuttonplugin).parent)
 
 
 def pyqt5toolsinstalluic():
@@ -35,17 +38,28 @@ def pyqt5toolsinstalluic():
     multiple=True,
 )
 @click.option(
+    '--example-widget-path',
+    help='Include the path for the pyqt5-tools example button ({})'.format(
+        example_path,
+    ),
+    is_flag=True,
+    show_default=True,
+)
+@click.option(
     '--designer-help',
     help='Pass through to get Designer\'s --help',
     is_flag=True,
 )
-def pyqt5designer(ctx, widget_paths, designer_help):
+def pyqt5designer(ctx, widget_paths, designer_help, example_widget_path):
     dotenv.load_dotenv()
 
     extras = []
 
     if designer_help:
         extras.append('--help')
+
+    if example_widget_path:
+        widget_paths = [*widget_paths, example_path]
 
     env = dict(os.environ)
     env['PYQTDESIGNERPATH'] = (
