@@ -1,4 +1,4 @@
-from PyQt5 import QtDesigner
+from PyQt5 import QtGui, QtDesigner
 
 import pyqt5_tools.examplebutton
 
@@ -30,7 +30,7 @@ class ExampleButtonPlugin(QtDesigner.QPyDesignerCustomWidgetPlugin):
         return 'pyqt5-tools'
 
     def icon(self):
-        return None
+        return QtGui.QIcon()
 
     def toolTip(self):
         return 'pyqt5-tools Example Button Tool Tip'
