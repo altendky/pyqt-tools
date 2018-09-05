@@ -116,6 +116,7 @@ build_script:
   - "python -m pip freeze"
   - "python setup.py bdist_wheel"
   - "copy dist\\*.whl ."
+  - "python twineontag.py"
 
 artifacts:
   - path: '*.whl'
