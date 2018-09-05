@@ -24,13 +24,13 @@ class ExampleButtonPlugin(QtDesigner.QPyDesignerCustomWidgetPlugin):
         return pyqt5_tools.examplebutton.ExampleButton(parent)
 
     def name(self):
-        return 'pyqt5-tools Example Button Name'
+        return pyqt5_tools.examplebutton.ExampleButton.__name__
 
     def group(self):
-        return 'pyqt5_tools'
+        return 'pyqt5-tools'
 
     def icon(self):
-        QtDesigner.QPyDesignerCustomWidgetPlugin.icon(self)
+        return None
 
     def toolTip(self):
         return 'pyqt5-tools Example Button Tool Tip'
