@@ -84,13 +84,15 @@ def pyqt5designer(
         os.pathsep.join((
             *widget_paths,
             env.get('PYQTDESIGNERPATH', ''),
-        )).strip(os.pathsep)
+            '',
+        ))
     )
     env['PYTHONPATH'] = (
         os.pathsep.join((
             *sys.path,
             env.get('PYTHONPATH', ''),
-        )).strip(os.pathsep)
+            '',
+        ))
     )
 
     command = [
