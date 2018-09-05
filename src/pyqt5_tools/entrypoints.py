@@ -45,7 +45,6 @@ def pyqt5toolsinstalluic():
         example_path,
     ),
     is_flag=True,
-    show_default=True,
 )
 @click.option(
     '--designer-help',

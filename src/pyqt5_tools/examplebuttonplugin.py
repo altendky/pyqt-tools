@@ -7,7 +7,7 @@ class ExampleButtonPlugin(QtDesigner.QPyDesignerCustomWidgetPlugin):
     # https://wiki.python.org/moin/PyQt/Using_Python_Custom_Widgets_in_Qt_Designer
 
     def __init__(self, parent=None):
-        parent.__init__(parent=parent)
+        super().__init__(parent=parent)
 
         self.initialized = False
 
