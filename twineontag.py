@@ -21,13 +21,12 @@ def main():
 
     print('Tag found, uploading to PyPI.')
 
-    subprocess.call(
+    subprocess.check_call(
         [
             'twine',
             'upload',
             '*.whl',
         ],
-        check=True,
     )
 
 
