@@ -34,6 +34,9 @@ In addition to the standard features of the official Designer plugin, this
 provides an exception dialog for your widget's Python code.  Otherwise Designer
 in Windows silently crashes on Python exceptions.
 
+The QML plugin is also included for use with ``qmlscene.exe`` and
+``qmltestrunner.exe``.
+
 .. |AppVeyor| image:: https://ci.appveyor.com/api/projects/status/g95n2ri0e479uvoe?svg=true
    :alt: AppVeyor build status
 .. _AppVeyor: https://ci.appveyor.com/project/KyleAltendorf/pyqt5-tools
