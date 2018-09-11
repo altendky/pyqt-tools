@@ -441,10 +441,12 @@ plat-name = {plat_name}'''.format(**locals()))
         'configure.py',
         '--no-tools',
         '--no-qsci-api',
-        '--no-qml-plugin',
         '--confirm-license',
         '--designer-plugindir={}'.format(
             os.path.join(sysroot, 'pyqt5-install', 'designer'),
+        ),
+        '--qml-plugindir={}'.format(
+            os.path.join(sysroot, 'pyqt5-install', 'qml'),
         ),
         '--enable=QtDesigner',
         '--verbose',
@@ -478,6 +480,14 @@ plat-name = {plat_name}'''.format(**locals()))
     designer_plugin_destination = os.path.join(destination, 'plugins', 'designer')
     os.makedirs(designer_plugin_destination, exist_ok=True)
     shutil.copy(designer_plugin_path, designer_plugin_destination)
+
+    qml_plugin_path = pathlib.Path(os.path.expandvars(sysroot))
+    qml_plugin_path = qml_plugin_path/'pyqt5-install'/'qml'
+    qml_plugin_path, = qml_plugin_path.glob('*')
+    qml_plugin_destination = os.path.join(destination, 'plugins')
+    os.makedirs(qml_plugin_destination, exist_ok=True)
+    shutil.copy(qml_plugin_path, qml_plugin_destination)
+
     shutil.copy(os.path.join(pyqt5, 'LICENSE'),
                 os.path.join(destination, 'LICENSE.pyqt5'))
 
