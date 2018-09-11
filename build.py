@@ -433,6 +433,9 @@ plat-name = {plat_name}'''.format(**locals()))
             cwd=pyqt5,
         )
 
+    qml_plugin_path = pathlib.Path(os.path.expandvars(sysroot))
+    qml_plugin_path = qml_plugin_path/'pyqt5-install'/'qml'
+
     designer_pro = os.path.join(pyqt5, 'designer', 'designer.pro-in')
     with open(designer_pro, 'a') as f:
         f.write('\nDEFINES     += PYTHON_LIB=\'"\\\\\\"@PYSHLIB@\\\\\\""\'\n')
@@ -445,9 +448,7 @@ plat-name = {plat_name}'''.format(**locals()))
         '--designer-plugindir={}'.format(
             os.path.join(sysroot, 'pyqt5-install', 'designer'),
         ),
-        '--qml-plugindir={}'.format(
-            os.path.join(sysroot, 'pyqt5-install', 'qml'),
-        ),
+        '--qml-plugindir={}'.format(qml_plugin_path),
         '--enable=QtDesigner',
         '--verbose',
     ]
@@ -481,8 +482,6 @@ plat-name = {plat_name}'''.format(**locals()))
     os.makedirs(designer_plugin_destination, exist_ok=True)
     shutil.copy(designer_plugin_path, designer_plugin_destination)
 
-    qml_plugin_path = pathlib.Path(os.path.expandvars(sysroot))
-    qml_plugin_path = qml_plugin_path/'pyqt5-install'/'qml'
     qml_plugin_path, = qml_plugin_path.glob('*')
     qml_plugin_destination = os.path.join(destination, 'plugins')
     os.makedirs(qml_plugin_destination, exist_ok=True)
