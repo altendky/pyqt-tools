@@ -450,9 +450,10 @@ plat-name = {plat_name}'''.format(**locals()))
         '--no-tools',
         '--no-qsci-api',
         '--confirm-license',
-        '--designer-plugindir={}'.format(designer_plugin_path),
-        '--qml-plugindir={}'.format(qml_plugin_path),
         '--enable=QtDesigner',
+        '--designer-plugindir={}'.format(designer_plugin_path),
+        '--enable=QtQml',
+        '--qml-plugindir={}'.format(qml_plugin_path),
         '--verbose',
     ]
 
