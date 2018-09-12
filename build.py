@@ -475,6 +475,7 @@ plat-name = {plat_name}'''.format(**locals()))
         '--enable=QtDesigner',
         '--designer-plugindir={}'.format(designer_plugin_path),
         '--enable=QtQml',
+        '--enable=QtQuick',
         '--qml-plugindir={}'.format(qml_plugin_path),
         '--verbose',
     ]
