@@ -58,6 +58,8 @@ fspath = getattr(os, 'fspath', str)
 
 
 def download(*args, **kwargs):
+    print('Downloading: {} {}'.format(args, kwargs))
+
     for remaining_tries in reversed(range(5)):
         result = requests.get(*args, **kwargs)
         try:
@@ -65,6 +67,7 @@ def download(*args, **kwargs):
         except requests.HTTPError:
             if remaining_tries > 0:
                 time.sleep(30)
+                print('Retrying: {} {}'.format(args, kwargs))
                 continue
 
             raise
@@ -351,7 +354,6 @@ plat-name = {plat_name}'''.format(**locals()))
             )
         )
 
-    print('Downloading: {}'.format(sip_url))
     r = download(sip_url)
 
     z = zipfile.ZipFile(io.BytesIO(r.content))
@@ -433,7 +435,6 @@ plat-name = {plat_name}'''.format(**locals()))
         'https://sourceforge.net'
         '/projects/pyqt/files/PyQt5/PyQt-{}/{}.zip'
     ).format(pyqt5_version, pyqt5_name)
-    print('Downloading: {}'.format(pyqt5_url))
 
     r = download(pyqt5_url)
     z = zipfile.ZipFile(io.BytesIO(r.content))
@@ -539,28 +540,6 @@ plat-name = {plat_name}'''.format(**locals()))
         dest = os.path.join(destination, file)
         shutil.copyfile(os.path.join(redist_path, file), dest)
         os.chmod(dest, stat.S_IWRITE)
-
-    redist_license = os.path.join(destination, 'REDIST.visual_cpp_build_tools')
-    redist_license_html = redist_license + '.html'
-    with open(redist_license, 'w') as redist:
-        redist.write(
-'''The following filings are being distributed under the Microsoft Visual C++ Build Tools license linked below.
-
-{files}
-
-https://www.visualstudio.com/en-us/support/legal/mt644918
-
-
-For a local copy see:
-
-{license_file}
-'''.format(files='\n'.join(redist_files),
-           license_file=os.path.basename(redist_license_html)))
-
-    r = download('https://www.visualstudio.com/DownloadEula/en-us/mt644918')
-    c = io.StringIO(r.text)
-    with open(redist_license_html, 'w') as f:
-        f.write(c.read())
 
     return Results(console_scripts=console_scripts)
 
