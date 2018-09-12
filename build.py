@@ -56,6 +56,20 @@ def consume(iter):
 fspath = getattr(os, 'fspath', str)
 
 
+def download(*args, **kwargs):
+    for remaining_tries in reversed(range(5)):
+        result = requests.get(*args, **kwargs)
+        try:
+            result.raise_for_status()
+        except requests.HttpError:
+            if remaining_tries > 0:
+                continue
+
+            raise
+
+        return result
+
+
 def get_environment_from_batch_command(env_cmd, initial=None):
     """
     Take a command (either a single command or list of arguments)
@@ -335,7 +349,8 @@ plat-name = {plat_name}'''.format(**locals()))
             )
         )
 
-    r = requests.get(sip_url)
+    print('Downloading: {}'.format(sip_url))
+    r = download(sip_url)
 
     z = zipfile.ZipFile(io.BytesIO(r.content))
     z.extractall(path=src)
@@ -412,12 +427,13 @@ plat-name = {plat_name}'''.format(**locals()))
     else:
         pyqt5_name = 'PyQt-gpl-{}'.format(pyqt5_version)
 
-    r = requests.get(
-        'http://downloads.sourceforge.net'
-        '/project/pyqt/PyQt5/PyQt-{}/{}.zip'.format(
-            pyqt5_version, pyqt5_name
-        )
-    )
+    pyqt5_url = (
+        'https://sourceforge.net'
+        '/projects/pyqt/files/PyQt5/PyQt-{}/{}.zip'
+    ).format(pyqt5_version, pyqt5_name)
+    print('Downloading: {}'.format(pyqt5_url))
+
+    r = download(pyqt5_url)
     z = zipfile.ZipFile(io.BytesIO(r.content))
     z.extractall(path=src)
 
@@ -539,7 +555,7 @@ For a local copy see:
 '''.format(files='\n'.join(redist_files),
            license_file=os.path.basename(redist_license_html)))
 
-    r = requests.get('https://www.visualstudio.com/DownloadEula/en-us/mt644918')
+    r = download('https://www.visualstudio.com/DownloadEula/en-us/mt644918')
     c = io.StringIO(r.text)
     with open(redist_license_html, 'w') as f:
         f.write(c.read())
