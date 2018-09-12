@@ -80,6 +80,7 @@ def pyqt5designer(
         widget_paths.append(bad_path)
 
     env = dict(os.environ)
+
     env['PYQTDESIGNERPATH'] = (
         os.pathsep.join((
             *widget_paths,
@@ -100,6 +101,122 @@ def pyqt5designer(
 
     command = [
         str(here / 'designer.exe'),
+        *extras,
+        *ctx.args,
+    ]
+
+    return subprocess.call(command, env=env)
+
+
+qml2_import_path_option = click.option(
+    '--qml2-import-path',
+    '-p',
+    'qml2_import_paths',
+    help='Paths to be combined with QML2_IMPORT_PATH',
+    type=click.Path(exists=True, file_okay=False, resolve_path=True),
+    multiple=True,
+)
+
+
+@click.command(
+    context_settings={
+        'ignore_unknown_options': True,
+        'allow_extra_args': True,
+    },
+)
+@click.pass_context
+@qml2_import_path_option
+@click.option(
+    '--qmlscene-help',
+    help='Pass through to get QML scene\'s --help',
+    is_flag=True,
+)
+def pyqt5qmlscene(
+        ctx,
+        qml2_import_paths,
+        qmlscene_help,
+):
+    dotenv.load_dotenv()
+    extras = []
+
+    if qmlscene_help:
+        extras.append('--help')
+
+    env = dict(os.environ)
+
+    env['QML2_IMPORT_PATH'] = (
+        os.pathsep.join((
+            *qml2_import_paths,
+            env.get('QML2_IMPORT_PATH', ''),
+            '',
+        ))
+    )
+    env['PYTHONPATH'] = (
+        os.pathsep.join((
+            *sys.path,
+            env.get('PYTHONPATH', ''),
+            '',
+        ))
+    )
+
+    for name in ('QML2_IMPORT_PATH', 'PYTHONPATH'):
+        print('{}: {}'.format(name, env[name]))
+
+    command = [
+        str(here / 'qmlscene.exe'),
+        *extras,
+        *ctx.args,
+    ]
+
+    return subprocess.call(command, env=env)
+
+
+@click.command(
+    context_settings={
+        'ignore_unknown_options': True,
+        'allow_extra_args': True,
+    },
+)
+@click.pass_context
+@qml2_import_path_option
+@click.option(
+    '--qmltestrunner-help',
+    help='Pass through to get QML test runner\'s --help',
+    is_flag=True,
+)
+def pyqt5qmltestrunner(
+        ctx,
+        qml2_import_paths,
+        qmltestrunner_help,
+):
+    dotenv.load_dotenv()
+    extras = []
+
+    if qmltestrunner_help:
+        extras.append('--help')
+
+    env = dict(os.environ)
+
+    env['QML2_IMPORT_PATH'] = (
+        os.pathsep.join((
+            *qml2_import_paths,
+            env.get('QML2_IMPORT_PATH', ''),
+            '',
+        ))
+    )
+    env['PYTHONPATH'] = (
+        os.pathsep.join((
+            *sys.path,
+            env.get('PYTHONPATH', ''),
+            '',
+        ))
+    )
+
+    for name in ('QML2_IMPORT_PATH', 'PYTHONPATH'):
+        print('{}: {}'.format(name, env[name]))
+
+    command = [
+        str(here / 'qmltestrunner.exe'),
         *extras,
         *ctx.args,
     ]

@@ -59,6 +59,8 @@ setuptools.setup(
         'console_scripts': [
             'pyqt5toolsinstalluic = pyqt5_tools.entrypoints:pyqt5toolsinstalluic',
             'pyqt5designer = pyqt5_tools.entrypoints:pyqt5designer',
+            'pyqt5qmlscene = pyqt5_tools.entrypoints:pyqt5qmlscene',
+            'pyqt5qmltestrunner = pyqt5_tools.entrypoints:pyqt5qmltestrunner',
             results.console_scripts,
         ],
     },
