@@ -61,7 +61,7 @@ def download(*args, **kwargs):
         result = requests.get(*args, **kwargs)
         try:
             result.raise_for_status()
-        except requests.HttpError:
+        except requests.HTTPError:
             if remaining_tries > 0:
                 continue
 
