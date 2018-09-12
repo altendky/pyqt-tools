@@ -15,6 +15,7 @@ import stat
 import subprocess
 import sys
 import textwrap
+import time
 import zipfile
 
 import requests
@@ -63,6 +64,7 @@ def download(*args, **kwargs):
             result.raise_for_status()
         except requests.HTTPError:
             if remaining_tries > 0:
+                time.sleep(30)
                 continue
 
             raise
