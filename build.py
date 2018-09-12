@@ -53,6 +53,9 @@ def consume(iter):
         pass
 
 
+fspath = getattr(os, 'fspath', str)
+
+
 def get_environment_from_batch_command(env_cmd, initial=None):
     """
     Take a command (either a single command or list of arguments)
@@ -95,7 +98,7 @@ def report_and_check_call(command, *args, cwd=None, shell=False, **kwargs):
     print('    CWD: {}'.format(repr(cwd)))
     print('    As passed: {}'.format(repr(command)))
     print('    Full: {}'.format(
-        ' '.join(shlex.quote(getattr(os, 'fspath', str)(x)) for x in command),
+        ' '.join(shlex.quote(fspath(x)) for x in command),
     ))
 
     if shell:
@@ -482,13 +485,13 @@ plat-name = {plat_name}'''.format(**locals()))
     )
     designer_plugin_path, = designer_plugin_path.glob('*')
     designer_plugin_destination = os.path.join(destination, 'plugins', 'designer')
-    os.makedirs(designer_plugin_destination, exist_ok=True)
-    shutil.copy(designer_plugin_path, designer_plugin_destination)
+    os.makedirs(fspath(designer_plugin_destination), exist_ok=True)
+    shutil.copy(fspath(designer_plugin_path), designer_plugin_destination)
 
     qml_plugin_path, = qml_plugin_path.glob('*')
     qml_plugin_destination = os.path.join(destination, 'plugins')
-    os.makedirs(qml_plugin_destination, exist_ok=True)
-    shutil.copy(qml_plugin_path, qml_plugin_destination)
+    os.makedirs(fspath(qml_plugin_destination), exist_ok=True)
+    shutil.copy(fspath(qml_plugin_path), qml_plugin_destination)
 
     shutil.copy(os.path.join(pyqt5, 'LICENSE'),
                 os.path.join(destination, 'LICENSE.pyqt5'))
