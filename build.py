@@ -164,14 +164,20 @@ def main():
         '37': '14.14',
     }
     msvc_version = msvc_versions[python_major_minor]
-    compiler_year = {
+    if bits == 32 and python_major_minor == '37':
+        msvc_version_for_qt = '14.0'
+    else:
+        msvc_version_for_qt = msvc_version
+    compiler_years = {
         '10.0': '2010',
         '11.0': '2012',
         '12.0': '2013',
         '14.0': '2015',
         '14.1': '2017',
         '14.14': '2017',
-    }[msvc_version]
+    }
+    compiler_year = compiler_years[msvc_version]
+    compiler_year_for_qt = compiler_years[msvc_version_for_qt]
     if decimal.Decimal(msvc_version) >= 14.1:
         vs_path = os.path.join(
             'C:/',
@@ -207,8 +213,9 @@ def main():
     compiler_bits_string = {32: '', 64: '_64'}[bits]
 
     compiler_dir = ''.join((compiler_name, compiler_year, compiler_bits_string))
+    compiler_dir_for_qt = ''.join((compiler_name, compiler_year_for_qt, compiler_bits_string))
 
-    qt_bin_path = os.path.join(os.environ['QT_BASE_PATH'], compiler_dir, 'bin')
+    qt_bin_path = os.path.join(os.environ['QT_BASE_PATH'], compiler_dir_for_qt, 'bin')
     os.environ['PATH'] = os.pathsep.join((os.environ['PATH'], qt_bin_path))
 
     with open('setup.cfg', 'w') as cfg:
