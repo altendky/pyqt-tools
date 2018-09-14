@@ -166,7 +166,7 @@ def main():
     if bits == 32 and python_major_minor == '37':
         msvc_version = '14.0'
     else:
-        msvc_version = msvc_version
+        msvc_version = msvc_versions[python_major_minor]
     compiler_year = {
         '10.0': '2010',
         '11.0': '2012',
