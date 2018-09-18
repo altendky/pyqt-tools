@@ -8,6 +8,31 @@ the old binary installers. This package aims to provide those in a separate
 package which is useful for developers while the official PyQt5 wheels stay
 focused on fulfilling the dependencies of PyQt5 applications.
 
+Installation
+------------
+
+.. code-block:: bash
+
+  yourenv\Scripts\pip.exe install --pre pyqt5-tools~=5.11
+
+You will generally install pyqt5-tools using ``pip install``.
+In most cases you should be using virtualenv_ or venv_ to create isolated environments to install your dependencies in.
+The above command assumes an env in the directory ``yourenv``.
+The ``--pre`` allows for the latest version to be installed despite not being a full release version.
+You will  have to decide if this is a good option for you at any given point in time.
+The ``~=5.11`` specifies a `release compatible with`_ 5.11 which will be the latest version of pqyt5-tools built for PyQt5_ 5.11.
+If you are using a different PyQt5 version, specify it instead of 5.11.
+PyPI keeps a list of `all available versions`_.
+
+.. _virtualenv: https://virtualenv.pypa.io/en/stable/
+.. _venv: https://docs.python.org/3/library/venv.html
+.. _PyQt5: blue
+.. _`release compatible with`: https://www.python.org/dev/peps/pep-0440/#compatible-release
+.. _`all available versions`: https://pypi.org/project/pyqt5-tools/#history
+
+Usage
+-----
+
 For each tool a script is created such that you get files like
 ``Scripts\designer.exe`` to launch the programs.
 
