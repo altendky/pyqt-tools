@@ -67,7 +67,7 @@ def pyqt5designer(
         test_exception_dialog,
 ):
     env_path = dotenv.find_dotenv()
-    env['DOT_ENV_DIRECTORY'] = str(env_path)
+    os.environ['DOT_ENV_DIRECTORY'] = str(env_path)
     dotenv.load_dotenv(dotenv_path=env_path)
 
     extras = []
