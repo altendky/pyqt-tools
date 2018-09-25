@@ -66,7 +66,10 @@ def pyqt5designer(
         example_widget_path,
         test_exception_dialog,
 ):
-    dotenv.load_dotenv()
+    env_path = dotenv.find_dotenv()
+    env['DOT_ENV_DIRECTORY'] = str(env_path)
+    dotenv.load_dotenv(dotenv_path=env_path)
+
     extras = []
     widget_paths = list(widget_paths)
 
