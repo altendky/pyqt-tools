@@ -60,14 +60,19 @@ fspath = getattr(os, 'fspath', str)
 def download(*args, **kwargs):
     print('Downloading: {} {}'.format(args, kwargs))
 
+    hold_off = 30
+
     for remaining_tries in reversed(range(5)):
         result = requests.get(*args, **kwargs)
         try:
             result.raise_for_status()
         except requests.HTTPError:
             if remaining_tries > 0:
-                time.sleep(30)
+                print('waiting {} seconds'.format(hold_off))
+                time.sleep(hold_off)
+                hold_off *= 2
                 print('Retrying: {} {}'.format(args, kwargs))
+
                 continue
 
             raise
