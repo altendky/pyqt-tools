@@ -34,7 +34,15 @@ Usage
 -----
 
 For each tool a script is created such that you get files like
-``Scripts\designer.exe`` to launch the programs.
+``Scripts\designer.exe`` to launch the programs.  Each one searches up the
+filesystem tree to find a ``.env`` file and loads it if found.  If found
+the environment variable ``DOT_ENV_DIRECTORY`` will be set to the directory
+containing the ``.env`` file.  With this extra variable you can specify paths
+relative to the ``.env`` location.
+
+.. code-block:: powershell
+
+  PYQTDESIGNERPATH=${PYQTDESIGNERPATH};${DOT_ENV_DIRECTORY}/path/to/my/widgets
 
 There is a ``Scripts\pyqt5designer.exe`` entry point that will help fill out
 ``PYQTDESIGNERPATH`` from either command line arguments or a ``.env`` file.
