@@ -11,7 +11,7 @@ focused on fulfilling the dependencies of PyQt5 applications.
 Installation
 ------------
 
-.. code-block:: bash
+.. code-block:: powershell
 
   yourenv\Scripts\pip.exe install --pre pyqt5-tools~=5.11
 
@@ -40,7 +40,7 @@ There is a ``Scripts\pyqt5designer.exe`` entry point that will help fill out
 ``PYQTDESIGNERPATH`` from either command line arguments or a ``.env`` file.
 Unknown arguments are passed through to the original Qt Designer program.
 
-.. code-block::
+.. code-block:: powershell
 
   Usage: pyqt5designer [OPTIONS]
 
