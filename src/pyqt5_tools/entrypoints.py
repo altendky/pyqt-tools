@@ -27,6 +27,13 @@ def pyqt5toolsinstalluic():
     shutil.copy(str(there/'pyuic5.exe'), str(destination/'uic.exe'))
 
 
+def load_dotenv():
+    env_path = dotenv.find_dotenv()
+    if len(env_path) > 0:
+        os.environ['DOT_ENV_DIRECTORY'] = str(pathlib.Path(env_path).parent)
+        dotenv.load_dotenv(dotenv_path=env_path)
+
+
 @click.command(
     context_settings={
         'ignore_unknown_options': True,
@@ -66,9 +73,7 @@ def pyqt5designer(
         example_widget_path,
         test_exception_dialog,
 ):
-    env_path = dotenv.find_dotenv()
-    os.environ['DOT_ENV_DIRECTORY'] = str(pathlib.Path(env_path).parent)
-    dotenv.load_dotenv(dotenv_path=env_path)
+    load_dotenv()
 
     extras = []
     widget_paths = list(widget_paths)
@@ -139,7 +144,7 @@ def pyqt5qmlscene(
         qml2_import_paths,
         qmlscene_help,
 ):
-    dotenv.load_dotenv()
+    load_dotenv()
     extras = []
 
     if qmlscene_help:
@@ -192,7 +197,7 @@ def pyqt5qmltestrunner(
         qml2_import_paths,
         qmltestrunner_help,
 ):
-    dotenv.load_dotenv()
+    load_dotenv()
     extras = []
 
     if qmltestrunner_help:
