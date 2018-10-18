@@ -823,7 +823,7 @@ index 3ca8b11..066fe34 100644
 +                qDebug() << "pyth_func && PyCallable_Check(pyth_func)";
 +                PyObject *pyth_val;
 +
-+                pyth_val = PyObject_CallFunctionObjArgs(pyth_func, ptype, pvalue, ptraceback, Py_None, true);
++                pyth_val = PyObject_CallFunctionObjArgs(pyth_func, ptype, pvalue, ptraceback, Py_None, true, NULL);
 +                qDebug() << "pyth_val == NULL : " << (pyth_val == NULL);
 +
 +                pystr = PyObject_Str(pyth_val);
