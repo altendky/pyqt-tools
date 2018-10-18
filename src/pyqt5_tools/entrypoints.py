@@ -34,6 +34,14 @@ def load_dotenv():
         dotenv.load_dotenv(dotenv_path=env_path)
 
 
+def all_dirs(path):
+    return (
+        str(x)
+        for x in path.glob('**')
+        if x.is_dir() and x.name != '__pycache__'
+    )
+
+
 @click.command(
     context_settings={
         'ignore_unknown_options': True,
@@ -104,7 +112,31 @@ def pyqt5designer(
         ))
     )
 
-    for name in ('PYQTDESIGNERPATH', 'PYTHONPATH'):
+    import PyQt5
+    import pyqt5_tools
+
+    env['PATH'] = (
+        os.pathsep.join((
+            # *all_dirs(pathlib.Path(pyqt5_tools.__file__).parent),
+            # *all_dirs(pathlib.Path(sys.executable).parent.parent),
+            # *all_dirs(here),
+            # *all_dirs(pathlib.Path(PyQt5.__file__).parent),
+            # *all_dirs(pathlib.Path(pyqt5_tools.__file__).parent),
+            # *all_dirs(
+            #     (
+            #         pathlib.Path('c:')
+            #         / os.sep
+            #         / 'Program Files (x86)'
+            #         / 'Python36-32'
+            #     ),
+            # ),
+            str(pathlib.Path(sys.executable).parent),
+            env.get('PATH', ''),
+            '',
+        ))
+    )
+
+    for name in ('PYQTDESIGNERPATH', 'PYTHONPATH', 'PATH'):
         print('{}: {}'.format(name, env[name]))
 
     command = [
