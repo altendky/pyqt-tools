@@ -154,6 +154,12 @@ def callers_line_info():
     )
 
 
+def preferred_newlines(f):
+    if isinstance(f.newlines, str):
+        return f.newlines
+    return '\n'
+
+
 def main():
     bits = int(platform.architecture()[0][0:2])
     python_major_minor = '{}{}'.format(
@@ -294,7 +300,10 @@ plat-name = {plat_name}'''.format(**locals()))
         application_names.append(pathlib.Path(application).stem)
 
     entry_points_py = pathlib.Path(destination)/'entrypoints.py'
-    with open(str(entry_points_py), 'a') as f:
+    with open(str(entry_points_py)) as f:
+        f.read()
+        newlines = preferred_newlines(f)
+    with open(str(entry_points_py), 'a', newline=newlines) as f:
         for name in application_names:
             f.write(textwrap.dedent('''\
             def {name}():
