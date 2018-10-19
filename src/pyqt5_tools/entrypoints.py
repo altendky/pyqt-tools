@@ -34,14 +34,6 @@ def load_dotenv():
         dotenv.load_dotenv(dotenv_path=env_path)
 
 
-def all_dirs(path):
-    return (
-        str(x)
-        for x in path.glob('**')
-        if x.is_dir() and x.name != '__pycache__'
-    )
-
-
 @click.command(
     context_settings={
         'ignore_unknown_options': True,
