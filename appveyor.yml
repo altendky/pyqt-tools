@@ -106,7 +106,7 @@ build_script:
   - "pip install pytest==3.9.1"
   - "python -m pip freeze"
   - "python setup.py bdist_wheel"
-  - ps: "python -m pip install (get-item dist\\*.whl).FullName"
+  - ps: "python -m pip install --no-warn-script-location (get-item dist\\*.whl).FullName"
   - "python -m pytest pyqt5_tools.tests --pyargs"
   - "copy dist\\*.whl ."
   - "python twineontag.py"
