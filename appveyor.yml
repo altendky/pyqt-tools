@@ -4,6 +4,10 @@ skip_branch_with_pr: true
 
 environment:
   matrix:
+    -  PYTHON: "C:\\Python36"
+       PYQT5_VERSION: 5.11.2
+       QT_BASE_PATH: c:\\Qt\\5.11.1
+
     -  PYTHON: "C:\\Python37-x64"
        PYTHON_SUFFIX: "-x64"
        PYQT5_VERSION: 5.11.2
@@ -16,10 +20,6 @@ environment:
 
     -  PYTHON: "C:\\Python36-x64"
        PYTHON_SUFFIX: "-x64"
-       PYQT5_VERSION: 5.11.2
-       QT_BASE_PATH: c:\\Qt\\5.11.1
-
-    -  PYTHON: "C:\\Python36"
        PYQT5_VERSION: 5.11.2
        QT_BASE_PATH: c:\\Qt\\5.11.1
 
