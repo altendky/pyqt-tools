@@ -497,6 +497,7 @@ plat-name = {plat_name}'''.format(**locals()))
         '--enable=QtQuick',
         '--qml-plugindir={}'.format(qml_plugin_path),
         '--verbose',
+        '--sip={}'.format(pathlib.Path(sys.executable).with_name('sip')),
     ]
 
     report_and_check_call(
