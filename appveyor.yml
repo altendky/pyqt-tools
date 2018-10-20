@@ -99,6 +99,7 @@ build_script:
   - "python -m pip freeze"
   # Build the compiled extension
   - "python stderr.py"
+  - "python -m pip install --upgrade pip"
   - "pip install requests==2.13.0"
   - "pip install vcversioner==2.16.0.0"
   - "pip install wheel==0.30.0a0"
