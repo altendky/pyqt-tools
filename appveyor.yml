@@ -105,6 +105,7 @@ build_script:
   - "pip install wheel==0.30.0a0"
   - "pip install twine==1.11.0"
   - "pip install pytest==3.9.1"
+  - "pip install pyqt5==%PYQT5_VERSION%"
   - "python -m pip freeze"
   - "python setup.py bdist_wheel"
   - ps: "python -m pip install --no-warn-script-location (get-item dist\\*.whl).FullName"
