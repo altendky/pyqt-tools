@@ -95,23 +95,22 @@ init:
   - ps: if (Get-ChildItem Env:ENABLE_RDP -ErrorAction SilentlyContinue) {iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))} else {echo RDP not enabled}
 
 build_script:
-  - set PATH=%PYTHON%;%PYTHON%\\Scripts;%PATH%
-  - "python -m pip freeze"
-  # Build the compiled extension
-  - "python stderr.py"
-  - "python -m pip install --upgrade pip"
-  - "pip install requests==2.13.0"
-  - "pip install vcversioner==2.16.0.0"
-  - "pip install wheel==0.30.0a0"
-  - "pip install twine==1.11.0"
-  - "pip install pytest==3.9.1"
-  - "pip install pyqt5==%PYQT5_VERSION%"
-  - "python -m pip freeze"
-  - "python setup.py bdist_wheel"
-  - ps: "python -m pip install --no-warn-script-location (get-item dist\\*.whl).FullName"
-  - "python -m pytest pyqt5_tools.tests --pyargs"
+  - "%PYTHON%%\\python -m venv venv"
+  - "venv\\scripts\\python -m pip freeze"
+  - "venv\\scripts\\python stderr.py"
+  - "venv\\scripts\\python -m pip install --upgrade pip"
+  - "venv\\scripts\\python -m pip install requests==2.13.0"
+  - "venv\\scripts\\python -m pip install vcversioner==2.16.0.0"
+  - "venv\\scripts\\python -m pip install wheel==0.30.0a0"
+  - "venv\\scripts\\python -m pip install twine==1.11.0"
+  - "venv\\scripts\\python -m pip install pytest==3.9.1"
+  - "venv\\scripts\\python -m pip install pyqt5==%PYQT5_VERSION%"
+  - "venv\\scripts\\python -m pip freeze"
+  - "venv\\scripts\\python setup.py bdist_wheel"
+  - ps: "venv\\scripts\\python -m pip install --no-warn-script-location (get-item dist\\*.whl).FullName"
+  - "venv\\scripts\\python -m pytest pyqt5_tools.tests --pyargs"
   - "copy dist\\*.whl ."
-  - "python twineontag.py"
+  - "venv\\scripts\\python twineontag.py"
 
 artifacts:
   - path: '*.whl'
