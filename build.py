@@ -393,7 +393,7 @@ plat-name = {plat_name}'''.format(**locals()))
 
     report_and_check_call(
         command=[
-            os.path.join(os.environ['PYTHON'], 'python'),
+            sys.executable,
             'configure.py',
         ],
         cwd=native_sip,
@@ -420,7 +420,7 @@ plat-name = {plat_name}'''.format(**locals()))
 
     report_and_check_call(
         command=[
-            os.path.join(os.environ['PYTHON'], 'python'),
+            sys.executable,
             'configure.py',
             '--no-tools',
             *sip_configure_extras,
@@ -486,7 +486,7 @@ plat-name = {plat_name}'''.format(**locals()))
     with open(designer_pro, 'a') as f:
         f.write('\nDEFINES     += PYTHON_LIB=\'"\\\\\\"@PYSHLIB@\\\\\\""\'\n')
     command = [
-        os.path.join(os.environ['PYTHON'], 'python'),
+        sys.executable,
         'configure.py',
         '--no-tools',
         '--no-qsci-api',
