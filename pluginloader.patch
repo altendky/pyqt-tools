@@ -748,7 +748,7 @@ index 771270d..c589b13 100644
  #include <QtGlobal>
  #include <QtPlugin>
  #include <QCoreApplication>
-@@ -36,6 +37,112 @@
+@@ -36,6 +37,113 @@
  
  #include "../qpy/QtDesigner/qpydesignercustomwidgetplugin.h"
  
