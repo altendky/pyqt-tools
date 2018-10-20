@@ -748,7 +748,7 @@ index 771270d..c589b13 100644
  #include <QtGlobal>
  #include <QtPlugin>
  #include <QCoreApplication>
-@@ -36,6 +37,113 @@
+@@ -36,6 +37,114 @@
  
  #include "../qpy/QtDesigner/qpydesignercustomwidgetplugin.h"
  
@@ -771,6 +771,7 @@ index 771270d..c589b13 100644
 +
 +    // Define code in the newly created module
 +    PyObject *pyValue = PyRun_String(moduleCode, Py_file_input, localDict, localDict);
++    qDebug() << "Code just run";
 +    if (pyValue == NULL)
 +    {
 +        qDebug() << "An error occurred while importing the module";
