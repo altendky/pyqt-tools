@@ -103,8 +103,11 @@ build_script:
   - "pip install vcversioner==2.16.0.0"
   - "pip install wheel==0.30.0a0"
   - "pip install twine==1.11.0"
+  - "pip install pytest==3.9.1"
   - "python -m pip freeze"
   - "python setup.py bdist_wheel"
+  - "python -m pip install *.whl"
+  - "pytohn -m pytest pyqt5_tools.tests --pyargs"
   - "copy dist\\*.whl ."
   - "python twineontag.py"
 
