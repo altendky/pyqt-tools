@@ -853,6 +853,7 @@ index 3ca8b11..066fe34 100644
 +    }
 +    else
 +    {
++        qDebug() << "About to decref";
 +        Py_DECREF(pyValue);
 +    }
 +
