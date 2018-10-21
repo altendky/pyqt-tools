@@ -29,5 +29,5 @@ def test_creates_test_widget(tmp_path):
             timeout=10,
         )
 
-    with open(file_path, 'rb') as f:
+    with open(str(file_path), 'rb') as f:
         assert f.read() == pyqt5_tools.tests.testbutton.test_file_contents
