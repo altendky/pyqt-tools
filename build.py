@@ -64,22 +64,22 @@ def download(*args, path=None, **kwargs):
 
     if path is not None:
         for remaining_tries in reversed(range(5)):
-            with requests.get(*args, stream=True, **kwargs) as result:
-                try:
-                    result.raise_for_status()
+            result = requests.get(*args, stream=True, **kwargs)
+            try:
+                result.raise_for_status()
 
-                    with open(str(path), 'wb') as f:
-                        for chunk in result.iter_content():
+                with open(str(path), 'wb') as f:
+                    for chunk in result.iter_content():
 
-                            f.write(chunk)
-                except requests.HTTPError:
-                    if remaining_tries > 0:
-                        print('waiting {} seconds'.format(hold_off))
-                        time.sleep(hold_off)
-                        hold_off *= 2
-                        print('Retrying: {} {}'.format(args, kwargs))
+                        f.write(chunk)
+            except requests.HTTPError:
+                if remaining_tries > 0:
+                    print('waiting {} seconds'.format(hold_off))
+                    time.sleep(hold_off)
+                    hold_off *= 2
+                    print('Retrying: {} {}'.format(args, kwargs))
 
-                        continue
+                    continue
 
         return
 
