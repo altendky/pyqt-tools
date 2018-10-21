@@ -160,6 +160,58 @@ def preferred_newlines(f):
     return '\n'
 
 
+template_path = pathlib.Path(__file__).with_name('noninteractive.template.qs')
+script_path = pathlib.Path(__file__).with_name('noninteractive.qs')
+
+myqt_path = pathlib.Path('c:') / os.sep / 'MyQt'
+
+
+def install_qt(version, compiler_year, bits):
+    with open(str(template_path)) as f:
+        template = f.read()
+
+    if bits == 32:
+        compiler = 'win32_msvc{}'.format(compiler_year)
+    elif bits == 64:
+        compiler = 'win64_msvc{}_64'.format(compiler_year)
+    else:
+        raise Exception('Unsupported bits: {}'.format(repr(bits)))
+
+    component = 'qt.qt5.{version}.{compiler}'.format(
+        version=version.replace('.', ''),
+        compiler=compiler,
+    )
+
+    with open(str(script_path), 'w') as f:
+        result = template.replace('{target}', myqt_path)
+        result = result.replace('{component}',component)
+        f.write(result)
+
+    first_two = '.'.join(version.split('.')[:2])
+
+    file_name = 'qt-opensource-windows-x86-{version}.exe'
+
+    url = (
+        'https://download.qt.io'
+        '/official_releases/qt/{first_two}/{version}/{file_name}'.format(
+            first_two=first_two,
+            version=version,
+            file_name=file_name,
+        )
+    )
+
+    download(url)
+
+    report_and_check_call(
+        [
+            file_name,
+            '--script', str(script_path),
+        ],
+    )
+
+    return myqt_path / version
+
+
 def main():
     bits = int(platform.architecture()[0][0:2])
     python_major_minor = '{}{}'.format(
@@ -222,7 +274,26 @@ def main():
 
     compiler_dir = ''.join((compiler_name, compiler_year, compiler_bits_string))
 
-    qt_bin_path = os.path.join(os.environ['QT_BASE_PATH'], compiler_dir, 'bin')
+    pyqt5_version = os.environ['PYQT5_VERSION']
+
+    qt_versions = {
+        '5.9': '5.9.1',
+        '5.9.1': '5.9.2',
+        '5.9.2': '5.9.3',
+        '5.10': '5.10.0',
+        '5.10.1': '5.10.1',
+        '5.11.2': '5.11.1',
+        '5.11.3': '5.11.2',
+    }
+    qt_version = qt_versions[pyqt5_version]
+
+    qt_base_path = install_qt(
+        version=qt_version,
+        compiler_year=compiler_year,
+        bits=bits,
+    )
+
+    qt_bin_path = os.path.join(qt_base_path, compiler_dir, 'bin')
     os.environ['PATH'] = os.pathsep.join((os.environ['PATH'], qt_bin_path))
 
     with open('setup.cfg', 'w') as cfg:
@@ -323,7 +394,7 @@ plat-name = {plat_name}'''.format(**locals()))
     for platform_plugin in ('minimal',):
         shutil.copy(
             os.path.join(
-                os.environ['QT_BASE_PATH'],
+                qt_base_path,
                 compiler_dir,
                 'plugins',
                 'platforms',
@@ -340,7 +411,6 @@ plat-name = {plat_name}'''.format(**locals()))
     native = os.path.join(sysroot, 'native')
     os.makedirs(native, exist_ok=True)
 
-    pyqt5_version = os.environ['PYQT5_VERSION']
     # sip_version = next(
     #     d.version
     #     for d in pip.utils.get_installed_distributions()
