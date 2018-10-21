@@ -69,7 +69,7 @@ def download(*args, path=None, **kwargs):
                 result.raise_for_status()
 
                 with open(str(path), 'wb') as f:
-                    for chunk in result.iter_content():
+                    for chunk in result.iter_content(chunk_size=1_000_000):
 
                         f.write(chunk)
             except requests.HTTPError:
