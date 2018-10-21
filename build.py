@@ -183,8 +183,8 @@ def install_qt(version, compiler_year, bits):
     )
 
     with open(str(script_path), 'w') as f:
-        result = template.replace('{target}', myqt_path)
-        result = result.replace('{component}',component)
+        result = template.replace('{target}', str(myqt_path))
+        result = result.replace('{component}', component)
         f.write(result)
 
     first_two = '.'.join(version.split('.')[:2])
