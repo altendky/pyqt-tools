@@ -9,9 +9,9 @@ import pyqt5_tools.tests.testbutton
 import pyqt5_tools.tests.testbuttonplugin
 
 
-def test_creates_test_widget(tempdir):
+def test_creates_test_widget(tmp_path):
     env = dict(os.environ)
-    file_path = pathlib.Path(tempdir)/'tigger'
+    file_path = tmp_path/'tigger'
     env[pyqt5_tools.tests.testbutton.test_path_env_var] = file_path
 
     widget_plugin_path = pathlib.Path(
