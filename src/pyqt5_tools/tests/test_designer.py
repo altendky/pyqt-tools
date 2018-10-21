@@ -18,8 +18,6 @@ def test_creates_test_widget(tmp_path):
         pyqt5_tools.tests.testbuttonplugin.__file__,
     ).parent
 
-    print('env:', env)
-
     with pytest.raises(subprocess.TimeoutExpired):
         subprocess.run(
             [
