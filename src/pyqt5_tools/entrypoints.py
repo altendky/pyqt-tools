@@ -103,8 +103,15 @@ def pyqt5designer(
             '',
         ))
     )
+    env['PATH'] = (
+        os.pathsep.join((
+            str(pathlib.Path(sys.executable).parent),
+            env.get('PATH', ''),
+            '',
+        ))
+    )
 
-    for name in ('PYQTDESIGNERPATH', 'PYTHONPATH'):
+    for name in ('PYQTDESIGNERPATH', 'PYTHONPATH', 'PATH'):
         print('{}: {}'.format(name, env[name]))
 
     command = [
