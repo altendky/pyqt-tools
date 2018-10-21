@@ -57,10 +57,31 @@ def consume(iter):
 fspath = getattr(os, 'fspath', str)
 
 
-def download(*args, **kwargs):
+def download(*args, path=None, **kwargs):
     print('Downloading: {} {}'.format(args, kwargs))
 
     hold_off = 30
+
+    if path is not None:
+        for remaining_tries in reversed(range(5)):
+            with requests.get(*args, stream=True, **kwargs) as result:
+                try:
+                    result.raise_for_status()
+
+                    with open(str(path), 'wb') as f:
+                        for chunk in result.iter_content():
+
+                            f.write(chunk)
+                except requests.HTTPError:
+                    if remaining_tries > 0:
+                        print('waiting {} seconds'.format(hold_off))
+                        time.sleep(hold_off)
+                        hold_off *= 2
+                        print('Retrying: {} {}'.format(args, kwargs))
+
+                        continue
+
+        return
 
     for remaining_tries in reversed(range(5)):
         result = requests.get(*args, **kwargs)
@@ -192,7 +213,7 @@ def install_qt(version, compiler_year, bits):
     file_name = 'qt-opensource-windows-x86-{version}.exe'
     file_name = file_name.format(version=version)
 
-    url = (
+    qt_url = (
         'https://download.qt.io'
         '/official_releases/qt/{first_two}/{version}/{file_name}'.format(
             first_two=first_two,
@@ -201,7 +222,7 @@ def install_qt(version, compiler_year, bits):
         )
     )
 
-    download(url)
+    download(qt_url, path=file_name)
 
     report_and_check_call(
         [
