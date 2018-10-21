@@ -190,6 +190,7 @@ def install_qt(version, compiler_year, bits):
     first_two = '.'.join(version.split('.')[:2])
 
     file_name = 'qt-opensource-windows-x86-{version}.exe'
+    file_name = file_name.format(version=version)
 
     url = (
         'https://download.qt.io'
