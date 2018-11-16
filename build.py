@@ -543,7 +543,9 @@ plat-name = {plat_name}'''.format(**locals()))
 
     if decimal.Decimal(msvc_version) >= 14.1:
         redist_path = os.path.join(redist_path, 'MSVC')
-        hmm, = os.listdir(redist_path)
+        hmm = os.listdir(redist_path)
+        print('redist_path:', redist_path)
+        print('hmm:', hmm)
         redist_path = os.path.join(redist_path, hmm)
 
     msvc_version_for_files = {'14.14': '14.1'}.get(msvc_version, msvc_version)
