@@ -213,6 +213,7 @@ def main():
         ],
         initial=os.environ
     )
+    os.environ['VCINSTALLDIR'] = vs_path
     print('  ---- os.environ:')
     for k, v in os.environ.items():
         print('    {}: {}'.format(k, v))
