@@ -48,13 +48,18 @@ There is a ``Scripts\pyqt5designer.exe`` entry point that will help fill out
 ``PYQTDESIGNERPATH`` from either command line arguments or a ``.env`` file.
 Unknown arguments are passed through to the original Qt Designer program.
 
-.. code-block:: powershell
+.. code-block::
 
   Usage: pyqt5designer [OPTIONS]
 
   Options:
     -p, --widget-path DIRECTORY  Paths to be combined with PYQTDESIGNERPATH
+    --example-widget-path        Include the path for the pyqt5-tools example
+                                 button (c:\users\sda\desktop\venv64\lib\site-
+                                 packages\pyqt5_tools)
     --designer-help              Pass through to get Designer's --help
+    --test-exception-dialog      Raise an exception to check the exception
+                                 dialog functionality.
     --help                       Show this message and exit.
 
 If you want to use ``Form`` > ``View Code...`` from within Designer you can
