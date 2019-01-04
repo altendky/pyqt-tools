@@ -143,6 +143,7 @@ def pyqt5designer(
         env['QT_DEBUG_PLUGINS'] = '1'
 
     print_environment_variables(
+        env,
         'PYQTDESIGNERPATH',
         'PYTHONPATH',
         'PATH',
@@ -210,6 +211,7 @@ def pyqt5qmlscene(
         env['QT_DEBUG_PLUGINS'] = '1'
 
     print_environment_variables(
+        env,
         'QML2_IMPORT_PATH',
         'PYTHONPATH',
         'QT_DEBUG_PLUGINS',
@@ -266,6 +268,7 @@ def pyqt5qmltestrunner(
         env['QT_DEBUG_PLUGINS'] = '1'
 
     print_environment_variables(
+        env,
         'QML2_IMPORT_PATH',
         'PYTHONPATH',
         'QT_DEBUG_PLUGINS',
