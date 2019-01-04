@@ -34,6 +34,31 @@ def load_dotenv():
         dotenv.load_dotenv(dotenv_path=env_path, override=True)
 
 
+def add_to_env_var_path_list(env, name, before, after):
+    return {
+        name: os.pathsep.join((
+            *before,
+            env.get(name, ''),
+            *after
+        ))
+    }
+
+
+def mutate_env_for_paths(env):
+    env.update(add_to_env_var_path_list(
+        env=env,
+        name='PYTHONPATH',
+        before=sys.path,
+        after='',
+    ))
+    env.update(add_to_env_var_path_list(
+        env=env,
+        name='PATH',
+        before=str(pathlib.Path(sys.executable).parent),
+        after='',
+    ))
+
+
 @click.command(
     context_settings={
         'ignore_unknown_options': True,
@@ -88,28 +113,14 @@ def pyqt5designer(
         widget_paths.append(bad_path)
 
     env = dict(os.environ)
+    env.update(add_to_env_var_path_list(
+        env=env,
+        name='PYQTDESIGNERPATH',
+        before=widget_paths,
+        after='',
+    ))
 
-    env['PYQTDESIGNERPATH'] = (
-        os.pathsep.join((
-            *widget_paths,
-            env.get('PYQTDESIGNERPATH', ''),
-            '',
-        ))
-    )
-    env['PYTHONPATH'] = (
-        os.pathsep.join((
-            *sys.path,
-            env.get('PYTHONPATH', ''),
-            '',
-        ))
-    )
-    env['PATH'] = (
-        os.pathsep.join((
-            str(pathlib.Path(sys.executable).parent),
-            env.get('PATH', ''),
-            '',
-        ))
-    )
+    mutate_env_for_paths(env)
 
     for name in ('PYQTDESIGNERPATH', 'PYTHONPATH', 'PATH'):
         print('{}: {}'.format(name, env[name]))
@@ -166,13 +177,8 @@ def pyqt5qmlscene(
             '',
         ))
     )
-    env['PYTHONPATH'] = (
-        os.pathsep.join((
-            *sys.path,
-            env.get('PYTHONPATH', ''),
-            '',
-        ))
-    )
+
+    mutate_env_for_paths(env)
 
     for name in ('QML2_IMPORT_PATH', 'PYTHONPATH'):
         print('{}: {}'.format(name, env[name]))
@@ -219,13 +225,8 @@ def pyqt5qmltestrunner(
             '',
         ))
     )
-    env['PYTHONPATH'] = (
-        os.pathsep.join((
-            *sys.path,
-            env.get('PYTHONPATH', ''),
-            '',
-        ))
-    )
+
+    mutate_env_for_paths(env)
 
     for name in ('QML2_IMPORT_PATH', 'PYTHONPATH'):
         print('{}: {}'.format(name, env[name]))
