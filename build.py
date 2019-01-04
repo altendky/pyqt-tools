@@ -223,7 +223,8 @@ def main():
 
     compiler_dir = ''.join((compiler_name, compiler_year, compiler_bits_string))
 
-    qt_bin_path = os.path.join(os.environ['QT_BASE_PATH'], compiler_dir, 'bin')
+    qt_path = os.environ['QT_BASE_PATH']
+    qt_bin_path = os.path.join(qt_path, compiler_dir, 'bin')
     os.environ['PATH'] = os.pathsep.join((os.environ['PATH'], qt_bin_path))
 
     with open('setup.cfg', 'w') as cfg:
@@ -263,9 +264,10 @@ plat-name = {plat_name}'''.format(**locals()))
 
     application_paths = glob.glob(os.path.join(qt_bin_path, '*.exe'))
 
-    os.makedirs(destination, exist_ok=True)
-
     application_names = []
+
+    destination_qt = os.path.join(destination, 'Qt')
+    destination_qt_bin = os.path.join(destination_qt, 'bin')
 
     for application in application_paths:
         application_path = os.path.join(qt_bin_path, application)
@@ -288,14 +290,14 @@ plat-name = {plat_name}'''.format(**locals()))
             print('    skipped')
             continue
 
-        shutil.copy(application_path, destination)
+        shutil.copy(application_path, destination_qt_bin)
 
         report_and_check_call(
             command=[
                 windeployqt_path,
                 os.path.basename(application),
             ],
-            cwd=destination,
+            cwd=destination_qt_bin,
         )
 
         application_names.append(pathlib.Path(application).stem)
@@ -309,7 +311,7 @@ plat-name = {plat_name}'''.format(**locals()))
             f.write(textwrap.dedent('''\
             def {name}():
                 load_dotenv()
-                return subprocess.call([str(here/'{name}.exe'), *sys.argv[1:]])
+                return subprocess.call([str(here/'Qt'/'bin'/'{name}.exe'), *sys.argv[1:]])
 
 
             '''.format(name=name)))
@@ -319,7 +321,9 @@ plat-name = {plat_name}'''.format(**locals()))
         for name in application_names
     ]
 
-    platform_path = os.path.join(destination, 'platforms')
+    destination_plugins = os.path.join(destination, 'plugins')
+
+    platform_path = os.path.join(destination_plugins, 'platforms')
     os.makedirs(platform_path, exist_ok=True)
     for platform_plugin in ('minimal',):
         shutil.copy(
@@ -525,14 +529,19 @@ plat-name = {plat_name}'''.format(**locals()))
         env=os.environ,
     )
     designer_plugin_path, = designer_plugin_path.glob('*')
-    designer_plugin_destination = os.path.join(destination, 'plugins', 'designer')
+    designer_plugin_destination = os.path.join(destination_plugins, 'designer')
     os.makedirs(fspath(designer_plugin_destination), exist_ok=True)
     shutil.copy(fspath(designer_plugin_path), designer_plugin_destination)
 
     qml_plugin_path, = qml_plugin_path.glob('*')
-    qml_plugin_destination = os.path.join(destination, 'plugins')
+    qml_plugin_destination = os.path.join(destination_plugins)
     os.makedirs(fspath(qml_plugin_destination), exist_ok=True)
     shutil.copy(fspath(qml_plugin_path), qml_plugin_destination)
+
+    destination_qml = os.path.join(destination_qt, 'qml')
+
+    qml_path = os.path.join(qt_path, 'qml')
+    shutil.copytree(qml_path, destination_qml)
 
     shutil.copy(os.path.join(pyqt5, 'LICENSE'),
                 os.path.join(destination, 'LICENSE.pyqt5'))
