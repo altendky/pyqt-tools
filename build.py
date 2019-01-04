@@ -224,7 +224,8 @@ def main():
     compiler_dir = ''.join((compiler_name, compiler_year, compiler_bits_string))
 
     qt_path = os.environ['QT_BASE_PATH']
-    qt_bin_path = os.path.join(qt_path, compiler_dir, 'bin')
+    qt_compiler_path = os.path.join(qt_path, compiler_dir)
+    qt_bin_path = os.path.join(qt_compiler_path, 'bin')
     os.environ['PATH'] = os.pathsep.join((os.environ['PATH'], qt_bin_path))
 
     with open('setup.cfg', 'w') as cfg:
@@ -541,7 +542,7 @@ plat-name = {plat_name}'''.format(**locals()))
 
     destination_qml = os.path.join(destination_qt, 'qml')
 
-    qml_path = os.path.join(qt_path, 'qml')
+    qml_path = os.path.join(qt_compiler_path, 'qml')
     shutil.copytree(qml_path, destination_qml)
 
     shutil.copy(os.path.join(pyqt5, 'LICENSE'),
