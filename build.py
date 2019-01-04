@@ -268,6 +268,7 @@ plat-name = {plat_name}'''.format(**locals()))
 
     destination_qt = os.path.join(destination, 'Qt')
     destination_qt_bin = os.path.join(destination_qt, 'bin')
+    os.makedirs(destination_qt_bin, exist_ok=True)
 
     for application in application_paths:
         application_path = os.path.join(qt_bin_path, application)
