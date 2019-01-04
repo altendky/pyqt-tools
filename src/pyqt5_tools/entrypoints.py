@@ -12,6 +12,7 @@ import pyqt5_tools.examplebuttonplugin
 
 
 here = pathlib.Path(__file__).parent
+bin = here/'Qt'/'bin'
 example_path = str(
     pathlib.Path(pyqt5_tools.examplebuttonplugin.__file__).parent,
 )
@@ -20,7 +21,7 @@ bad_path = str(
 )
 
 def pyqt5toolsinstalluic():
-    destination = here/'bin'
+    destination = bin/'bin'
     destination.mkdir(parents=True, exist_ok=True)
     there = pathlib.Path(sys.executable).parent
 
@@ -151,7 +152,7 @@ def pyqt5designer(
     )
 
     command = [
-        str(here / 'designer.exe'),
+        str(bin / 'designer.exe'),
         *extras,
         *ctx.args,
     ]
@@ -218,7 +219,7 @@ def pyqt5qmlscene(
     )
 
     command = [
-        str(here / 'qmlscene.exe'),
+        str(bin / 'qmlscene.exe'),
         *extras,
         *ctx.args,
     ]
@@ -275,7 +276,7 @@ def pyqt5qmltestrunner(
     )
 
     command = [
-        str(here / 'qmltestrunner.exe'),
+        str(bin / 'qmltestrunner.exe'),
         *extras,
         *ctx.args,
     ]
@@ -284,5 +285,5 @@ def pyqt5qmltestrunner(
 
 
 # def designer():
-#     return subprocess.call([str(here/'designer.exe'), *sys.argv[1:]])
-
+#     load_dotenv()
+#     return subprocess.call([str(here/'Qt'/'bin'/'designer.exe'), *sys.argv[1:]])
