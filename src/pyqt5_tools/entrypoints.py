@@ -59,6 +59,21 @@ def mutate_env_for_paths(env):
     ))
 
 
+def print_environment_variables(env, *variables):
+    for name in variables:
+        value = env.get(name)
+        if value is None:
+            print('{} is not set'.format(name))
+        else:
+            print('{}: {}'.format(name, value))
+
+
+qt_debug_plugins_option = click.option(
+    '--qt-debug-plugins/--no-qt-debug-plugins',
+    help='Set QT_DEBUG_PLUGINS=1',
+)
+
+
 @click.command(
     context_settings={
         'ignore_unknown_options': True,
@@ -91,12 +106,14 @@ def mutate_env_for_paths(env):
     help='Raise an exception to check the exception dialog functionality.',
     is_flag=True,
 )
+@qt_debug_plugins_option
 def pyqt5designer(
         ctx,
         widget_paths,
         designer_help,
         example_widget_path,
         test_exception_dialog,
+        qt_debug_plugins
 ):
     load_dotenv()
 
@@ -122,8 +139,15 @@ def pyqt5designer(
 
     mutate_env_for_paths(env)
 
-    for name in ('PYQTDESIGNERPATH', 'PYTHONPATH', 'PATH'):
-        print('{}: {}'.format(name, env[name]))
+    if qt_debug_plugins:
+        env['QT_DEBUG_PLUGINS'] = '1'
+
+    print_environment_variables(
+        'PYQTDESIGNERPATH',
+        'PYTHONPATH',
+        'PATH',
+        'QT_DEBUG_PLUGINS',
+    )
 
     command = [
         str(here / 'designer.exe'),
@@ -157,10 +181,12 @@ qml2_import_path_option = click.option(
     help='Pass through to get QML scene\'s --help',
     is_flag=True,
 )
+@qt_debug_plugins_option
 def pyqt5qmlscene(
         ctx,
         qml2_import_paths,
         qmlscene_help,
+        qt_debug_plugins,
 ):
     load_dotenv()
     extras = []
@@ -180,8 +206,14 @@ def pyqt5qmlscene(
 
     mutate_env_for_paths(env)
 
-    for name in ('QML2_IMPORT_PATH', 'PYTHONPATH'):
-        print('{}: {}'.format(name, env[name]))
+    if qt_debug_plugins:
+        env['QT_DEBUG_PLUGINS'] = '1'
+
+    print_environment_variables(
+        'QML2_IMPORT_PATH',
+        'PYTHONPATH',
+        'QT_DEBUG_PLUGINS',
+    )
 
     command = [
         str(here / 'qmlscene.exe'),
@@ -205,10 +237,12 @@ def pyqt5qmlscene(
     help='Pass through to get QML test runner\'s --help',
     is_flag=True,
 )
+@qt_debug_plugins_option
 def pyqt5qmltestrunner(
         ctx,
         qml2_import_paths,
         qmltestrunner_help,
+        qt_debug_plugins,
 ):
     load_dotenv()
     extras = []
@@ -228,8 +262,14 @@ def pyqt5qmltestrunner(
 
     mutate_env_for_paths(env)
 
-    for name in ('QML2_IMPORT_PATH', 'PYTHONPATH'):
-        print('{}: {}'.format(name, env[name]))
+    if qt_debug_plugins:
+        env['QT_DEBUG_PLUGINS'] = '1'
+
+    print_environment_variables(
+        'QML2_IMPORT_PATH',
+        'PYTHONPATH',
+        'QT_DEBUG_PLUGINS',
+    )
 
     command = [
         str(here / 'qmltestrunner.exe'),
