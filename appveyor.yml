@@ -106,6 +106,7 @@ build_script:
   - "venv\\scripts\\python -m pip freeze"
   - "venv\\scripts\\python setup.py bdist_wheel"
   - "copy dist\\*.whl ."
+  - ps: Get-ChildItem .\*.whl | % { Push-AppveyorArtifact $_.FullName }
   - "venv\\scripts\\python twineontag.py"
 
 test_script:
