@@ -50,13 +50,13 @@ def mutate_env_for_paths(env):
         env=env,
         name='PYTHONPATH',
         before=sys.path,
-        after='',
+        after=[''],
     ))
     env.update(add_to_env_var_path_list(
         env=env,
         name='PATH',
-        before=str(pathlib.Path(sys.executable).parent),
-        after='',
+        before=[str(pathlib.Path(sys.executable).parent)],
+        after=[''],
     ))
 
 
@@ -135,7 +135,7 @@ def pyqt5designer(
         env=env,
         name='PYQTDESIGNERPATH',
         before=widget_paths,
-        after='',
+        after=[''],
     ))
 
     mutate_env_for_paths(env)
@@ -215,6 +215,7 @@ def pyqt5qmlscene(
         env,
         'QML2_IMPORT_PATH',
         'PYTHONPATH',
+        'PATH',
         'QT_DEBUG_PLUGINS',
     )
 
@@ -272,6 +273,7 @@ def pyqt5qmltestrunner(
         env,
         'QML2_IMPORT_PATH',
         'PYTHONPATH',
+        'PATH',
         'QT_DEBUG_PLUGINS',
     )
 
