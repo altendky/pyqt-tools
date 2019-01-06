@@ -55,7 +55,7 @@ def mutate_env_for_paths(env):
     env.update(add_to_env_var_path_list(
         env=env,
         name='PATH',
-        before=[str(pathlib.Path(sys.executable).parent)],
+        before=sys.path,
         after=[''],
     ))
 
