@@ -170,6 +170,15 @@ qml2_import_path_option = click.option(
 )
 
 
+def mutate_qml_path(env, paths):
+    env.update(add_to_env_var_path_list(
+        env=env,
+        name='QML2_IMPORT_PATH',
+        before=[*qml2_import_paths, str(here/'Qt'/'qml')],
+        after=[''],
+    ))
+
+
 @click.command(
     context_settings={
         'ignore_unknown_options': True,
@@ -198,14 +207,7 @@ def pyqt5qmlscene(
 
     env = dict(os.environ)
 
-    env['QML2_IMPORT_PATH'] = (
-        os.pathsep.join((
-            *qml2_import_paths,
-            env.get('QML2_IMPORT_PATH', ''),
-            '',
-        ))
-    )
-
+    mutate_qml_path(env, paths=qml2_import_paths)
     mutate_env_for_paths(env)
 
     if qt_debug_plugins:
@@ -256,14 +258,7 @@ def pyqt5qmltestrunner(
 
     env = dict(os.environ)
 
-    env['QML2_IMPORT_PATH'] = (
-        os.pathsep.join((
-            *qml2_import_paths,
-            env.get('QML2_IMPORT_PATH', ''),
-            '',
-        ))
-    )
-
+    mutate_qml_path(env, paths=qml2_import_paths)
     mutate_env_for_paths(env)
 
     if qt_debug_plugins:
