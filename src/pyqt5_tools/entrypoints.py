@@ -174,7 +174,7 @@ def mutate_qml_path(env, paths):
     env.update(add_to_env_var_path_list(
         env=env,
         name='QML2_IMPORT_PATH',
-        before=[*qml2_import_paths, str(here/'Qt'/'qml')],
+        before=[*paths, str(here/'Qt'/'qml')],
         after=[''],
     ))
 
