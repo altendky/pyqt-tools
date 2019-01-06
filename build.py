@@ -323,7 +323,7 @@ plat-name = {plat_name}'''.format(**locals()))
         for name in application_names
     ]
 
-    destination_plugins = os.path.join(destination_qt, 'plugins')
+    destination_plugins = os.path.join(destination_qt_bin, 'plugins')
 
     platform_path = os.path.join(destination_plugins, 'platforms')
     os.makedirs(platform_path, exist_ok=True)
