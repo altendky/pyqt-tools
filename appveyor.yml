@@ -6,34 +6,6 @@ environment:
   matrix:
     -  PYTHON: "C:\\Python37-x64"
        PYTHON_SUFFIX: "-x64"
-       PYQT5_VERSION: 5.9.2
-       QT_BASE_PATH: c:\\Qt\\5.9.7
-       APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
-
-    -  PYTHON: "C:\\Python37"
-       PYQT5_VERSION: 5.9.2
-       QT_BASE_PATH: c:\\Qt\\5.9.7
-
-    -  PYTHON: "C:\\Python36-x64"
-       PYTHON_SUFFIX: "-x64"
-       PYQT5_VERSION: 5.9.2
-       QT_BASE_PATH: c:\\Qt\\5.9.7
-
-    -  PYTHON: "C:\\Python36"
-       PYQT5_VERSION: 5.9.2
-       QT_BASE_PATH: c:\\Qt\\5.9.7
-
-    -  PYTHON: "C:\\python35-x64"
-       PYTHON_SUFFIX: "-x64"
-       PYQT5_VERSION: 5.9.2
-       QT_BASE_PATH: c:\\Qt\\5.9.7
-
-    -  PYTHON: "C:\\python35"
-       PYQT5_VERSION: 5.9.2
-       QT_BASE_PATH: c:\\Qt\\5.9.7
-
-    -  PYTHON: "C:\\Python37-x64"
-       PYTHON_SUFFIX: "-x64"
        PYQT5_VERSION: 5.11.3
        QT_BASE_PATH: c:\\Qt\\5.11.2
        APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
@@ -87,6 +59,35 @@ environment:
     -  PYTHON: "C:\\python35"
        PYQT5_VERSION: 5.10.1
        QT_BASE_PATH: c:\\Qt\\5.10.1
+
+    -  PYTHON: "C:\\Python37-x64"
+       PYTHON_SUFFIX: "-x64"
+       PYQT5_VERSION: 5.9.2
+       QT_BASE_PATH: c:\\Qt\\5.9.7
+       APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
+
+    -  PYTHON: "C:\\Python37"
+       PYQT5_VERSION: 5.9.2
+       QT_BASE_PATH: c:\\Qt\\5.9.7
+
+    -  PYTHON: "C:\\Python36-x64"
+       PYTHON_SUFFIX: "-x64"
+       PYQT5_VERSION: 5.9.2
+       QT_BASE_PATH: c:\\Qt\\5.9.7
+
+    -  PYTHON: "C:\\Python36"
+       PYQT5_VERSION: 5.9.2
+       QT_BASE_PATH: c:\\Qt\\5.9.7
+
+    -  PYTHON: "C:\\python35-x64"
+       PYTHON_SUFFIX: "-x64"
+       PYQT5_VERSION: 5.9.2
+       QT_BASE_PATH: c:\\Qt\\5.9.7
+
+    -  PYTHON: "C:\\python35"
+       PYQT5_VERSION: 5.9.2
+       QT_BASE_PATH: c:\\Qt\\5.9.7
+
 
 
 # https://www.appveyor.com/docs/how-to/rdp-to-build-worker/
