@@ -476,7 +476,7 @@ plat-name = {plat_name}'''.format(**locals()))
             pluginloader_patch = '..\\..\\pluginloader.patch'
 
         report_and_check_call(
-            command='patch -p 1 -i {}'.format(pluginloader_patch),
+            command=['patch', '-p', '1', '-i', pluginloader_patch],
             shell=True, # TODO: don't do this
             cwd=pyqt5,
         )
