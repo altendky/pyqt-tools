@@ -543,7 +543,35 @@ plat-name = {plat_name}'''.format(**locals()))
     destination_qml = os.path.join(destination_qt, 'qml')
 
     qml_path = os.path.join(qt_compiler_path, 'qml')
-    shutil.copytree(qml_path, destination_qml)
+
+    def ignore(directory, names):
+        names = set(names)
+
+        def is_debug_dll(names, name):
+            base, extension = os.splitext(name)
+
+            return (
+                extension == '.dll'
+                and base[-1] == 'd'
+                and (base[:-1] + extension) in names
+            )
+
+        names = {
+            name
+            for name in names
+            if (
+                not name.endswith('.pdb')
+                and not is_debug_dll(names=names, name=name)
+            )
+        }
+
+        return names
+
+    shutil.copytree(
+        qml_path,
+        destination_qml,
+        ignore=ignore,
+    )
 
     shutil.copy(os.path.join(pyqt5, 'LICENSE'),
                 os.path.join(destination, 'LICENSE.pyqt5'))
