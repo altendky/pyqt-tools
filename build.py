@@ -560,8 +560,8 @@ plat-name = {plat_name}'''.format(**locals()))
             name
             for name in names
             if (
-                not name.endswith('.pdb')
-                and not is_debug_dll(names=names, name=name)
+                name.endswith('.pdb')
+                or is_debug_dll(names=names, name=name)
             )
         }
 
