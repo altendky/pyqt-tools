@@ -548,7 +548,7 @@ plat-name = {plat_name}'''.format(**locals()))
         names = set(names)
 
         def is_debug_dll(names, name):
-            base, extension = os.splitext(name)
+            base, extension = os.path.splitext(name)
 
             return (
                 extension == '.dll'
