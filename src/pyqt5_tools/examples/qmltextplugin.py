@@ -6,7 +6,7 @@ import pyqt5_tools.examples.qmltext
 class Plugin(QtQml.QQmlExtensionPlugin):
     def registerTypes(self, uri):
         QtQml.qmlRegisterType(
-            pyqt5_tools.examples.qmltext,
+            pyqt5_tools.examples.qmltext.Text,
             'examples',
             1,
             0,

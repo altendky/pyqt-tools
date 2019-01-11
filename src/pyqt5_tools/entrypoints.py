@@ -11,6 +11,8 @@ import pyqt5_tools.badplugin
 import pyqt5_tools.examplebuttonplugin
 import pyqt5_tools.examples
 
+fspath = getattr(os, 'fspath', str)
+
 
 here = pathlib.Path(__file__).parent
 bin = here/'Qt'/'bin'
@@ -215,8 +217,10 @@ def pyqt5qmlscene(
     env = dict(os.environ)
 
     if run_qml_example:
-        qml2_import_paths.append(here)
-        extras.append(pyqt5_tools.examples.__file__)
+        qml2_import_paths = qml2_import_paths + (fspath(here),)
+        extras.append(fspath(
+            pathlib.Path(pyqt5_tools.examples.__file__).parent/'qmlapp.qml'
+        ))
 
     mutate_qml_path(env, paths=qml2_import_paths)
     mutate_env_for_paths(env)
