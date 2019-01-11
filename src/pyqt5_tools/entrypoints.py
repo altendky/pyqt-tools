@@ -9,6 +9,7 @@ import dotenv
 
 import pyqt5_tools.badplugin
 import pyqt5_tools.examplebuttonplugin
+import pyqt5_tools.examples
 
 
 here = pathlib.Path(__file__).parent
@@ -193,11 +194,17 @@ def mutate_qml_path(env, paths):
     is_flag=True,
 )
 @qt_debug_plugins_option
+@click.option(
+    '--run-qml-example',
+    help='Run the pyqt5-tools QML example',
+    is_flag=True,
+)
 def pyqt5qmlscene(
         ctx,
         qml2_import_paths,
         qmlscene_help,
         qt_debug_plugins,
+        run_qml_example,
 ):
     load_dotenv()
     extras = []
@@ -206,6 +213,10 @@ def pyqt5qmlscene(
         extras.append('--help')
 
     env = dict(os.environ)
+
+    if run_qml_example:
+        qml2_import_paths.append(here)
+        extras.append(pyqt5_tools.examples.__file__)
 
     mutate_qml_path(env, paths=qml2_import_paths)
     mutate_env_for_paths(env)

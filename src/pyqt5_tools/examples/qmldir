@@ -1,0 +1,2 @@
+module example
+plugin pyqt5qmlplugin
