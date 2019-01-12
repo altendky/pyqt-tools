@@ -284,7 +284,7 @@ def pyqt5qmltestrunner(
         extras.extend([
             '-input',
             fspath(
-                pathlib.Path(pyqt5_tools.examples.__file__).parent/'qmlapp.qml'
+                pathlib.Path(pyqt5_tools.examples.__file__).parent/'qmltest.qml'
             ),
         ])
 
