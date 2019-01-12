@@ -259,11 +259,17 @@ def pyqt5qmlscene(
     is_flag=True,
 )
 @qt_debug_plugins_option
+@click.option(
+    '--test-qml-example',
+    help='Test the pyqt5-tools QML example',
+    is_flag=True,
+)
 def pyqt5qmltestrunner(
         ctx,
         qml2_import_paths,
         qmltestrunner_help,
         qt_debug_plugins,
+        test_qml_example,
 ):
     load_dotenv()
     extras = []
@@ -272,6 +278,15 @@ def pyqt5qmltestrunner(
         extras.append('--help')
 
     env = dict(os.environ)
+
+    if test_qml_example:
+        qml2_import_paths = qml2_import_paths + (fspath(here),)
+        extras.extend([
+            '-input',
+            fspath(
+                pathlib.Path(pyqt5_tools.examples.__file__).parent/'qmlapp.qml'
+            ),
+        ])
 
     mutate_qml_path(env, paths=qml2_import_paths)
     mutate_env_for_paths(env)

@@ -1,6 +1,7 @@
 import os
 import pathlib
 
+from PyQt5 import QtCore
 from PyQt5 import QtQuick
 
 
@@ -12,6 +13,10 @@ write_for_test = test_path_env_var in os.environ
 class Text(QtQuick.QQuickPaintedItem):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+    @QtCore.pyqtProperty('QString')
+    def test_value(self):
+        return 'pass the test'
 
     def paint(self, painter):
         global write_for_test
