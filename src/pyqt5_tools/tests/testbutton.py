@@ -6,7 +6,7 @@ from PyQt5 import QtWidgets
 
 test_path_env_var = 'PYQT5TOOLS_TEST_PATH'
 test_file_contents = b'heffalump'
-write_for_test = test_path_env_var in os.path
+write_for_test = test_path_env_var in os.environ
 
 
 class TestButton(QtWidgets.QPushButton):
