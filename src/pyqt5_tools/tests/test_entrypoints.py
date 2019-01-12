@@ -75,7 +75,7 @@ def test_qmltestrunner_paints_test_item(tmp_path):
             fspath(
                 pathlib.Path(sys.executable).with_name('pyqt5qmltestrunner'),
             ),
-            '--run-qml-example',
+            '--test-qml-example',
         ],
         check=True,
         env=env,
