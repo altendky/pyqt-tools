@@ -11,6 +11,7 @@ Item {
         width: 300
         height: 300
         anchors.centerIn: parent
+        blue: test_value
     }
 
     TestCase {
