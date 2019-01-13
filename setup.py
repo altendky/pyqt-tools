@@ -50,8 +50,6 @@ setuptools.setup(
         'Topic :: Software Development',
         'Topic :: Utilities',
     ],
-    classifiers=[
-    ],    keywords='pyqt5 qt designer',
     packages=setuptools.find_packages('src'),
     package_dir={'': 'src'},
     version=version,
