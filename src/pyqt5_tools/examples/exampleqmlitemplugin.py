@@ -1,6 +1,6 @@
 from PyQt5 import QtQml
 
-import pyqt5_tools.examples.qmltext
+import pyqt5_tools.examples.exampleqmlitem
 
 
 class ExampleQmlItemPlugin(QtQml.QQmlExtensionPlugin):
