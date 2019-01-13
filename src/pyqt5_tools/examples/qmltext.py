@@ -4,7 +4,6 @@ import pathlib
 from PyQt5 import QtCore
 from PyQt5 import QtQuick
 
-
 test_path_env_var = 'PYQT5TOOLS_TEST_PATH'
 test_file_contents = b'jagular'
 write_for_test = test_path_env_var in os.environ
@@ -27,9 +26,17 @@ class Text(QtQuick.QQuickPaintedItem):
 
         return 'pass the test'
 
+    @QtCore.pyqtProperty('QString')
+    def other_value(self):
+        pass
+
+    @other_value.setter
+    def other_value(self, value):
+        pass
+
     def paint(self, painter):
         painter.drawText(
-            self.width() / 2, 
-            self.height() / 2, 
+            self.width() / 2,
+            self.height() / 2,
             'pyqt5-tools',
         )
