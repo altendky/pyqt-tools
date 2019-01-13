@@ -42,7 +42,7 @@ directory ``yourenv``.  The ``--pre`` allows for the latest version to be
 installed despite not being a full release version.  You will  have to
 decide if this is a good option for you at any given point in time.  The
 ``~=5.11`` specifies a `release compatible with`_ 5.11 which will be the
-latest version of pqyt5-tools built for PyQt5_ 5.11. If you are using a
+latest version of pyqt5-tools built for PyQt5_ 5.11. If you are using a
 different PyQt5 version, specify it instead of 5.11.  PyPI keeps a list of
 `all available versions`_.
 
