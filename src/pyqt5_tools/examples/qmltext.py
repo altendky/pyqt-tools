@@ -16,9 +16,6 @@ class Text(QtQuick.QQuickPaintedItem):
 
     @QtCore.pyqtProperty('QString')
     def test_value(self):
-        return 'pass the test'
-
-    def paint(self, painter):
         global write_for_test
 
         if write_for_test:
@@ -28,6 +25,9 @@ class Text(QtQuick.QQuickPaintedItem):
             with path.open('xb') as f:
                 f.write(test_file_contents)
 
+        return 'pass the test'
+
+    def paint(self, painter):
         painter.drawText(
             self.width() / 2, 
             self.height() / 2, 
