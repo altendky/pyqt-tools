@@ -252,6 +252,7 @@ plat-name = {plat_name}'''.format(**locals()))
 
     destination = os.path.join(build, 'src', 'pyqt5_tools')
     os.makedirs(destination, exist_ok=True)
+    examples_destination = os.path.join(destination, 'examples')
 
     build_id = os.environ.get('APPVEYOR_BUILD_ID', 'local')
     with open(os.path.join(destination, 'build_id'), 'w') as f:
@@ -539,6 +540,7 @@ plat-name = {plat_name}'''.format(**locals()))
     qml_plugin_destination = os.path.join(destination_plugins)
     os.makedirs(fspath(qml_plugin_destination), exist_ok=True)
     shutil.copy(fspath(qml_plugin_path), qml_plugin_destination)
+    shutil.copy(fspath(qml_plugin_path), examples_destination)
 
     destination_qml = os.path.join(destination_qt, 'qml')
 

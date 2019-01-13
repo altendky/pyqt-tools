@@ -37,16 +37,19 @@ setuptools.setup(
     author_email='sda@fstab.net',
     license='GPLv3',
     classifiers=[
+        # complete classifier list: https://pypi.org/pypi?%3Aaction=list_classifiers
+        'Development Status :: 4 - Beta',
         'Environment :: Win32 (MS Windows)',
         'Intended Audience :: Developers',
-        ("License :: OSI Approved :: "
-         "GNU General Public License v3 (GPLv3)"),
-        'Natural Language :: English',
+        "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
         'Operating System :: Microsoft :: Windows',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
         'Topic :: Software Development',
-        'Topic :: Utilities'
+        'Topic :: Utilities',
     ],
-    keywords='pyqt5 qt designer',
     packages=setuptools.find_packages('src'),
     package_dir={'': 'src'},
     version=version,
