@@ -3,12 +3,12 @@ from PyQt5 import QtQml
 import pyqt5_tools.examples.qmltext
 
 
-class Plugin(QtQml.QQmlExtensionPlugin):
+class ExampleQmlItemPlugin(QtQml.QQmlExtensionPlugin):
     def registerTypes(self, uri):
         QtQml.qmlRegisterType(
-            pyqt5_tools.examples.qmltext.Text,
+            pyqt5_tools.examples.exampleqmlitem.ExampleQmlItem,
             'examples',
             1,
             0,
-            'Text',
+            'ExampleQmlItem',
         )

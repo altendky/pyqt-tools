@@ -9,7 +9,7 @@ test_file_contents = b'jagular'
 write_for_test = test_path_env_var in os.environ
 
 
-class Text(QtQuick.QQuickPaintedItem):
+class ExampleQmlItem(QtQuick.QQuickPaintedItem):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 

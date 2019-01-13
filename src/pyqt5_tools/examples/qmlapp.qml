@@ -5,7 +5,7 @@ Item {
     width: 300
     height: 100
 
-    Text {
+    ExampleQmlItem {
         id: piglet
         width: 300
         height: 300
