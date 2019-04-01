@@ -461,8 +461,8 @@ plat-name = {plat_name}'''.format(**locals()))
         pyqt5_name = 'PyQt-gpl-{}'.format(pyqt5_version)
 
     pyqt5_url = (
-        'https://sourceforge.net'
-        '/projects/pyqt/files/PyQt5/PyQt-{}/{}.zip'
+        'https://www.riverbankcomputing.com'
+        '/static/Downloads/PyQt5/{}/{}.zip'
     ).format(pyqt5_version, pyqt5_name)
 
     r = download(pyqt5_url)
