@@ -378,7 +378,7 @@ plat-name = {plat_name}'''.format(**locals()))
     else:
         sip_url = (
             'https://www.riverbankcomputing.com'
-            '/static/Downloads/sip/{}/sip-{}.zip'format(
+            '/static/Downloads/sip/{}/sip-{}.zip'.format(
                 sip_version, sip_name
             )
         )
