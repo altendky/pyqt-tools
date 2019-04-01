@@ -377,8 +377,8 @@ plat-name = {plat_name}'''.format(**locals()))
         )
     else:
         sip_url = (
-            'http://downloads.sourceforge.net'
-            '/project/pyqt/sip/sip-{}/{}.zip'.format(
+            'https://www.riverbankcomputing.com'
+            '/static/Downloads/sip/{}/sip-{}.zip'format(
                 sip_version, sip_name
             )
         )
