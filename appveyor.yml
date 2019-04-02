@@ -13,6 +13,7 @@ environment:
     -  PYTHON: "C:\\Python37"
        PYQT5_VERSION: 5.12.1
        QT_BASE_PATH: c:\\Qt\\5.12.1
+       APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
 
     -  PYTHON: "C:\\Python36-x64"
        PYTHON_SUFFIX: "-x64"
