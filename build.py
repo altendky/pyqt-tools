@@ -174,7 +174,10 @@ def main():
         '36': '14.0',
         '37': '14.14',
     }
-    msvc_version = msvc_versions[python_major_minor]
+    if bits == 32 and python_major_minor in ('35', '36'):
+        msvc_version = '14.14'
+    else:
+        msvc_version = msvc_versions[python_major_minor]
     compiler_year = {
         '10.0': '2010',
         '11.0': '2012',
