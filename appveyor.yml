@@ -72,6 +72,7 @@ environment:
     -  PYTHON: "C:\\Python37"
        PYQT5_VERSION: 5.10.1
        QT_BASE_PATH: c:\\Qt\\5.10.1
+       APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
 
     -  PYTHON: "C:\\Python36-x64"
        PYTHON_SUFFIX: "-x64"
@@ -81,6 +82,7 @@ environment:
     -  PYTHON: "C:\\Python36"
        PYQT5_VERSION: 5.10.1
        QT_BASE_PATH: c:\\Qt\\5.10.1
+       APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
 
     -  PYTHON: "C:\\python35-x64"
        PYTHON_SUFFIX: "-x64"
@@ -90,6 +92,7 @@ environment:
     -  PYTHON: "C:\\python35"
        PYQT5_VERSION: 5.10.1
        QT_BASE_PATH: c:\\Qt\\5.10.1
+       APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
 
 #    -  PYTHON: "C:\\Python37-x64"
 #       PYTHON_SUFFIX: "-x64"
