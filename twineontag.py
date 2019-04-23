@@ -1,5 +1,7 @@
 from __future__ import print_function
 
+import glob
+import os
 import subprocess
 import sys
 
@@ -21,11 +23,13 @@ def main():
 
     print('Tag found, uploading to PyPI.')
 
+    wheels = glob.glob(os.path.join('dist', '*.whl'))
+
     subprocess.check_call(
         [
             'twine',
             'upload',
-            '*.whl',
+            *wheels,
         ],
     )
 
