@@ -27,7 +27,8 @@ def main():
 
     subprocess.check_call(
         [
-            'twine',
+            sys.executable,
+            '-m', 'twine',
             'upload',
             *wheels,
         ],
