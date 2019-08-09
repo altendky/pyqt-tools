@@ -72,7 +72,7 @@ setuptools.setup(
         'pyqt5=={}'.format(os.environ['PYQT5_VERSION']),
     ],
     entry_points={
-        'console_scripts': console_sripts,,
+        'console_scripts': console_sripts,
     },
 #    data_files=buildinfo.data_files()
 #    scripts=[
