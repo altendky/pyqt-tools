@@ -305,23 +305,34 @@ plat-name = {plat_name}'''.format(**locals()))
 
         application_names.append(pathlib.Path(application).stem)
 
+    entry_point_function_names = {
+        application_name.replace('-', '_'): application_name
+        for application_name in application_names
+    }
+
     entry_points_py = pathlib.Path(destination)/'entrypoints.py'
     with open(str(entry_points_py)) as f:
         f.read()
         newlines = preferred_newlines(f)
     with open(str(entry_points_py), 'a', newline=newlines) as f:
-        for name in application_names:
+        for function_name, application_name in entry_point_function_names.items():
             f.write(textwrap.dedent('''\
-            def {name}():
+            def {function_name}():
                 load_dotenv()
-                return subprocess.call([str(here/'Qt'/'bin'/'{name}.exe'), *sys.argv[1:]])
+                return subprocess.call([str(here/'Qt'/'bin'/'{application_name}.exe'), *sys.argv[1:]])
 
 
-            '''.format(name=name)))
+            '''.format(
+                function_name=function_name,
+                application_name=application_name,
+            )))
 
     console_scripts = [
-        '{name} = pyqt5_tools.entrypoints:{name}'.format(name=name)
-        for name in application_names
+        '{application_name} = pyqt5_tools.entrypoints:{function_name}'.format(
+            function_name=function_name,
+            application_name=application_name,
+        )
+        for function_name, application_name in entry_point_function_names.items()
     ]
 
     destination_plugins = os.path.join(destination_qt_bin, 'plugins')
