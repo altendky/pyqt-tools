@@ -27,6 +27,18 @@ results = build.main()
 with open('README.rst') as f:
     readme = f.read()
 
+console_scripts = [
+    'pyqt5toolsinstalluic = pyqt5_tools.entrypoints:pyqt5toolsinstalluic',
+    'pyqt5designer = pyqt5_tools.entrypoints:pyqt5designer',
+    'pyqt5qmlscene = pyqt5_tools.entrypoints:pyqt5qmlscene',
+    'pyqt5qmltestrunner = pyqt5_tools.entrypoints:pyqt5qmltestrunner',
+    results.console_scripts,
+]
+
+print('--- console_scripts')
+for console_script in console_scripts:
+    print('    ' + repr(console_script))
+
 setuptools.setup(
     name="pyqt5-tools",
     description="Tools to supplement the official PyQt5 wheels",
@@ -60,13 +72,7 @@ setuptools.setup(
         'pyqt5=={}'.format(os.environ['PYQT5_VERSION']),
     ],
     entry_points={
-        'console_scripts': [
-            'pyqt5toolsinstalluic = pyqt5_tools.entrypoints:pyqt5toolsinstalluic',
-            'pyqt5designer = pyqt5_tools.entrypoints:pyqt5designer',
-            'pyqt5qmlscene = pyqt5_tools.entrypoints:pyqt5qmlscene',
-            'pyqt5qmltestrunner = pyqt5_tools.entrypoints:pyqt5qmltestrunner',
-            results.console_scripts,
-        ],
+        'console_scripts': console_sripts,,
     },
 #    data_files=buildinfo.data_files()
 #    scripts=[
