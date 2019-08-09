@@ -32,7 +32,7 @@ console_scripts = [
     'pyqt5designer = pyqt5_tools.entrypoints:pyqt5designer',
     'pyqt5qmlscene = pyqt5_tools.entrypoints:pyqt5qmlscene',
     'pyqt5qmltestrunner = pyqt5_tools.entrypoints:pyqt5qmltestrunner',
-    results.console_scripts,
+    *results.console_scripts,
 ]
 
 print('--- console_scripts')
