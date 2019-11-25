@@ -173,6 +173,7 @@ def main():
         '35': '14.0',
         '36': '14.0',
         '37': '14.14',
+        '38': '14.14',
     }
     if bits == 32 and python_major_minor in ('35', '36'):
         msvc_version = '14.14'
@@ -381,6 +382,7 @@ plat-name = {plat_name}'''.format(**locals()))
         '5.12.3': '4.19.18',
         '5.13.0': '4.19.18',
         '5.13.1': '4.19.19',
+        '5.13.2': '4.19.19',
     }[pyqt5_version]
 
     sip_name = 'sip-{}'.format(sip_version)
