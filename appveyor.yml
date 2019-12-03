@@ -4,95 +4,127 @@ skip_branch_with_pr: true
 
 environment:
   matrix:
-    -  PYTHON: "C:\\Python37-x64"
+    -  PYTHON: "C:\\Python38-x64"
        PYTHON_SUFFIX: "-x64"
-       PYQT5_VERSION: 5.13.1
-       QT_BASE_PATH: c:\\Qt\\5.13.0
+       PYQT5_VERSION: 5.13.2
+       QT_BASE_PATH: c:\\Qt\\5.13.2
        APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
 
-    -  PYTHON: "C:\\Python37"
-       PYQT5_VERSION: 5.13.1
-       QT_BASE_PATH: c:\\Qt\\5.13.0
-       APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
-
-    -  PYTHON: "C:\\Python36-x64"
-       PYTHON_SUFFIX: "-x64"
-       PYQT5_VERSION: 5.13.1
-       QT_BASE_PATH: c:\\Qt\\5.13.0
-
-    -  PYTHON: "C:\\Python36"
-       PYQT5_VERSION: 5.13.1
-       QT_BASE_PATH: c:\\Qt\\5.13.0
-       APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
-
-    -  PYTHON: "C:\\python35-x64"
-       PYTHON_SUFFIX: "-x64"
-       PYQT5_VERSION: 5.13.1
-       QT_BASE_PATH: c:\\Qt\\5.13.0
-
-    -  PYTHON: "C:\\python35"
-       PYQT5_VERSION: 5.13.1
-       QT_BASE_PATH: c:\\Qt\\5.13.0
+    -  PYTHON: "C:\\Python38"
+       PYQT5_VERSION: 5.13.2
+       QT_BASE_PATH: c:\\Qt\\5.13.2
        APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
 
     -  PYTHON: "C:\\Python37-x64"
        PYTHON_SUFFIX: "-x64"
-       PYQT5_VERSION: 5.12.3
-       QT_BASE_PATH: c:\\Qt\\5.12.4
+       PYQT5_VERSION: 5.13.2
+       QT_BASE_PATH: c:\\Qt\\5.13.2
        APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
 
     -  PYTHON: "C:\\Python37"
-       PYQT5_VERSION: 5.12.3
-       QT_BASE_PATH: c:\\Qt\\5.12.4
+       PYQT5_VERSION: 5.13.2
+       QT_BASE_PATH: c:\\Qt\\5.13.2
        APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
 
     -  PYTHON: "C:\\Python36-x64"
        PYTHON_SUFFIX: "-x64"
-       PYQT5_VERSION: 5.12.3
-       QT_BASE_PATH: c:\\Qt\\5.12.4
+       PYQT5_VERSION: 5.13.2
+       QT_BASE_PATH: c:\\Qt\\5.13.2
 
     -  PYTHON: "C:\\Python36"
-       PYQT5_VERSION: 5.12.3
-       QT_BASE_PATH: c:\\Qt\\5.12.4
+       PYQT5_VERSION: 5.13.2
+       QT_BASE_PATH: c:\\Qt\\5.13.2
        APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
 
     -  PYTHON: "C:\\python35-x64"
        PYTHON_SUFFIX: "-x64"
-       PYQT5_VERSION: 5.12.3
-       QT_BASE_PATH: c:\\Qt\\5.12.4
+       PYQT5_VERSION: 5.13.2
+       QT_BASE_PATH: c:\\Qt\\5.13.2
 
     -  PYTHON: "C:\\python35"
+       PYQT5_VERSION: 5.13.2
+       QT_BASE_PATH: c:\\Qt\\5.13.2
+       APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
+
+    -  PYTHON: "C:\\Python38-x64"
+       PYTHON_SUFFIX: "-x64"
        PYQT5_VERSION: 5.12.3
-       QT_BASE_PATH: c:\\Qt\\5.12.4
+       QT_BASE_PATH: c:\\Qt\\5.12.5
+       APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
+
+    -  PYTHON: "C:\\Python38"
+       PYQT5_VERSION: 5.12.3
+       QT_BASE_PATH: c:\\Qt\\5.12.5
        APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
 
     -  PYTHON: "C:\\Python37-x64"
        PYTHON_SUFFIX: "-x64"
+       PYQT5_VERSION: 5.12.3
+       QT_BASE_PATH: c:\\Qt\\5.12.5
+       APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
+
+    -  PYTHON: "C:\\Python37"
+       PYQT5_VERSION: 5.12.3
+       QT_BASE_PATH: c:\\Qt\\5.12.5
+       APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
+
+    -  PYTHON: "C:\\Python36-x64"
+       PYTHON_SUFFIX: "-x64"
+       PYQT5_VERSION: 5.12.3
+       QT_BASE_PATH: c:\\Qt\\5.12.5
+
+    -  PYTHON: "C:\\Python36"
+       PYQT5_VERSION: 5.12.3
+       QT_BASE_PATH: c:\\Qt\\5.12.5
+       APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
+
+    -  PYTHON: "C:\\python35-x64"
+       PYTHON_SUFFIX: "-x64"
+       PYQT5_VERSION: 5.12.3
+       QT_BASE_PATH: c:\\Qt\\5.12.5
+
+    -  PYTHON: "C:\\python35"
+       PYQT5_VERSION: 5.12.3
+       QT_BASE_PATH: c:\\Qt\\5.12.5
+       APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
+
+    -  PYTHON: "C:\\Python38-x64"
+       PYTHON_SUFFIX: "-x64"
        PYQT5_VERSION: 5.11.3
-       QT_BASE_PATH: c:\\Qt\\5.11.2
+       QT_BASE_PATH: c:\\Qt\\5.11.3
+       APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
+
+    -  PYTHON: "C:\\Python38"
+       PYQT5_VERSION: 5.11.3
+       QT_BASE_PATH: c:\\Qt\\5.11.3
+
+    -  PYTHON: "C:\\Python37-x64"
+       PYTHON_SUFFIX: "-x64"
+       PYQT5_VERSION: 5.11.3
+       QT_BASE_PATH: c:\\Qt\\5.11.3
        APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
 
     -  PYTHON: "C:\\Python37"
        PYQT5_VERSION: 5.11.3
-       QT_BASE_PATH: c:\\Qt\\5.11.2
+       QT_BASE_PATH: c:\\Qt\\5.11.3
 
     -  PYTHON: "C:\\Python36-x64"
        PYTHON_SUFFIX: "-x64"
        PYQT5_VERSION: 5.11.3
-       QT_BASE_PATH: c:\\Qt\\5.11.2
+       QT_BASE_PATH: c:\\Qt\\5.11.3
 
     -  PYTHON: "C:\\Python36"
        PYQT5_VERSION: 5.11.3
-       QT_BASE_PATH: c:\\Qt\\5.11.2
+       QT_BASE_PATH: c:\\Qt\\5.11.3
 
     -  PYTHON: "C:\\python35-x64"
        PYTHON_SUFFIX: "-x64"
        PYQT5_VERSION: 5.11.3
-       QT_BASE_PATH: c:\\Qt\\5.11.2
+       QT_BASE_PATH: c:\\Qt\\5.11.3
 
     -  PYTHON: "C:\\python35"
        PYQT5_VERSION: 5.11.3
-       QT_BASE_PATH: c:\\Qt\\5.11.2
+       QT_BASE_PATH: c:\\Qt\\5.11.3
 
     -  PYTHON: "C:\\Python37-x64"
        PYTHON_SUFFIX: "-x64"
