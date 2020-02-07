@@ -264,7 +264,7 @@ def save_sdist(project, version, directory):
     [record] = (
         url
         for url in urls
-        if url['package_type'] == 'sdist'
+        if url.get('packagetype') == 'sdist'
     )
 
     url = hyperlink.URL(record['url'])
