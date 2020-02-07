@@ -183,18 +183,11 @@ class Configuration:
 
 
 def main():
-    report_and_check_call(
-        command=[
-            pathlib.Path(sysconfig.get_path('scripts')) / 'pip',
-            'freeze',
-            '--all',
-        ],
-    )
-
     configuration = Configuration.build(environment=os.environ)
     report_and_check_call(
         command=[
-            pathlib.Path(sysconfig.get_path('scripts')) / 'aqt',
+            sys.executable,
+            '-m', 'aqt',
             'install',
             '--outputdir', configuration.qt_base_directory,
             configuration.qt_version,
@@ -282,7 +275,8 @@ def main():
 
     report_and_check_call(
         command=[
-            pathlib.Path(sysconfig.get_path('scripts')) / 'sip-wheel',
+            sys.executable,
+            '-c', 'import sipbuild.tools.wheel; sipbuild.tools.wheel.main()',
             '--confirm-license',
             '--verbose',
         ],
