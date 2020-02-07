@@ -4,5 +4,6 @@ requires = [
     "aqtinstall",
     "setuptools",
     "sip",
+    "vcversioner",
     "wheel",
 ]
