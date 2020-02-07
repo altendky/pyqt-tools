@@ -144,6 +144,8 @@ def callers_line_info():
 
 # TODO: CAMPid 079079043724533410718467080456813604134316946765431341384014
 def report_and_check_call(command, *args, cwd=None, shell=False, **kwargs):
+    command = [fspath(c) for c in command]
+
     print('\nCalling:')
     print('    Caller: {}'.format(callers_line_info()))
     print('    CWD: {}'.format(repr(cwd)))
@@ -159,13 +161,7 @@ def report_and_check_call(command, *args, cwd=None, shell=False, **kwargs):
             print('    {}'.format(repr(arg)))
 
     sys.stdout.flush()
-    return subprocess.run(
-        [fspath(c) for c in command],
-        *args,
-        cwd=cwd,
-        check=True,
-        **kwargs,
-    )
+    return subprocess.run(command, *args, cwd=cwd, check=True, **kwargs)
 
 
 @attr.s(frozen=True)
