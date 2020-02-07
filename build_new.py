@@ -267,7 +267,7 @@ def save_sdist(project, version, directory):
         if url.get('packagetype') == 'sdist'
     )
 
-    url = hyperlink.URL(record['url'])
+    url = hyperlink.URL.from_text(record['url'])
 
     directory.mkdir(exist_ok=True)
     path = directory / url.path[-1]
