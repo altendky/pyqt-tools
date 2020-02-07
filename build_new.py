@@ -178,6 +178,7 @@ def report_and_check_call(command, *args, cwd=None, shell=False, **kwargs):
 class Configuration:
     qt_version = attr.ib()
     qt_path = attr.ib()
+    qt_architecture = attr.ib()
     pyqt_version = attr.ib()
     pyqt_source_path = attr.ib()
     platform = attr.ib()
@@ -190,6 +191,7 @@ class Configuration:
         return cls(
             qt_version=environment['QT_VERSION'],
             qt_path=build_path / 'qt',
+            qt_architecture=environment['QT_ARCHITECTURE'],
             pyqt_version=environment['PYQT_VERSION'],
             pyqt_source_path=build_path / 'pyqt5',
             platform=environment['QT_PLATFORM'],
