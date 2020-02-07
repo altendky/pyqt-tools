@@ -290,7 +290,7 @@ def main():
         env={
             **os.environ,
             'PATH': os.pathsep.join((
-                qt_paths.bin,
+                fspath(qt_paths.bin),
                 os.environ['PATH'],
             )),
         },
