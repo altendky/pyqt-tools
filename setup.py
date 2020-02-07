@@ -19,7 +19,7 @@ def pad_version(v):
     return '.'.join(split + ['0'] * (3 - len(split)))
 
 version = '.'.join((
-    pad_version(os.environ['PYQT5_VERSION']),
+    pad_version(os.environ['PYQT_VERSION']),
     version.version,
 ))
 
