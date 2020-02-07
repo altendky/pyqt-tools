@@ -3,6 +3,7 @@ requires = [
     "attrs",
     "aqtinstall",
     "hyperlink",
+    "PyQt-builder",
     "requests",
     "setuptools",
     "sip",

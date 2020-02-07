@@ -6,9 +6,9 @@ import shlex
 import shutil
 import subprocess
 import sys
+import tarfile
 import tempfile
 import textwrap
-import zipfile
 
 import attr
 import hyperlink
@@ -272,7 +272,7 @@ def save_sdist(project, version, directory):
     directory.mkdir(exist_ok=True)
     path = directory / url.path[-1]
 
-    with path.open('w') as file:
+    with path.open('wb') as file:
         get_down(file=file, url=url)
 
     return path
@@ -392,8 +392,13 @@ def build(configuration):
         directory=configuration.download_path,
     )
 
-    with zipfile.ZipFile(pyqt5_sdist_path) as zip_file:
-        zip_file.extractall(path=configuration.pyqt_source_path)
+    with tarfile.open(pyqt5_sdist_path) as tar_file:
+        for member in tar_file.getmembers():
+            member.name = pathlib.Path(*pathlib.Path(member.name).parts[1:])
+            tar_file.extract(
+                member=member,
+                path=configuration.pyqt_source_path,
+            )
 
     report_and_check_call(
         command=[
