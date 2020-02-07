@@ -41,7 +41,7 @@ jobs:
 
       - name: Build
         run: |
-          python setup.py bdist_wheel
+          pip wheel .
 #      - name: Download
 #        run: |
 #          venv/bin/pip download --no-deps --no-binary :all: --dest download PyQt5
