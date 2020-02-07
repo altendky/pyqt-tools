@@ -252,11 +252,11 @@ def main():
 
     entry_points_py = destinations.package / 'entrypoints.py'
 
-    with entry_points_py.open(newlines='') as f:
+    with entry_points_py.open(newline='') as f:
         f.read()
         newlines = identify_preferred_newlines(f)
 
-    with entry_points_py.open('a', newlines=newlines):
+    with entry_points_py.open('a', newline=newlines):
         for function, application in entry_point_function_names.items():
             f.write(textwrap.dedent('''\
                 def {function}():
