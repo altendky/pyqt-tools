@@ -6,6 +6,7 @@ import shlex
 import shutil
 import subprocess
 import sys
+import sysconfig
 import textwrap
 
 import attr
@@ -185,7 +186,7 @@ def main():
     configuration = Configuration.build(environment=os.environ)
     report_and_check_call(
         command=[
-            'aqt',
+            pathlib.Path(sysconfig.get_path('scripts')) / 'aqt',
             'install',
             '--outputdir', configuration.qt_base_directory,
             configuration.qt_version,
