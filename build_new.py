@@ -183,6 +183,14 @@ class Configuration:
 
 
 def main():
+    report_and_check_call(
+        command=[
+            pathlib.Path(sysconfig.get_path('scripts')) / 'pip',
+            'freeze',
+            '--all',
+        ],
+    )
+
     configuration = Configuration.build(environment=os.environ)
     report_and_check_call(
         command=[
