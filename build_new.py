@@ -57,7 +57,10 @@ try:
     platform_name = platform_names[bits]
 except KeyError:
     raise Exception(
-        'Bit depth {bits} not recognized {}'.format(platform_names.keys()),
+        'Bit depth {bits} not recognized {options}'.format(
+            bits=bits,
+            options=platform_names.keys(),
+        ),
     )
 
 
@@ -76,18 +79,18 @@ class QtPaths:
             architecture,
             application_filter=lambda path: path.suffix == '.exe',
     ):
-        compiler = base / version / architecture
-        bin = compiler / 'bin'
+        compiler_path = base / version / architecture
+        bin_path = compiler_path / 'bin'
         applications = tuple(
             path
-            for path in bin.glob('*')
+            for path in bin_path.glob('*')
             if application_filter(path)
         )
 
         return cls(
-            compiler=compiler,
-            bin=bin,
-            windeployqt=bin / 'windeployqt.exe',
+            compiler=compiler_path,
+            bin=bin_path,
+            windeployqt=bin_path / 'windeployqt.exe',
             applications=applications,
         )
 
@@ -185,12 +188,12 @@ class Configuration:
     @classmethod
     def build(cls, environment, build_path):
         return cls(
-            qt_version=os.environ['QT_VERSION'],
+            qt_version=environment['QT_VERSION'],
             qt_path=build_path / 'qt',
-            pyqt_version=os.environ['PYQT_VERSION'],
+            pyqt_version=environment['PYQT_VERSION'],
             pyqt_source_path=build_path / 'pyqt5',
-            platform=os.environ['QT_PLATFORM'],
-            architecture=os.environ['QT_ARCHITECTURE'],
+            platform=environment['QT_PLATFORM'],
+            architecture=environment['QT_ARCHITECTURE'],
             build_path=build_path,
             download_path=build_path / 'downloads',
         )
@@ -370,7 +373,8 @@ def build(configuration):
                 '''.format(
                     function=function,
                     application=application,
-            )))
+                )
+            ))
 
     console_scripts = [
         '{application} = pyqt5_tools.entrypoints:{function}'.format(
