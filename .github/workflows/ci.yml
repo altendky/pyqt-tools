@@ -17,8 +17,6 @@ jobs:
           - image: windows-2019
             platform: windows
         versions:
-          - qt: 5.14.0
-            pyqt: 5.14.0
           - qt: 5.14.1
             pyqt: 5.14.1
         arch:
