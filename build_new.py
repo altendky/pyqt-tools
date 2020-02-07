@@ -1,6 +1,11 @@
+import inspect
 import os
 import pathlib
 import platform
+import shlex
+import shutil
+import subprocess
+import sys
 import textwrap
 
 import attr
@@ -32,7 +37,7 @@ class Destinations:
 
         return cls(
             package=package,
-            examples=root / 'examples',
+            examples=package / 'examples',
             qt=qt,
             qt_bin=qt / 'bin',
         )
@@ -48,7 +53,7 @@ try:
     platform_name = platform_names[bits]
 except KeyError:
     raise Exception(
-        'Bit depth {bits} not recognized {}'.format(plat_names.keys()),
+        'Bit depth {bits} not recognized {}'.format(platform_names.keys()),
     )
 
 
@@ -65,7 +70,7 @@ class QtPaths:
             compiler,
             application_filter=lambda path: path.suffix == '.exe',
     ):
-        bin = root / 'bin'
+        bin = compiler / 'bin'
         applications = tuple(
             path
             for path in bin.glob('*')
@@ -80,7 +85,12 @@ class QtPaths:
         )
 
 
-def filter_application_paths(application_paths, skip_paths=[]):
+def filter_application_paths(
+        application_paths,
+        destination,
+        windeployqt_path,
+        skip_paths=[],
+):
     skip_paths = list(skip_paths)
 
     for application_path in application_paths:
@@ -111,6 +121,45 @@ def identify_preferred_newlines(f):
     if isinstance(f.newlines, str):
         return f.newlines
     return '\n'
+
+
+# TODO: CAMPid 974597249731467124675t40136706803641679349342342
+# https://github.com/altendky/altendpy/issues/8
+def callers_line_info():
+    here = inspect.currentframe()
+    caller = here.f_back
+
+    if caller is None:
+        return None
+
+    there = caller.f_back
+    info = inspect.getframeinfo(there)
+
+    return 'File "{}", line {}, in {}'.format(
+        info.filename,
+        info.lineno,
+        info.function,
+    )
+
+
+# TODO: CAMPid 079079043724533410718467080456813604134316946765431341384014
+def report_and_check_call(command, *args, cwd=None, shell=False, **kwargs):
+    print('\nCalling:')
+    print('    Caller: {}'.format(callers_line_info()))
+    print('    CWD: {}'.format(repr(cwd)))
+    print('    As passed: {}'.format(repr(command)))
+    print('    Full: {}'.format(
+        ' '.join(shlex.quote(fspath(x)) for x in command),
+    ))
+
+    if shell:
+        print('    {}'.format(repr(command)))
+    else:
+        for arg in command:
+            print('    {}'.format(repr(arg)))
+
+    sys.stdout.flush()
+    return subprocess.run(command, *args, cwd=cwd, check=True, **kwargs)
 
 
 @attr.s(frozen=True)
@@ -144,7 +193,7 @@ def main():
         ],
     )
 
-    qt_paths.build(compiler=os.environ['QT_COMPILER_DIRECTORY'])
+    qt_paths = QtPaths.build(compiler=os.environ['QT_COMPILER_DIRECTORY'])
     os.environ['PATH'] = os.pathsep.join((
         os.environ['PATH'],
         fspath(qt_paths.bin),
@@ -168,6 +217,8 @@ def main():
     filtered_application_paths = list(
         filter_application_paths(
             application_paths=qt_paths.applications,
+            windeployqt_path=qt_paths.windeployqt,
+            destination=destinations.package,
             skip_paths=['WebEngine'],
         ),
     )
