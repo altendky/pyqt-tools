@@ -2,6 +2,8 @@
 requires = [
     "attrs",
     "aqtinstall",
+    "hyperlink",
+    "requests",
     "setuptools",
     "sip",
     "vcversioner",

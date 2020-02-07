@@ -26,7 +26,6 @@ jobs:
           - 3.8
 
     env:
-      QT_BASE_DIRECTORY: qt
 #      QT_COMPILER_DIRECTORY: ${{ env.QT_BASE_DIRECTORY }}/${{ matrix.qt }}/${{ matrix.arch.directory }}
       QT_VERSION: ${{ matrix.versions.qt }}
       QT_PLATFORM: ${{ matrix.os.platform }}

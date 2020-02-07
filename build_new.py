@@ -6,10 +6,13 @@ import shlex
 import shutil
 import subprocess
 import sys
-import sysconfig
+import tempfile
 import textwrap
+import zipfile
 
 import attr
+import hyperlink
+import requests
 
 
 fspath = getattr(os, 'fspath', str)
@@ -171,28 +174,125 @@ def report_and_check_call(command, *args, cwd=None, shell=False, **kwargs):
 @attr.s(frozen=True)
 class Configuration:
     qt_version = attr.ib()
-    qt_base_directory = attr.ib()
+    qt_path = attr.ib()
+    pyqt_version = attr.ib()
+    pyqt_source_path = attr.ib()
     platform = attr.ib()
     architecture = attr.ib()
+    build_path = attr.ib()
+    download_path = attr.ib()
 
     @classmethod
-    def build(cls, environment):
+    def build(cls, environment, build_path):
         return cls(
             qt_version=os.environ['QT_VERSION'],
-            qt_base_directory=pathlib.Path(os.environ['QT_BASE_DIRECTORY']),
+            qt_path=build_path / 'qt',
+            pyqt_version=os.environ['PYQT_VERSION'],
+            pyqt_source_path=build_path / 'pyqt5',
             platform=os.environ['QT_PLATFORM'],
             architecture=os.environ['QT_ARCHITECTURE'],
+            build_path=build_path,
+            download_path=build_path / 'downloads',
         )
+
+    def create_directories(self):
+        for path in [
+            self.qt_path,
+            self.pyqt_source_path,
+            self.build_path,
+            self.download_path,
+        ]:
+            path.mkdir(exist_ok=True)
+
+
+# https://repl.it/@altendky/requests-stream-download-to-file-2
+default_chunk_size = 2 ** 24
+
+
+def download_base(
+        file,
+        method,
+        url,
+        *args,
+        chunk_size=default_chunk_size,
+        resume=True,
+        **kwargs,
+):
+    if resume:
+        headers = kwargs.get('headers', {})
+        headers.setdefault('Range', 'bytes={}-'.format(file.tell()))
+
+    response = requests.request(
+        method=method,
+        url=url,
+        *args,
+        stream=True,
+        **kwargs,
+    )
+    response.raise_for_status()
+
+    for chunk in response.iter_content(chunk_size=chunk_size):
+        file.write(chunk)
+
+
+def get_down(file, url, *args, **kwargs):
+    return download_base(
+        file=file,
+        method='GET',
+        url=url,
+        *args,
+        **kwargs,
+    )
+
+
+def save_sdist(project, version, directory):
+    project_url = hyperlink.URL(
+        scheme='https',
+        host='pypi.org',
+        path=('pypi', project, version, 'json'),
+    )
+    response = requests.get(project_url)
+    response.raise_for_status()
+
+    urls = response.json()['urls']
+
+    [record] = next(
+        url
+        for url in urls
+        if url['python_version'] == 'source'
+    )
+
+    url = hyperlink.URL(record['url'])
+
+    directory.mkdir(exist_ok=True)
+    path = directory / url.path[-1]
+
+    with path.open('w') as file:
+        get_down(file=file, url=url)
+
+    return path
 
 
 def main():
-    configuration = Configuration.build(environment=os.environ)
+    with tempfile.TemporaryDirectory() as build_directory:
+        build_path = pathlib.Path(build_directory.name)
+
+        configuration = Configuration.build(
+            environment=os.environ,
+            build_path=build_path,
+        )
+        configuration.create_directories()
+
+        build(configuration=configuration)
+
+
+def build(configuration):
     report_and_check_call(
         command=[
             sys.executable,
             '-m', 'aqt',
             'install',
-            '--outputdir', configuration.qt_base_directory,
+            '--outputdir', configuration.qt_path,
             configuration.qt_version,
             configuration.platform,
             'desktop',
@@ -280,6 +380,15 @@ def main():
         for function, application in entry_point_function_names.items()
     ]
 
+    pyqt5_sdist_path = save_sdist(
+        project='PyQt5',
+        version=configuration.pyqt_version,
+        directory=configuration.download_path,
+    )
+
+    with zipfile.ZipFile(pyqt5_sdist_path) as zip_file:
+        zip_file.extractall(path=configuration.pyqt_source_path)
+
     report_and_check_call(
         command=[
             sys.executable,
@@ -287,6 +396,7 @@ def main():
             '--confirm-license',
             '--verbose',
         ],
+        cwd=configuration.pyqt_source_path,
         env={
             **os.environ,
             'PATH': os.pathsep.join((
