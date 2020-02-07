@@ -261,10 +261,10 @@ def save_sdist(project, version, directory):
 
     urls = response.json()['urls']
 
-    [record] = next(
+    [record] = (
         url
         for url in urls
-        if url['python_version'] == 'source'
+        if url['package_type'] == 'sdist'
     )
 
     url = hyperlink.URL(record['url'])
