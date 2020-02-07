@@ -72,7 +72,7 @@ setuptools.setup(
     install_requires=[
         'click',
         'python-dotenv',
-        'pyqt5=={}'.format(os.environ['PYQT5_VERSION']),
+        'pyqt5=={}'.format(os.environ['PYQT_VERSION']),
     ],
     entry_points={
         'console_scripts': console_scripts,

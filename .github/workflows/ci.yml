@@ -31,6 +31,7 @@ jobs:
       QT_VERSION: ${{ matrix.versions.qt }}
       QT_PLATFORM: ${{ matrix.os.platform }}
       QT_ARCHITECTURE: ${{ matrix.arch.name }}
+      PYQT_VERSION: ${{ matrix.versions.pyqt }}
 
     steps:
       - uses: actions/checkout@v1
