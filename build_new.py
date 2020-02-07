@@ -274,8 +274,8 @@ def save_sdist(project, version, directory):
 
 
 def main():
-    with tempfile.TemporaryDirectory() as build_directory:
-        build_path = pathlib.Path(build_directory.name)
+    with tempfile.TemporaryDirectory() as build_path:
+        build_path = pathlib.Path(build_path)
 
         configuration = Configuration.build(
             environment=os.environ,
