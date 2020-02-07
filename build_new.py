@@ -274,7 +274,7 @@ def main():
 
     report_and_check_call(
         command=[
-            'sip-wheel',
+            pathlib.Path(sysconfig.get_path('scripts')) / 'sip-wheel',
             '--confirm-license',
             '--verbose',
         ],
