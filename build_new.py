@@ -28,7 +28,7 @@ class Destinations:
     qt_bin = attr.ib()
 
     def create(self):
-        for path in attr.asdict(self).values:
+        for path in attr.asdict(self).values():
             path.mkdir(exist_ok=True)
 
     @classmethod
