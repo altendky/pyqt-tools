@@ -304,9 +304,9 @@ def build(configuration):
     )
 
     qt_paths = QtPaths.build(
-        base=pathlib.Path(os.environ['QT_BASE_DIRECTORY']),
-        version=os.environ['QT_VERSION'],
-        architecture=os.environ['QT_ARCHITECTURE'],
+        base=configuration.qt_path,
+        version=configuration.qt_version,
+        architecture=configuration.qt_architecture,
     )
     os.environ['PATH'] = os.pathsep.join((
         os.environ['PATH'],
