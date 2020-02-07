@@ -1,7 +1,10 @@
 import os
+import pathlib
 import sys
 
-import build
+sys.path.insert(0, pathlib.Path(__file__).parent)
+
+import build_new
 import setuptools
 import vcversioner
 
@@ -22,7 +25,7 @@ version = '.'.join((
 
 sys.stderr.write('another stderr test from {}\n'.format(__file__))
 
-results = build.main()
+results = build_new.main()
 
 with open('README.rst') as f:
     readme = f.read()

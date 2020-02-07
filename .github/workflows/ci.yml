@@ -1,0 +1,55 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - master
+    tags:
+      - v*
+  pull_request:
+
+jobs:
+  ci:
+    runs-on: ${{ matrix.os.image }}
+    strategy:
+      matrix:
+        os:
+          - image: windows-2019
+            platform: windows
+        versions:
+          - qt: 5.14.0
+            pyqt: 5.14.0
+          - qt: 5.14.1
+            pyqt: 5.14.1
+        arch:
+          - name: win64_msvc2017_64
+            directory: msvc2017_64
+
+    env:
+      QT_BASE_DIRECTORY: qt
+#      QT_COMPILER_DIRECTORY: ${{ env.QT_BASE_DIRECTORY }}/${{ matrix.qt }}/${{ matrix.arch.directory }}
+      QT_VERSION: ${{ matrix.versions.qt }}
+      QT_PLATFORM: ${{ matrix.os.platform }}
+      QT_ARCHITECTURE: ${{ matrix.arch.name }}
+
+    steps:
+      - uses: actions/checkout@v1
+#      - name: Install
+#        run: |
+#          pip install aqtinstall sip
+#          PyQt5==${{ matrix.versions.pyqt }}
+
+      - name: Build
+        run: |
+          python setup.py bdist_wheel
+#      - name: Download
+#        run: |
+#          venv/bin/pip download --no-deps --no-binary :all: --dest download PyQt5
+#      - name: Test
+#        run: |
+#          tox -v -e "${{ matrix.toxenv }}"
+      - name: Archive
+        uses: actions/upload-artifact@v1
+        with:
+          name: pyqt5-tools
+          path: dist/pyqt5_tools-*.whl

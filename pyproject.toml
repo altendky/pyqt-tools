@@ -1,0 +1,8 @@
+[build-system]
+requires = [
+    "attrs",
+    "aqtinstall",
+    "setuptools",
+    "sip",
+    "wheel",
+]

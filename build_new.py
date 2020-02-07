@@ -1,0 +1,234 @@
+import os
+import textwrap
+
+import attr
+
+
+fspath = getattr(os, 'fspath', str)
+
+
+@attr.s(frozen=True)
+class Results:
+    console_scripts = attr.ib()
+
+
+@attr.s(frozen=True)
+class Destinations:
+    package = attr.ib()
+    examples = attr.ib()
+    qt = attr.ib()
+    qt_bin = attr.ib()
+
+    def create(self):
+        for path in attr.as_dict(self).values:
+            path.mkdir(exist_ok=True)
+
+    @classmethod
+    def build(cls, base):
+        package = base / 'src' / 'pyqt5_tools'
+        qt = package / 'Qt'
+
+        return cls(
+            package=package,
+            examples=root / 'examples',
+            qt=qt,
+            qt_bin=qt / 'bin',
+        )
+
+
+bits = int(platform.architecture()[0][0:2])
+
+platform_names = {
+    32: 'win32',
+    64: 'win_amd64'
+}
+try:
+    platform_name = platform_names[bits]
+except KeyError:
+    raise Exception(
+        'Bit depth {bits} not recognized {}'.format(plat_names.keys()),
+    )
+
+
+@attr.s(frozen=True)
+class QtPaths:
+    compiler = attr.ib()
+    bin = attr.ib()
+    windeployqt = attr.ib()
+    applications = attr.ib()
+
+    @classmethod
+    def build(
+            cls,
+            compiler,
+            application_filter=lambda path: path.suffix == '.exe',
+    ):
+        bin = root / 'bin'
+        applications = tuple(
+            path
+            for path in bin.glob('*')
+            if application_filter(path)
+        )
+
+        return cls(
+            compiler=compiler,
+            bin=bin,
+            windeployqt=bin / 'windeployqt.exe',
+            applications=applications,
+        )
+
+
+def filter_application_paths(application_paths, skip_paths=[]):
+    skip_paths = list(skip_paths)
+
+    for application_path in application_paths:
+        print('\n\nChecking: {}'.format(application_path.name))
+
+        try:
+            output = subprocess.check_output(
+                [
+                    windeployqt_path,
+                    application_path,
+                    '--dry-run',
+                    '--list', 'source',
+                ],
+                cwd=destination,
+                encoding='utf-8',
+            )
+        except subprocess.CalledProcessError:
+            continue
+
+        if any(fspath(path) in output for path in skip_paths):
+            print('    skipped')
+            continue
+
+        yield application_path
+
+
+def identify_preferred_newlines(f):
+    if isinstance(f.newlines, str):
+        return f.newlines
+    return '\n'
+
+
+@attr.s(frozen=True)
+class Configuration:
+    qt_version = attr.ib()
+    qt_base_directory = attr.ib()
+    platform = attr.ib()
+    architecture = attr.ib()
+
+    @classmethod
+    def build(cls, environment):
+        return cls(
+            qt_version=os.environ['QT_VERSION'],
+            qt_base_directory=pathlib.Path(os.environ['QT_BASE_DIRECTORY']),
+            platform=os.environ['QT_PLATFORM'],
+            architecture=os.environ['QT_ARCHITECTURE'],
+        )
+
+
+def main():
+    configuration = Configuration.build(environment=os.environ)
+    report_and_check_call(
+        command=[
+            'aqt',
+            'install',
+            '--outputdir', configuration.qt_base_directory,
+            configuration.qt_version,
+            configuration.platform,
+            'desktop',
+            configuration.architecture,
+        ],
+    )
+
+    qt_paths.build(compiler=os.environ['QT_COMPILER_DIRECTORY'])
+    os.environ['PATH'] = os.pathsep.join((
+        os.environ['PATH'],
+        fspath(qt_paths.bin),
+    ))
+
+    with open('setup.cfg', 'w') as cfg:
+        python_tag = 'cp{major}{minor}'.format(
+            major=sys.version_info[0],
+            minor=sys.version_info[1],
+        )
+
+        cfg.write(textwrap.dedent('''\
+            [bdist_wheel]
+            python-tag = {python_tag}
+            plat-name = {platform_name}
+        ''').format(python_tag=python_tag, platform_name=platform_name))
+
+    destinations = Destinations.build(base=pathlib.Path(__file__).parent)
+    destinations.create()
+
+    filtered_application_paths = list(
+        filter_application_paths(
+            application_paths=qt_paths.applications,
+            skip_paths=['WebEngine'],
+        ),
+    )
+
+    for application_path in filtered_application_paths:
+        shutil.copy(application_path, destinations.qt_bin)
+
+        report_and_check_call(
+            command=[
+                qt_paths.windeployqt,
+                application_path.name,
+            ],
+            cwd=destinations.qt_bin,
+        )
+
+    entry_point_function_names = {
+        path.name.replace('-', '_'): path.name
+        for path in filtered_application_paths
+    }
+
+    entry_points_py = destinations.package / 'entrypoints.py'
+
+    with entry_points_py.open(newlines='') as f:
+        f.read()
+        newlines = identify_preferred_newlines(f)
+
+    with entry_points_py.open('a', newlines=newlines):
+        for function, application in entry_point_function_names.items():
+            f.write(textwrap.dedent('''\
+                def {function}():
+                    load_dotenv()
+                    return subprocess.call([
+                        str(here/'Qt'/'bin'/'{application}.exe'),
+                        *sys.argv[1:],
+                    ])
+    
+    
+                '''.format(
+                    function=function,
+                    application=application,
+            )))
+
+    console_scripts = [
+        '{application} = pyqt5_tools.entrypoints:{function}'.format(
+            function=function,
+            application=application,
+        )
+        for function, application in entry_point_function_names.items()
+    ]
+
+    report_and_check_call(
+        command=[
+            'sip-wheel',
+            '--confirm-license',
+            '--verbose',
+        ],
+        env={
+            **os.environ,
+            'PATH': os.pathsep.join((
+                qt_paths.bin,
+                os.environ['PATH'],
+            )),
+        },
+    )
+
+    return Results(console_scripts=console_scripts)
