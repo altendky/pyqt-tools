@@ -22,6 +22,8 @@ jobs:
         arch:
           - name: win64_msvc2017_64
             directory: msvc2017_64
+        python:
+          - 3.8
 
     env:
       QT_BASE_DIRECTORY: qt
@@ -37,7 +39,10 @@ jobs:
 #        run: |
 #          pip install aqtinstall sip
 #          PyQt5==${{ matrix.versions.pyqt }}
-
+      - name: Set up Python ${{ matrix.python }}
+        uses: actions/setup-python@v1
+        with:
+          python-version: ${{ matrix.python }}
       - name: Build
         run: |
           pip wheel .
