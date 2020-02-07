@@ -223,8 +223,8 @@ def download_base(
         headers.setdefault('Range', 'bytes={}-'.format(file.tell()))
 
     response = requests.request(
-        method=method,
-        url=url,
+        method,
+        url,
         *args,
         stream=True,
         **kwargs,
