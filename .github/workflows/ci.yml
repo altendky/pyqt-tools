@@ -19,7 +19,9 @@ jobs:
             platform: windows
             aqt_name: win64_msvc2017_64
             qt_compiler: msvc2017_64
-            vs_path: C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\Common7\Tools\VsDevCmd.bat
+            vs_path: C:/Program Files (x86)/Microsoft Visual Studio/2019/Enterprise/VC/Auxiliary/Build/vcvars64.bat
+            python_version: 3.8
+            bitness: x64
           - image: ubuntu-18.04
             platform: linux
             aqt_name: gcc_64
@@ -31,8 +33,6 @@ jobs:
         versions:
           - qt: 5.14.1
             pyqt: 5.14.1
-        python:
-          - 3.8
 
     env:
 #      QT_COMPILER_DIRECTORY: ${{ env.QT_BASE_DIRECTORY }}/${{ matrix.qt }}/${{ matrix.arch.directory }}
@@ -52,7 +52,8 @@ jobs:
       - name: Set up Python ${{ matrix.python }}
         uses: actions/setup-python@v1
         with:
-          python-version: ${{ matrix.python }}
+          python-version: ${{ matrix.system.python_version }}
+          architecture: ${{ matrix.system.bitness }}
       - name: Build wheel with Visual Studio
         if: matrix.system.platform == 'windows'
         run: |
