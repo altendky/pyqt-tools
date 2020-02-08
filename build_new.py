@@ -405,7 +405,13 @@ def build(configuration: Configuration):
     report_and_check_call(
         command=[
             sys.executable,
-            '-c', 'import sipbuild.tools.wheel; sipbuild.tools.wheel.main()',
+            '-c',
+            '; '.join([
+                'import sys',
+                'import sipbuild.tools.wheel',
+                'sys.argv["0"] = "sip-wheel"',
+                'sipbuild.tools.wheel.main()',
+            ]),
             '--confirm-license',
             '--verbose',
         ],

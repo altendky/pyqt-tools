@@ -53,8 +53,10 @@ jobs:
         with:
           python-version: ${{ matrix.python }}
       - name: Set up Visual Studio
+        if: matrix.system.platform == "windows"
         run: |
-          choco install visualstudio2019buildtools
+          VsDevCmd.bat
+#          choco install visualstudio2019buildtools
       - name: Build wheel
         run: |
           pip wheel .
