@@ -10,7 +10,7 @@ on:
 
 jobs:
   ci:
-    runs-on: ${{ matrix.os.image }}
+    runs-on: ${{ matrix.system.image }}
     strategy:
       matrix:
         system:
