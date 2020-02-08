@@ -363,7 +363,7 @@ def build(configuration: Configuration):
         f.read()
         newlines = identify_preferred_newlines(f)
 
-    with entry_points_py.open('a', newline=newlines):
+    with entry_points_py.open('a', newline=newlines) as f:
         for function, application in entry_point_function_names.items():
             f.write(textwrap.dedent('''\
                 def {function}():
