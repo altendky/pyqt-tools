@@ -53,12 +53,14 @@ jobs:
         uses: actions/setup-python@v1
         with:
           python-version: ${{ matrix.python }}
-      - name: Set up Visual Studio
+      - name: Build wheel with Visual Studio
         if: matrix.system.platform == 'windows'
         run: |
           "${{ matrix.system.vs_path }}"
+          pip wheel .
 #          choco install visualstudio2019buildtools
       - name: Build wheel
+        if: matrix.system.platform != 'windows'
         run: |
           pip wheel .
 #      - name: Download
