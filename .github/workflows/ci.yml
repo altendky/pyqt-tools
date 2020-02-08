@@ -12,6 +12,7 @@ jobs:
   ci:
     runs-on: ${{ matrix.system.image }}
     strategy:
+      fail-fast: false
       matrix:
         system:
           - image: windows-2019
