@@ -53,7 +53,7 @@ jobs:
         with:
           python-version: ${{ matrix.python }}
       - name: Set up Visual Studio
-        if: matrix.system.platform == "windows"
+        if: matrix.system.platform == 'windows'
         run: |
           VsDevCmd.bat
 #          choco install visualstudio2019buildtools
