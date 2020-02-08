@@ -76,10 +76,10 @@ class QtPaths:
             cls,
             base,
             version,
-            architecture,
+            compiler,
             application_filter=lambda path: path.suffix == '.exe',
     ):
-        compiler_path = base / version / architecture
+        compiler_path = base / version / compiler
         bin_path = compiler_path / 'bin'
         applications = tuple(
             path
@@ -308,7 +308,7 @@ def build(configuration):
     qt_paths = QtPaths.build(
         base=configuration.qt_path,
         version=configuration.qt_version,
-        architecture=configuration.qt_architecture,
+        compiler=configuration.qt_compiler,
     )
     os.environ['PATH'] = os.pathsep.join((
         os.environ['PATH'],
