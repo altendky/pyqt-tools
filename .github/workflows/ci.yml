@@ -69,7 +69,8 @@ jobs:
       - name: Build wheel
 #        if: matrix.system.platform != 'windows'
         run: |
-          pip wheel .
+          mkdir -p dist/
+          pip wheel --wheel-dir dist/ .
 #      - name: Download
 #        run: |
 #          venv/bin/pip download --no-deps --no-binary :all: --dest download PyQt5
