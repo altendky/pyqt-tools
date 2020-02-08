@@ -179,6 +179,7 @@ class Configuration:
     qt_version = attr.ib()
     qt_path = attr.ib()
     qt_architecture = attr.ib()
+    qt_compiler = attr.ib()
     pyqt_version = attr.ib()
     pyqt_source_path = attr.ib()
     platform = attr.ib()
@@ -192,6 +193,7 @@ class Configuration:
             qt_version=environment['QT_VERSION'],
             qt_path=build_path / 'qt',
             qt_architecture=environment['QT_ARCHITECTURE'],
+            qt_compiler=environment['QT_COMPILER'],
             pyqt_version=environment['PYQT_VERSION'],
             pyqt_source_path=build_path / 'pyqt5',
             platform=environment['QT_PLATFORM'],
@@ -291,7 +293,7 @@ def main():
         build(configuration=configuration)
 
 
-def build(configuration):
+def build(configuration: Configuration):
     report_and_check_call(
         command=[
             sys.executable,
