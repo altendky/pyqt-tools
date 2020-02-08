@@ -56,7 +56,7 @@ jobs:
       - name: Set up Visual Studio
         if: matrix.system.platform == 'windows'
         run: |
-          ${{ matrix.system.vs_path }}
+          "${{ matrix.system.vs_path }}"
 #          choco install visualstudio2019buildtools
       - name: Build wheel
         run: |
