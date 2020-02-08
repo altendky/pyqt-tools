@@ -26,10 +26,14 @@ jobs:
             platform: linux
             aqt_name: gcc_64
             qt_compiler: gcc_64
+            python_version: 3.8
+            bitness: x64
           - image: macos-10.15
             platform: mac
             aqt_name: clang_64
             qt_compiler: clang_64
+            python_version: 3.8
+            bitness: x64
         versions:
           - qt: 5.14.1
             pyqt: 5.14.1
@@ -49,7 +53,7 @@ jobs:
 #        run: |
 #          pip install aqtinstall sip
 #          PyQt5==${{ matrix.versions.pyqt }}
-      - name: Set up Python ${{ matrix.python }}
+      - name: Set up Python ${{ matrix.system.python_version }}
         uses: actions/setup-python@v1
         with:
           python-version: ${{ matrix.system.python_version }}
