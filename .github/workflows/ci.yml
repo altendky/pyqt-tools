@@ -60,6 +60,7 @@ jobs:
           architecture: ${{ matrix.system.bitness }}
       - name: Set up MSVC
         uses: ilammy/msvc-dev-cmd@v1
+        if: matrix.system.platform == 'windows'
 #      - name: Build wheel with Visual Studio
 #        if: matrix.system.platform == 'windows'
 #        run: |
