@@ -409,7 +409,7 @@ def build(configuration: Configuration):
             '; '.join([
                 'import sys',
                 'import sipbuild.tools.wheel',
-                'sys.argv["0"] = "sip-wheel"',
+                'sys.argv[0] = "sip-wheel"',
                 'sipbuild.tools.wheel.main()',
             ]),
             '--confirm-license',
