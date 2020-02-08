@@ -290,7 +290,7 @@ def main():
         )
         configuration.create_directories()
 
-        build(configuration=configuration)
+        return build(configuration=configuration)
 
 
 def build(configuration: Configuration):
