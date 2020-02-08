@@ -58,14 +58,16 @@ jobs:
         with:
           python-version: ${{ matrix.system.python_version }}
           architecture: ${{ matrix.system.bitness }}
-      - name: Build wheel with Visual Studio
-        if: matrix.system.platform == 'windows'
-        run: |
-          "${{ matrix.system.vs_path }}"
-          pip wheel .
+      - name: Set up MSVC
+        uses: ilammy/msvc-dev-cmd@v1
+#      - name: Build wheel with Visual Studio
+#        if: matrix.system.platform == 'windows'
+#        run: |
+#          "${{ matrix.system.vs_path }}"
+#          pip wheel .
 #          choco install visualstudio2019buildtools
       - name: Build wheel
-        if: matrix.system.platform != 'windows'
+#        if: matrix.system.platform != 'windows'
         run: |
           pip wheel .
 #      - name: Download
