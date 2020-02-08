@@ -36,7 +36,7 @@ jobs:
     env:
 #      QT_COMPILER_DIRECTORY: ${{ env.QT_BASE_DIRECTORY }}/${{ matrix.qt }}/${{ matrix.arch.directory }}
       QT_VERSION: ${{ matrix.versions.qt }}
-      QT_PLATFORM: ${{ matrix.platform }}
+      QT_PLATFORM: ${{ matrix.system.platform }}
       QT_COMPILER: ${{ matrix.system.qt_compiler }}
       QT_ARCHITECTURE: ${{ matrix.system.aqt_name }}
       PYQT_VERSION: ${{ matrix.versions.pyqt }}
