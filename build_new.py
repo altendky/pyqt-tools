@@ -346,7 +346,7 @@ def save_linuxdeployqt(version, directory):
 
 
 def main(package_path, build_base_path):
-    build_path = tempfile.mkdtemp(dir=build_base_path)
+    build_path = tempfile.mkdtemp(prefix='pyqt5_tools-', dir=build_base_path)
     build_path = pathlib.Path(build_path)
 
     configuration = Configuration.build(
