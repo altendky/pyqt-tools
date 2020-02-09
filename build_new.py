@@ -96,6 +96,7 @@ class QtPaths:
     compiler = attr.ib()
     bin = attr.ib()
     windeployqt = attr.ib()
+    qmake = attr.ib()
     applications = attr.ib()
 
     @classmethod
@@ -104,7 +105,7 @@ class QtPaths:
             base,
             version,
             compiler,
-            application_filter=lambda path: path.suffix == '.exe',
+            application_filter=lambda path: path.suffix != '.conf',
     ):
         compiler_path = base / version / compiler
         bin_path = compiler_path / 'bin'
@@ -114,10 +115,22 @@ class QtPaths:
             if application_filter(path)
         )
 
+        maybe_windeployqts = list(bin_path.glob('windeployqt*'))
+        try:
+            [windeployqt] = maybe_windeployqts
+        except ValueError:
+            windeployqt = None
+
+        if platform == 'windows':
+            suffix = '.exe'
+        else:
+            suffix = ''
+
         return cls(
             compiler=compiler_path,
             bin=bin_path,
-            windeployqt=bin_path / 'windeployqt.exe',
+            windeployqt=windeployqt,
+            qmake=(bin_path / 'qmake').with_suffix(suffix),
             applications=applications,
         )
 
@@ -431,13 +444,11 @@ def build(configuration: Configuration):
             )
 
     sip_module_path = (configuration.pyqt_source_path / 'sip')
-    globs = ['Qt*', 'Enginio']
 
     module_names = [
         path.name
-        for path in itertools.chain.from_iterable(
-            sip_module_path.glob(glob) for glob in globs
-        )
+        for path in sip_module_path.iterdir()
+        if path.is_dir()
     ]
 
     report_and_check_call(
@@ -448,11 +459,14 @@ def build(configuration: Configuration):
             # '--no-make',
             '--no-tools',
             '--no-dbus-python',
-            '--qmake', qt_paths.bin / 'qmake',
+            '--qmake', qt_paths.qmake,
             *itertools.chain.from_iterable(
                 ['--disable', module]
                 for module in module_names
-                if module not in {'QtCore'} | {'QtGui'}
+                if module not in (
+                    {'QtCore'}      # sip-build raises
+                    | {'QtGui'}     # indirect dependencies
+                )
             ),
         ],
         cwd=configuration.pyqt_source_path,
