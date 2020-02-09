@@ -105,6 +105,7 @@ class QtPaths:
             base,
             version,
             compiler,
+            platform_,
             application_filter=lambda path: path.suffix != '.conf',
     ):
         compiler_path = base / version / compiler
@@ -121,7 +122,7 @@ class QtPaths:
         except ValueError:
             windeployqt = None
 
-        if platform == 'windows':
+        if platform_ == 'windows':
             suffix = '.exe'
         else:
             suffix = ''
@@ -352,6 +353,7 @@ def build(configuration: Configuration):
         base=configuration.qt_path,
         version=configuration.qt_version,
         compiler=configuration.qt_compiler,
+        platform_=configuration.platform,
     )
     os.environ['PATH'] = os.pathsep.join((
         os.environ['PATH'],
