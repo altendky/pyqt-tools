@@ -1,4 +1,5 @@
 import inspect
+import itertools
 import os
 import pathlib
 import platform
@@ -13,9 +14,35 @@ import textwrap
 import attr
 import hyperlink
 import requests
+import setuptools.command.build_py
 
 
 fspath = getattr(os, 'fspath', str)
+
+
+class BuildPy(setuptools.command.build_py.build_py):
+    def run(self):
+        super().run()
+
+        [package_name] = (
+            package
+            for package in self.distribution.packages
+            if '.' not in package
+        )
+
+        build_command = self.distribution.command_obj['build']
+
+        cwd = pathlib.Path.cwd()
+        lib_path = cwd / build_command.build_lib
+        package_path = lib_path / package_name
+
+        results = main(
+            package_path=package_path,
+            temp_path=cwd / build_command.build_temp,
+        )
+
+        console_scripts = self.distribution.entry_points['console_scripts']
+        console_scripts.extend(results.console_scripts)
 
 
 @attr.s(frozen=True)
@@ -280,7 +307,7 @@ def save_sdist(project, version, directory):
     return path
 
 
-def main():
+def main(package_path, temp_path):
     with tempfile.TemporaryDirectory() as build_path:
         build_path = pathlib.Path(build_path)
 
@@ -296,10 +323,9 @@ def main():
 def build(configuration: Configuration):
     report_and_check_call(
         command=[
-            sys.executable,
-            '-m', 'aqt',
+            'aqt',
             'install',
-            '--outputdir', configuration.qt_path,
+            '--outputdir', configuration.qt_path.resolve(),
             configuration.qt_version,
             configuration.platform,
             'desktop',
@@ -402,18 +428,29 @@ def build(configuration: Configuration):
                 path=configuration.pyqt_source_path,
             )
 
+    sip_module_path = (configuration.pyqt_source_path / 'sip')
+    globs = ['Qt*', 'Enginio']
+
+    module_names = [
+        path.name
+        for path in itertools.chain.from_iterable(
+            sip_module_path.glob(glob) for glob in globs
+        )
+    ]
+
     report_and_check_call(
         command=[
-            sys.executable,
-            '-c',
-            '; '.join([
-                'import sys',
-                'import sipbuild.tools.wheel',
-                'sys.argv[0] = "sip-wheel"',
-                'sipbuild.tools.wheel.main()',
-            ]),
+            'sip-build',
             '--confirm-license',
             '--verbose',
+            # '--no-make',
+            '--no-tools',
+            '--no-dbus-python',
+            *itertools.chain.from_iterable(
+                ['--disable', module]
+                for module in module_names
+                if module not in {'QtCore'} | {'QtGui'}
+            ),
         ],
         cwd=configuration.pyqt_source_path,
         env={

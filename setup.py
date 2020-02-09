@@ -3,8 +3,11 @@ import pathlib
 import sys
 
 sys.path.insert(0, pathlib.Path(__file__).parent)
-
+# TODO: yuck, put the build command in a separate project and
+#       build-requires it?
 import build_new
+sys.path.pop(0)
+
 import setuptools
 import vcversioner
 
@@ -25,8 +28,6 @@ version = '.'.join((
 
 sys.stderr.write('another stderr test from {}\n'.format(__file__))
 
-results = build_new.main()
-
 with open('README.rst') as f:
     readme = f.read()
 
@@ -35,7 +36,6 @@ console_scripts = [
     'pyqt5designer = pyqt5_tools.entrypoints:pyqt5designer',
     'pyqt5qmlscene = pyqt5_tools.entrypoints:pyqt5qmlscene',
     'pyqt5qmltestrunner = pyqt5_tools.entrypoints:pyqt5qmltestrunner',
-    *results.console_scripts,
 ]
 
 print('--- console_scripts')
@@ -65,6 +65,7 @@ setuptools.setup(
         'Topic :: Software Development',
         'Topic :: Utilities',
     ],
+    cmdclass={'build_py': build_new.BuildPy},
     packages=setuptools.find_packages('src'),
     package_dir={'': 'src'},
     version=version,
