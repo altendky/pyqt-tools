@@ -323,7 +323,9 @@ def main(package_path, temp_path):
 def build(configuration: Configuration):
     report_and_check_call(
         command=[
-            'aqt',
+            sys.executable,
+            '-m',
+            'aqt',  # TODO: 517 yada breaks using just this on windows
             'install',
             '--outputdir', configuration.qt_path.resolve(),
             configuration.qt_version,
