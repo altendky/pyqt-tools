@@ -23,8 +23,6 @@ fspath = getattr(os, 'fspath', str)
 
 class BuildPy(setuptools.command.build_py.build_py):
     def run(self):
-        super().run()
-
         [package_name] = (
             package
             for package in self.distribution.packages
@@ -39,11 +37,13 @@ class BuildPy(setuptools.command.build_py.build_py):
 
         results = main(
             package_path=package_path,
-            temp_path=cwd / build_command.build_temp,
+            build_base_path=cwd / build_command.build_base,
         )
 
         console_scripts = self.distribution.entry_points['console_scripts']
         console_scripts.extend(results.console_scripts)
+
+        super().run()
 
 
 @attr.s(frozen=True)
@@ -63,13 +63,12 @@ class Destinations:
             path.mkdir(exist_ok=True)
 
     @classmethod
-    def build(cls, base):
-        package = base / 'src' / 'pyqt5_tools'
-        qt = package / 'Qt'
+    def build(cls, package_path):
+        qt = package_path / 'Qt'
 
         return cls(
-            package=package,
-            examples=package / 'examples',
+            package=package_path,
+            examples=package_path / 'examples',
             qt=qt,
             qt_bin=qt / 'bin',
         )
@@ -136,6 +135,7 @@ def filter_application_paths(
         application_paths,
         destination,
         deployqt_path,
+        platform_,
         skip_paths=[],
 ):
     skip_paths = list(skip_paths)
@@ -223,9 +223,10 @@ class Configuration:
     architecture = attr.ib()
     build_path = attr.ib()
     download_path = attr.ib()
+    package_path = attr.ib()
 
     @classmethod
-    def build(cls, environment, build_path):
+    def build(cls, environment, build_path, package_path):
         return cls(
             qt_version=environment['QT_VERSION'],
             qt_path=build_path / 'qt',
@@ -237,6 +238,7 @@ class Configuration:
             architecture=environment['QT_ARCHITECTURE'],
             build_path=build_path,
             download_path=build_path / 'downloads',
+            package_path=package_path,
         )
 
     def create_directories(self):
@@ -343,17 +345,18 @@ def save_linuxdeployqt(version, directory):
     return path
 
 
-def main(package_path, temp_path):
-    with tempfile.TemporaryDirectory() as build_path:
-        build_path = pathlib.Path(build_path)
+def main(package_path, build_base_path):
+    build_path = tempfile.mkdtemp(dir=build_base_path)
+    build_path = pathlib.Path(build_path)
 
-        configuration = Configuration.build(
-            environment=os.environ,
-            build_path=build_path,
-        )
-        configuration.create_directories()
+    configuration = Configuration.build(
+        environment=os.environ,
+        build_path=build_path,
+        package_path=package_path,
+    )
+    configuration.create_directories()
 
-        return build(configuration=configuration)
+    return build(configuration=configuration)
 
 
 def build(configuration: Configuration):
@@ -414,7 +417,7 @@ def build(configuration: Configuration):
             plat-name = {platform_name}
         ''').format(python_tag=python_tag, platform_name=platform_name))
 
-    destinations = Destinations.build(base=pathlib.Path(__file__).parent)
+    destinations = Destinations.build(package_path=configuration.package_path)
     destinations.create()
 
     filtered_application_paths = list(
@@ -422,6 +425,7 @@ def build(configuration: Configuration):
             application_paths=qt_paths.applications,
             deployqt_path=qt_paths.deployqt,
             destination=destinations.package,
+            platform_=configuration.platform,
             skip_paths=['WebEngine'],
         ),
     )
