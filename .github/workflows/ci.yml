@@ -81,5 +81,5 @@ jobs:
       - name: Archive wheel
         uses: actions/upload-artifact@v1
         with:
-          name: pyqt5-tools
+          name: pyqt5-tools-${{ matrix.system.platform }}
           path: dist
