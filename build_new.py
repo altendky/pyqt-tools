@@ -446,6 +446,7 @@ def build(configuration: Configuration):
             # '--no-make',
             '--no-tools',
             '--no-dbus-python',
+            '--qmake', qt_paths.bin / 'qmake',
             *itertools.chain.from_iterable(
                 ['--disable', module]
                 for module in module_names
@@ -453,13 +454,6 @@ def build(configuration: Configuration):
             ),
         ],
         cwd=configuration.pyqt_source_path,
-        env={
-            **os.environ,
-            'PATH': os.pathsep.join((
-                fspath(qt_paths.bin),
-                os.environ['PATH'],
-            )),
-        },
     )
 
     return Results(console_scripts=console_scripts)
