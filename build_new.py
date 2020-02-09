@@ -355,7 +355,7 @@ def main(package_path, temp_path):
 def build(configuration: Configuration):
     report_and_check_call(
         command=[
-            *[  # TODO: 517 yada seemingly doesn't get the right PATH
+            *(  # TODO: 517 yada seemingly doesn't get the right PATH
                 #           on windows
                 [
                     sys.executable,
@@ -363,7 +363,7 @@ def build(configuration: Configuration):
                 ]
                 if configuration.platform == 'windows'
                 else []
-            ],
+            ),
             'aqt',
             'install',
             '--outputdir', configuration.qt_path.resolve(),
