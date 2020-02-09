@@ -95,7 +95,7 @@ except KeyError:
 class QtPaths:
     compiler = attr.ib()
     bin = attr.ib()
-    windeployqt = attr.ib()
+    deployqt = attr.ib()
     qmake = attr.ib()
     applications = attr.ib()
 
@@ -106,6 +106,7 @@ class QtPaths:
             version,
             compiler,
             platform_,
+            deployqt,
             application_filter=lambda path: path.suffix != '.conf',
     ):
         compiler_path = base / version / compiler
@@ -116,12 +117,6 @@ class QtPaths:
             if application_filter(path)
         )
 
-        maybe_windeployqts = list(bin_path.glob('windeployqt*'))
-        try:
-            [windeployqt] = maybe_windeployqts
-        except ValueError:
-            windeployqt = None
-
         if platform_ == 'windows':
             suffix = '.exe'
         else:
@@ -130,7 +125,7 @@ class QtPaths:
         return cls(
             compiler=compiler_path,
             bin=bin_path,
-            windeployqt=windeployqt,
+            deployqt=bin_path / deployqt,
             qmake=(bin_path / 'qmake').with_suffix(suffix),
             applications=applications,
         )
@@ -139,7 +134,7 @@ class QtPaths:
 def filter_application_paths(
         application_paths,
         destination,
-        windeployqt_path,
+        deployqt_path,
         skip_paths=[],
 ):
     skip_paths = list(skip_paths)
@@ -150,7 +145,7 @@ def filter_application_paths(
         try:
             output = subprocess.check_output(
                 [
-                    windeployqt_path,
+                    deployqt_path,
                     application_path,
                     '--dry-run',
                     '--list', 'source',
@@ -321,6 +316,29 @@ def save_sdist(project, version, directory):
     return path
 
 
+def save_linuxdeployqt(version, directory):
+    url = hyperlink.URL(
+        scheme='https',
+        host='github.com',
+        path=(
+            'probonopd',
+            'linuxdeployqt',
+            'releases',
+            'download',
+            str(version),
+            'linuxdeployqt-{version}-x86_64.AppImage'.format(version=version),
+        ),
+    )
+
+    directory.mkdir(exist_ok=True)
+    path = directory / url.path[-1]
+
+    with path.open('wb') as file:
+        get_down(file=file, url=url)
+
+    return path
+
+
 def main(package_path, temp_path):
     with tempfile.TemporaryDirectory() as build_path:
         build_path = pathlib.Path(build_path)
@@ -337,9 +355,16 @@ def main(package_path, temp_path):
 def build(configuration: Configuration):
     report_and_check_call(
         command=[
-            sys.executable,
-            '-m',
-            'aqt',  # TODO: 517 yada breaks using just this on windows
+            *[  # TODO: 517 yada seemingly doesn't get the right PATH
+                #           on windows
+                [
+                    sys.executable,
+                    '-m',
+                ]
+                if configuration.platform == 'windows'
+                else []
+            ],
+            'aqt',
             'install',
             '--outputdir', configuration.qt_path.resolve(),
             configuration.qt_version,
@@ -349,11 +374,24 @@ def build(configuration: Configuration):
         ],
     )
 
+    if configuration.platform == 'linux':
+        deployqt = save_linuxdeployqt(6, configuration.download_path)
+        deployqt = deployqt.resolve()
+    elif configuration.platform == 'windows':
+        deployqt = pathlib.Path('windeployqt.exe')
+    elif configuration.platform == 'mac':
+        deployqt = pathlib.Path('macdeployqt')
+    else:
+        raise Exception(
+            'Unsupported platform: {}'.format(configuration.platform),
+        )
+
     qt_paths = QtPaths.build(
         base=configuration.qt_path,
         version=configuration.qt_version,
         compiler=configuration.qt_compiler,
         platform_=configuration.platform,
+        deployqt=deployqt,
     )
     os.environ['PATH'] = os.pathsep.join((
         os.environ['PATH'],
@@ -378,7 +416,7 @@ def build(configuration: Configuration):
     filtered_application_paths = list(
         filter_application_paths(
             application_paths=qt_paths.applications,
-            windeployqt_path=qt_paths.windeployqt,
+            deployqt_path=qt_paths.deployqt,
             destination=destinations.package,
             skip_paths=['WebEngine'],
         ),
@@ -389,7 +427,7 @@ def build(configuration: Configuration):
 
         report_and_check_call(
             command=[
-                qt_paths.windeployqt,
+                qt_paths.deployqt,
                 application_path.name,
             ],
             cwd=destinations.qt_bin,
