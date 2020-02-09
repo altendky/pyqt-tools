@@ -5,6 +5,7 @@ import pathlib
 import platform
 import shlex
 import shutil
+import stat
 import subprocess
 import sys
 import tarfile
@@ -335,6 +336,9 @@ def save_linuxdeployqt(version, directory):
 
     with path.open('wb') as file:
         get_down(file=file, url=url)
+
+    st = os.stat(path)
+    path.chmod(st.st_mode | stat.S_IXUSR)
 
     return path
 
