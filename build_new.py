@@ -415,10 +415,6 @@ def build(configuration: Configuration):
         platform_=configuration.platform,
         deployqt=deployqt,
     )
-    os.environ['PATH'] = os.pathsep.join((
-        os.environ['PATH'],
-        fspath(qt_paths.bin),
-    ))
 
     destinations = Destinations.build(package_path=configuration.package_path)
     destinations.create()
