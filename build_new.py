@@ -14,6 +14,7 @@ import textwrap
 
 import attr
 import hyperlink
+import psutil
 import requests
 import setuptools.command.build_py
 
@@ -95,6 +96,25 @@ except KeyError:
 
 
 @attr.s(frozen=True)
+class Application:
+    original_path = attr.ib()
+    relative_path = attr.ib()
+    file_name = attr.ib()
+    identifier = attr.ib()
+
+    @classmethod
+    def build(cls, path):
+        relative_path = path.relative_to(path.parent)
+
+        return cls(
+            original_path=path,
+            relative_path=relative_path,
+            file_name=path.name,
+            identifier=path.stem.replace('-', '_'),
+        )
+
+
+@attr.s(frozen=True)
 class QtPaths:
     compiler = attr.ib()
     bin = attr.ib()
@@ -115,7 +135,7 @@ class QtPaths:
         compiler_path = base / version / compiler
         bin_path = compiler_path / 'bin'
         applications = tuple(
-            path
+            Application.build(path=path)
             for path in bin_path.glob('*')
             if application_filter(path)
         )
@@ -135,22 +155,21 @@ class QtPaths:
 
 
 def filter_application_paths(
-        application_paths,
+        applications,
         destination,
         deployqt_path,
-        platform_,
         skip_paths=[],
 ):
     skip_paths = list(skip_paths)
 
-    for application_path in application_paths:
-        print('\n\nChecking: {}'.format(application_path.name))
+    for application in applications:
+        print('\n\nChecking: {}'.format(application.file_name))
 
         try:
             output = subprocess.check_output(
                 [
                     fspath(deployqt_path),
-                    fspath(application_path),
+                    fspath(application.path),
                     '--dry-run',
                     '--list', 'source',
                 ],
@@ -164,7 +183,7 @@ def filter_application_paths(
             print('    skipped')
             continue
 
-        yield application_path
+        yield application
 
 
 def identify_preferred_newlines(f):
@@ -426,31 +445,25 @@ def build(configuration: Configuration):
     destinations = Destinations.build(package_path=configuration.package_path)
     destinations.create_directories()
 
-    filtered_application_paths = list(
+    filtered_applications = list(
         filter_application_paths(
-            application_paths=qt_paths.applications,
+            applications=qt_paths.applications,
             deployqt_path=qt_paths.deployqt,
             destination=destinations.package,
-            platform_=configuration.platform,
             skip_paths=['WebEngine'],
         ),
     )
 
-    for application_path in filtered_application_paths:
-        shutil.copy(application_path, destinations.qt_bin)
+    for application in filtered_applications:
+        shutil.copy(application.path, destinations.qt_bin)
 
         report_and_check_call(
             command=[
                 qt_paths.deployqt,
-                application_path.name,
+                application.file_name,
             ],
             cwd=destinations.qt_bin,
         )
-
-    entry_point_function_names = {
-        path.name.replace('-', '_'): path.name
-        for path in filtered_application_paths
-    }
 
     entry_points_py = destinations.package / 'entrypoints.py'
 
@@ -465,21 +478,22 @@ def build(configuration: Configuration):
         
         '''))
 
-        for function, application in entry_point_function_names.items():
-            f.write(textwrap.dedent('''\
+        for application in filtered_applications:
+            function_def = textwrap.dedent('''\
                 def {function}():
                     load_dotenv()
                     return subprocess.call([
-                        str(here/'Qt'/'bin'/'{application}.exe'),
+                        str(here/'Qt'/'bin'/'{application}'),
                         *sys.argv[1:],
                     ])
     
     
-                '''.format(
-                    function=function,
-                    application=application,
-                )
-            ))
+            ''')
+            function_def_formatted = function_def.format(
+                function=application.identifier,
+                application=fspath(application.relative_path),
+            )
+            f.write(function_def_formatted)
 
         f.write(textwrap.dedent('''\
 
@@ -488,12 +502,12 @@ def build(configuration: Configuration):
         '''))
 
         console_scripts = [
-        '{application} = pyqt5_tools.entrypoints:{function}'.format(
-            function=function,
-            application=application,
-        )
-        for function, application in entry_point_function_names.items()
-    ]
+            '{application} = pyqt5_tools.entrypoints:{function}'.format(
+                function=application.identifier,
+                application=application.file_name,
+            )
+            for application in filtered_applications
+        ]
 
     pyqt5_sdist_path = save_sdist(
         project='PyQt5',
@@ -536,6 +550,20 @@ def build(configuration: Configuration):
             ),
         ],
         cwd=configuration.pyqt_source_path,
+    )
+
+    if configuration.platform == 'windows':
+        command = ['nmake']
+        env = {**os.environ, 'CL': '/MP'}
+    else:
+        available_cpus = len(psutil.Process().cpu_affinity())
+        command = ['make', '-j{}'.format(available_cpus)]
+        env = {**os.environ}
+
+    report_and_check_call(
+        command=command,
+        env=env,
+        cwd=fspath(configuration.pyqt_source_path / 'build'),
     )
 
     return Results(console_scripts=console_scripts)
