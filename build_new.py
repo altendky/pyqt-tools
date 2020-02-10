@@ -58,10 +58,6 @@ class Destinations:
     qt = attr.ib()
     qt_bin = attr.ib()
 
-    def create(self):
-        for path in attr.asdict(self).values():
-            path.mkdir(exist_ok=True)
-
     @classmethod
     def build(cls, package_path):
         qt = package_path / 'Qt'
@@ -417,7 +413,6 @@ def build(configuration: Configuration):
     )
 
     destinations = Destinations.build(package_path=configuration.package_path)
-    destinations.create()
 
     filtered_application_paths = list(
         filter_application_paths(
