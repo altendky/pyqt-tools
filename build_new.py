@@ -557,7 +557,11 @@ def build(configuration: Configuration):
         command = ['nmake']
         env = {**os.environ, 'CL': '/MP'}
     else:
-        available_cpus = len(psutil.Process().cpu_affinity())
+        if configuration.platform == 'mac':
+            available_cpus = psutil.cpu_count(logical=True)
+        else:
+            available_cpus = len(psutil.Process().cpu_affinity())
+
         command = ['make', '-j{}'.format(available_cpus)]
         env = {**os.environ}
 
