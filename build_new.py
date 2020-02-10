@@ -141,7 +141,7 @@ class QtPaths:
             if application_filter(path)
         )
 
-        if platform_ == 'windows':
+        if platform_ == 'win32':
             suffix = '.exe'
         else:
             suffix = ''
@@ -402,11 +402,6 @@ def main(package_path, build_base_path):
 
 
 def build(configuration: Configuration):
-    aqt_platforms = {
-        'linux': 'linux',
-        'windows': 'windows',
-        'darwin': 'mac',
-    }
     report_and_check_call(
         command=[
             *(  # TODO: 517 yada seemingly doesn't get the right PATH
@@ -415,14 +410,18 @@ def build(configuration: Configuration):
                     sys.executable,
                     '-m',
                 ]
-                if configuration.platform == 'windows'
+                if configuration.platform == 'win32'
                 else []
             ),
             'aqt',
             'install',
             '--outputdir', configuration.qt_path.resolve(),
             configuration.qt_version,
-            aqt_platforms[configuration.platform],
+            {
+                'linux': 'linux',
+                'win32': 'windows',
+                'darwin': 'mac',
+            }[configuration.platform],
             'desktop',
             configuration.architecture,
         ],
@@ -431,7 +430,7 @@ def build(configuration: Configuration):
     if configuration.platform == 'linux':
         deployqt = save_linuxdeployqt(6, configuration.download_path)
         deployqt = deployqt.resolve()
-    elif configuration.platform == 'windows':
+    elif configuration.platform == 'win32':
         deployqt = pathlib.Path('windeployqt.exe')
     elif configuration.platform == 'darwin':
         deployqt = pathlib.Path('macdeployqt')
@@ -558,7 +557,7 @@ def build(configuration: Configuration):
         cwd=configuration.pyqt_source_path,
     )
 
-    if configuration.platform == 'windows':
+    if configuration.platform == 'win32':
         command = ['nmake']
         env = {**os.environ, 'CL': '/MP'}
     else:
