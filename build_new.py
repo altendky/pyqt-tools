@@ -357,7 +357,9 @@ def write_setup_cfg(directory):
 
 
 def main(package_path, build_base_path):
+    print('before ---!!!', file=sys.stderr)
     build_path = tempfile.mkdtemp(prefix='pyqt5_tools-', dir=build_base_path)
+    print('after ---!!!', file=sys.stderr)
     build_path = pathlib.Path(build_path)
 
     configuration = Configuration.build(
