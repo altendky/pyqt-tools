@@ -244,7 +244,7 @@ class Configuration:
             self.build_path,
             self.download_path,
         ]:
-            path.mkdir(exist_ok=True)
+            path.mkdir(parents=True, exist_ok=True)
 
 
 # https://repl.it/@altendky/requests-stream-download-to-file-2
@@ -306,7 +306,7 @@ def save_sdist(project, version, directory):
 
     url = hyperlink.URL.from_text(record['url'])
 
-    directory.mkdir(exist_ok=True)
+    directory.mkdir(parents=True, exist_ok=True)
     path = directory / url.path[-1]
 
     with path.open('wb') as file:
@@ -329,7 +329,7 @@ def save_linuxdeployqt(version, directory):
         ),
     )
 
-    directory.mkdir(exist_ok=True)
+    directory.mkdir(parents=True, exist_ok=True)
     path = directory / url.path[-1]
 
     with path.open('wb') as file:

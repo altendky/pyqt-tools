@@ -69,6 +69,7 @@ jobs:
 #          choco install visualstudio2019buildtools
       - name: Report info
         run: |
+          git show --quiet HEAD
           python --version --version
           pip --version
           pip list
