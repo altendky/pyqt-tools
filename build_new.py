@@ -459,6 +459,12 @@ def build(configuration: Configuration):
         newlines = identify_preferred_newlines(f)
 
     with entry_points_py.open('a', newline=newlines) as f:
+        f.write(textwrap.dedent('''\
+        
+            # ----  start of generated wrapper entry points
+        
+        '''))
+
         for function, application in entry_point_function_names.items():
             f.write(textwrap.dedent('''\
                 def {function}():
@@ -475,7 +481,13 @@ def build(configuration: Configuration):
                 )
             ))
 
-    console_scripts = [
+        f.write(textwrap.dedent('''\
+
+            # ----  end of generated wrapper entry points
+
+        '''))
+
+        console_scripts = [
         '{application} = pyqt5_tools.entrypoints:{function}'.format(
             function=function,
             application=application,
