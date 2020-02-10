@@ -345,6 +345,21 @@ def save_linuxdeployqt(version, directory):
     return path
 
 
+def write_setup_cfg(directory):
+    setup_cfg_path = directory / 'setup.cfg'
+
+    python_tag = 'cp{major}{minor}'.format(
+        major=sys.version_info[0],
+        minor=sys.version_info[1],
+    )
+
+    setup_cfg_path.write_text(textwrap.dedent('''\
+        [bdist_wheel]
+        python-tag = {python_tag}
+        plat-name = {platform_name}
+    ''').format(python_tag=python_tag, platform_name=platform_name))
+
+
 def main(package_path, build_base_path):
     build_path = tempfile.mkdtemp(prefix='pyqt5_tools-', dir=build_base_path)
     build_path = pathlib.Path(build_path)
@@ -404,18 +419,6 @@ def build(configuration: Configuration):
         os.environ['PATH'],
         fspath(qt_paths.bin),
     ))
-
-    with open('setup.cfg', 'w') as cfg:
-        python_tag = 'cp{major}{minor}'.format(
-            major=sys.version_info[0],
-            minor=sys.version_info[1],
-        )
-
-        cfg.write(textwrap.dedent('''\
-            [bdist_wheel]
-            python-tag = {python_tag}
-            plat-name = {platform_name}
-        ''').format(python_tag=python_tag, platform_name=platform_name))
 
     destinations = Destinations.build(package_path=configuration.package_path)
     destinations.create()

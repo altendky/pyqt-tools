@@ -2,7 +2,9 @@ import os
 import pathlib
 import sys
 
-sys.path.insert(0, pathlib.Path(__file__).parent)
+here = pathlib.Path(__file__).parent
+
+sys.path.insert(0, here)
 # TODO: yuck, put the build command in a separate project and
 #       build-requires it?
 import build_new
@@ -41,6 +43,11 @@ console_scripts = [
 print('--- console_scripts')
 for console_script in console_scripts:
     print('    ' + repr(console_script))
+
+# TODO: do i really need this?  seems like it could be specified to be
+#       specific to whatever is running it without saying what that is
+#       or that it would default to that
+build_new.write_setup_cfg(here)
 
 setuptools.setup(
     name="pyqt5-tools",
