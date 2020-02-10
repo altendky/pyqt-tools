@@ -67,6 +67,9 @@ jobs:
 #          "${{ matrix.system.vs_path }}"
 #          pip wheel .
 #          choco install visualstudio2019buildtools
+      - name: Update pip and setuptools
+        run: |
+          python -m pip install --upgrade pip setuptools
       - name: Report info
         run: |
           git show --quiet HEAD
