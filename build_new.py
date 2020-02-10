@@ -257,7 +257,7 @@ class Configuration:
             qt_compiler=environment['QT_COMPILER'],
             pyqt_version=environment['PYQT_VERSION'],
             pyqt_source_path=build_path / 'pyqt5',
-            platform=environment['QT_PLATFORM'],
+            platform=sys.platform,
             architecture=environment['QT_ARCHITECTURE'],
             build_path=build_path,
             download_path=build_path / 'downloads',
@@ -402,6 +402,11 @@ def main(package_path, build_base_path):
 
 
 def build(configuration: Configuration):
+    aqt_platforms = {
+        'linux': 'linux',
+        'windows': 'windows',
+        'darwin': 'mac',
+    }
     report_and_check_call(
         command=[
             *(  # TODO: 517 yada seemingly doesn't get the right PATH
@@ -417,7 +422,7 @@ def build(configuration: Configuration):
             'install',
             '--outputdir', configuration.qt_path.resolve(),
             configuration.qt_version,
-            configuration.platform,
+            aqt_platforms[configuration.platform],
             'desktop',
             configuration.architecture,
         ],
@@ -428,7 +433,7 @@ def build(configuration: Configuration):
         deployqt = deployqt.resolve()
     elif configuration.platform == 'windows':
         deployqt = pathlib.Path('windeployqt.exe')
-    elif configuration.platform == 'mac':
+    elif configuration.platform == 'darwin':
         deployqt = pathlib.Path('macdeployqt')
     else:
         raise Exception(
@@ -557,7 +562,7 @@ def build(configuration: Configuration):
         command = ['nmake']
         env = {**os.environ, 'CL': '/MP'}
     else:
-        if configuration.platform == 'mac':
+        if configuration.platform == 'darwin':
             available_cpus = psutil.cpu_count(logical=True)
         else:
             available_cpus = len(psutil.Process().cpu_affinity())
