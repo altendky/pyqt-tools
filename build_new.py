@@ -537,7 +537,7 @@ def build(configuration: Configuration):
             'sip-build',
             '--confirm-license',
             '--verbose',
-            # '--no-make',
+            '--no-make',
             '--no-tools',
             '--no-dbus-python',
             '--qmake', qt_paths.qmake,
