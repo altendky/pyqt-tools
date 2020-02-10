@@ -23,6 +23,8 @@ fspath = getattr(os, 'fspath', str)
 
 class BuildPy(setuptools.command.build_py.build_py):
     def run(self):
+        super().run()
+
         [package_name] = (
             package
             for package in self.distribution.packages
@@ -42,8 +44,6 @@ class BuildPy(setuptools.command.build_py.build_py):
 
         console_scripts = self.distribution.entry_points['console_scripts']
         console_scripts.extend(results.console_scripts)
-
-        super().run()
 
 
 @attr.s(frozen=True)
