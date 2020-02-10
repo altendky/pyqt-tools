@@ -67,6 +67,12 @@ jobs:
 #          "${{ matrix.system.vs_path }}"
 #          pip wheel .
 #          choco install visualstudio2019buildtools
+      - name: Report info
+        run: |
+          python --version --version
+          pip --version
+          pip list
+          pip freeze --all
       - name: Build wheel
 #        if: matrix.system.platform != 'windows'
         run: |
