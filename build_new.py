@@ -11,6 +11,7 @@ import sys
 import tarfile
 import tempfile
 import textwrap
+import typing
 
 import attr
 import hyperlink
@@ -159,7 +160,7 @@ def filter_application_paths(
         destination,
         deployqt_path,
         skip_paths=[],
-):
+) -> typing.Generator[Application, None, None]:
     skip_paths = list(skip_paths)
 
     for application in applications:
@@ -455,7 +456,7 @@ def build(configuration: Configuration):
     )
 
     for application in filtered_applications:
-        shutil.copy(application.path, destinations.qt_bin)
+        shutil.copy(application.original_path, destinations.qt_bin)
 
         report_and_check_call(
             command=[
