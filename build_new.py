@@ -169,7 +169,7 @@ def filter_application_paths(
             output = subprocess.check_output(
                 [
                     fspath(deployqt_path),
-                    fspath(application.path),
+                    fspath(application.original_path),
                     '--dry-run',
                     '--list', 'source',
                 ],
