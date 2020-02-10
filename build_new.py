@@ -69,6 +69,13 @@ class Destinations:
             qt_bin=qt / 'bin',
         )
 
+    def create_directories(self):
+        for path in [
+            self.qt,
+            self.qt_bin,
+        ]:
+            path.mkdir(parents=True, exist_ok=True)
+
 
 bits = int(platform.architecture()[0][0:2])
 
@@ -417,6 +424,7 @@ def build(configuration: Configuration):
     )
 
     destinations = Destinations.build(package_path=configuration.package_path)
+    destinations.create_directories()
 
     filtered_application_paths = list(
         filter_application_paths(
