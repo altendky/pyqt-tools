@@ -92,3 +92,13 @@ jobs:
         with:
           name: pyqt5-tools-${{ matrix.system.platform }}
           path: dist
+      - name: Tree /tmp/pip-*
+        shell: python
+        run: |
+          import os
+          import pathlib
+          import subprocess
+          import tempfile
+          path = pathlib.Path(tempfile.gettempdir())
+          for p in path.glob("pip-*"):
+              subprocess.run(["tree", os.fspath(p)])
