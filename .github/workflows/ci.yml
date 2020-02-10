@@ -80,7 +80,7 @@ jobs:
 #        if: matrix.system.platform != 'windows'
         run: |
           mkdir -p dist/
-          pip wheel -vvv --no-deps --wheel-dir dist/ .
+          pip wheel -vvv --no-deps --wheel-dir --no-clean dist/ .
 #      - name: Download
 #        run: |
 #          venv/bin/pip download --no-deps --no-binary :all: --dest download PyQt5
