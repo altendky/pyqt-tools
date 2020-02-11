@@ -98,10 +98,11 @@ jobs:
           import os
           import pathlib
           import subprocess
+          import tempfile
 
           fspath = getattr(os, 'fspath', str)
 
-          temp = pathlib.Path(tempfile.tempfile.gettempdir())
+          temp = pathlib.Path(tempfile.gettempdir())
           temp_pips = [
             fspath(path)
             for path in temp.glob('pip-*')
