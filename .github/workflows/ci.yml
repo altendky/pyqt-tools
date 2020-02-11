@@ -79,7 +79,8 @@ jobs:
       - name: Install dependencies
         if: matrix.system.platform == 'linux'
         run: |
-          sudo apt install libgl1-mesa-dev
+          sudo apt-get update
+          sudo apt-get install libgl1-mesa-dev
       - name: Build wheel
 #        if: matrix.system.platform != 'windows'
         run: |
