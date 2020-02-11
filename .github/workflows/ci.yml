@@ -92,11 +92,6 @@ jobs:
         with:
           name: pyqt5-tools-${{ matrix.system.platform }}
           path: dist
-      - name: Set TEMPORARY_PATH
-        shell: python
-        run: |
-          import tempfile
-          print('::set-env name=TEMPORARY_PATH::{}'.format(tempfile.gettempdir()))
       - name: Tree /tmp/pip-*
         shell: python
         run: |
@@ -107,7 +102,7 @@ jobs:
 
           fspath = getattr(os, 'fspath', str)
 
-          temp = pathlib.Path(os.environ['TEMPORARY_PATH'])
+          temp = pathlib.Path(os.environ['BUILD_PATH'])
 
           subprocess.run(['pip', 'install', 'py-tree'])
           for path in temp.glob('pip-*'):
@@ -116,4 +111,4 @@ jobs:
         uses: actions/upload-artifact@v1
         with:
           name: temp-${{ matrix.system.platform }}
-          path: ${{ env['TEMPORARY_PATH'] }}
+          path: ${{ env['BUILD_PATH'] }}
