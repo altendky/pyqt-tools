@@ -471,8 +471,9 @@ def build_pyqt(configuration, qt_paths):
                 ['--disable', module]
                 for module in module_names
                 if module not in (
-                        {'QtCore'}  # sip-build raises
-                        | {'QtGui'}  # indirect dependencies
+                        {'QtCore'}          # sip-build raises
+                        | {'QtDesigner'}    # what we want...  ?
+                        | {'QtGui'}         # indirect dependencies
                 )
             ),
         ],
