@@ -77,7 +77,7 @@ jobs:
           pip list
           pip freeze --all
       - name: Install dependencies
-        if: runner.os.string == 'Linux'
+        if: matrix.system.platform == 'linux'
         run: |
           sudo apt install libgl1-mesa-dev
       - name: Build wheel
