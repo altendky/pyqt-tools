@@ -93,19 +93,6 @@ jobs:
           name: pyqt5-tools-${{ matrix.system.platform }}
           path: dist
       - name: Tree /tmp/pip-*
-        shell: python
         run: |
-          import os
-          import pathlib
-          import subprocess
-
-          fspath = getattr(os, 'fspath', str)
-
-          temp = pathlib.Path(tempfile.tempfile.gettempdir())
-          temp_pips = [
-            fspath(path)
-            for path in temp.glob('pip-*')
-          ]
-
-          subprocess.run(['pip', 'install', 'py-tree'])
-          subprocess.run(['py-tree', *temp_pips])
+          pip install py-tree
+          py-tree ${{ runner.temp }}/pip-*
