@@ -180,7 +180,10 @@ def filter_application_paths(
         except subprocess.CalledProcessError:
             continue
 
-        if any(fspath(path) in output for path in skip_paths):
+        if any(
+                fspath(path).casefold() in output.casefold()
+                for path in skip_paths
+        ):
             print('    skipped')
             continue
 
@@ -402,6 +405,97 @@ def main(package_path, build_base_path):
 
 
 def build(configuration: Configuration):
+    deployqt = install_qt(configuration=configuration)
+
+    qt_paths = QtPaths.build(
+        base=configuration.qt_path,
+        version=configuration.qt_version,
+        compiler=configuration.qt_compiler,
+        platform_=configuration.platform,
+        deployqt=deployqt,
+    )
+
+    destinations = Destinations.build(package_path=configuration.package_path)
+    destinations.create_directories()
+
+    filtered_applications = copy_applications(
+        destinations=destinations,
+        qt_paths=qt_paths,
+        skip_paths=['webengine'],
+    )
+
+    entry_points_py = destinations.package / 'entrypoints.py'
+
+    console_scripts = write_entry_points(
+        entry_points_py=entry_points_py,
+        filtered_applications=filtered_applications,
+    )
+
+    pyqt5_sdist_path = save_sdist(
+        project='PyQt5',
+        version=configuration.pyqt_version,
+        directory=configuration.download_path,
+    )
+
+    with tarfile.open(pyqt5_sdist_path) as tar_file:
+        for member in tar_file.getmembers():
+            member.name = pathlib.Path(*pathlib.Path(member.name).parts[1:])
+            tar_file.extract(
+                member=member,
+                path=configuration.pyqt_source_path,
+            )
+
+    build_pyqt(configuration, qt_paths)
+
+    return Results(console_scripts=console_scripts)
+
+
+def build_pyqt(configuration, qt_paths):
+    sip_module_path = (configuration.pyqt_source_path / 'sip')
+    module_names = [
+        path.name
+        for path in sip_module_path.iterdir()
+        if path.is_dir()
+    ]
+    report_and_check_call(
+        command=[
+            'sip-build',
+            '--confirm-license',
+            '--verbose',
+            '--no-make',
+            '--no-tools',
+            '--no-dbus-python',
+            '--qmake', qt_paths.qmake,
+            *itertools.chain.from_iterable(
+                ['--disable', module]
+                for module in module_names
+                if module not in (
+                        {'QtCore'}  # sip-build raises
+                        | {'QtGui'}  # indirect dependencies
+                )
+            ),
+        ],
+        cwd=configuration.pyqt_source_path,
+    )
+    if configuration.platform == 'win32':
+        command = ['nmake']
+        env = {**os.environ, 'CL': '/MP'}
+    else:
+        if configuration.platform == 'darwin':
+            available_cpus = psutil.cpu_count(logical=True)
+        else:
+            available_cpus = len(psutil.Process().cpu_affinity())
+
+        command = ['make', '-j{}'.format(available_cpus)]
+        env = {**os.environ}
+    report_and_check_call(
+        command=command,
+        env=env,
+        cwd=fspath(configuration.pyqt_source_path / 'build'),
+    )
+
+
+def install_qt(configuration):
     report_and_check_call(
         command=[
             *(  # TODO: 517 yada seemingly doesn't get the right PATH
@@ -426,7 +520,6 @@ def build(configuration: Configuration):
             configuration.architecture,
         ],
     )
-
     if configuration.platform == 'linux':
         deployqt = save_linuxdeployqt(6, configuration.download_path)
         deployqt = deployqt.resolve()
@@ -438,27 +531,18 @@ def build(configuration: Configuration):
         raise Exception(
             'Unsupported platform: {}'.format(configuration.platform),
         )
+    return deployqt
 
-    qt_paths = QtPaths.build(
-        base=configuration.qt_path,
-        version=configuration.qt_version,
-        compiler=configuration.qt_compiler,
-        platform_=configuration.platform,
-        deployqt=deployqt,
-    )
 
-    destinations = Destinations.build(package_path=configuration.package_path)
-    destinations.create_directories()
-
+def copy_applications(destinations, qt_paths, skip_paths):
     filtered_applications = list(
         filter_application_paths(
             applications=qt_paths.applications,
             deployqt_path=qt_paths.deployqt,
             destination=destinations.package,
-            skip_paths=['WebEngine'],
+            skip_paths=skip_paths,
         ),
     )
-
     for application in filtered_applications:
         shutil.copy(application.original_path, destinations.qt_bin)
 
@@ -469,13 +553,13 @@ def build(configuration: Configuration):
             ],
             cwd=destinations.qt_bin,
         )
+    return filtered_applications
 
-    entry_points_py = destinations.package / 'entrypoints.py'
 
+def write_entry_points(entry_points_py, filtered_applications):
     with entry_points_py.open(newline='') as f:
         f.read()
         newlines = identify_preferred_newlines(f)
-
     with entry_points_py.open('a', newline=newlines) as f:
         f.write(textwrap.dedent('''\
         
@@ -513,66 +597,4 @@ def build(configuration: Configuration):
             )
             for application in filtered_applications
         ]
-
-    pyqt5_sdist_path = save_sdist(
-        project='PyQt5',
-        version=configuration.pyqt_version,
-        directory=configuration.download_path,
-    )
-
-    with tarfile.open(pyqt5_sdist_path) as tar_file:
-        for member in tar_file.getmembers():
-            member.name = pathlib.Path(*pathlib.Path(member.name).parts[1:])
-            tar_file.extract(
-                member=member,
-                path=configuration.pyqt_source_path,
-            )
-
-    sip_module_path = (configuration.pyqt_source_path / 'sip')
-
-    module_names = [
-        path.name
-        for path in sip_module_path.iterdir()
-        if path.is_dir()
-    ]
-
-    report_and_check_call(
-        command=[
-            'sip-build',
-            '--confirm-license',
-            '--verbose',
-            '--no-make',
-            '--no-tools',
-            '--no-dbus-python',
-            '--qmake', qt_paths.qmake,
-            *itertools.chain.from_iterable(
-                ['--disable', module]
-                for module in module_names
-                if module not in (
-                    {'QtCore'}      # sip-build raises
-                    | {'QtGui'}     # indirect dependencies
-                )
-            ),
-        ],
-        cwd=configuration.pyqt_source_path,
-    )
-
-    if configuration.platform == 'win32':
-        command = ['nmake']
-        env = {**os.environ, 'CL': '/MP'}
-    else:
-        if configuration.platform == 'darwin':
-            available_cpus = psutil.cpu_count(logical=True)
-        else:
-            available_cpus = len(psutil.Process().cpu_affinity())
-
-        command = ['make', '-j{}'.format(available_cpus)]
-        env = {**os.environ}
-
-    report_and_check_call(
-        command=command,
-        env=env,
-        cwd=fspath(configuration.pyqt_source_path / 'build'),
-    )
-
-    return Results(console_scripts=console_scripts)
+    return console_scripts
