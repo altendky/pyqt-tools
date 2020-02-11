@@ -103,10 +103,7 @@ jobs:
           fspath = getattr(os, 'fspath', str)
 
           temp = pathlib.Path(tempfile.gettempdir())
-          temp_pips = [
-            fspath(path)
-            for path in temp.glob('pip-*')
-          ]
 
           subprocess.run(['pip', 'install', 'py-tree'])
-          subprocess.run(['py-tree', *temp_pips])
+          for path in temp.glob('pip-*'):
+            subprocess.run(['py-tree', fspath(path)])
