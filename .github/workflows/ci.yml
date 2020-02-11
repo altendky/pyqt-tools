@@ -98,7 +98,14 @@ jobs:
           import os
           import pathlib
           import subprocess
-          import tempfile
-          path = pathlib.Path(tempfile.gettempdir())
-          for p in path.glob("pip-*"):
-              subprocess.run(["tree", os.fspath(p)])
+
+          fspath = getattr(os, 'fspath', str)
+
+          temp = pathlib.Path(tempfile.tempfile.gettempdir())
+          temp_pips = [
+            fspath(path)
+            for path in temp.glob('pip-*')
+          ]
+
+          subprocess.run(['pip', 'install', 'py-tree'])
+          subprocess.run(['py-tree', *temp_pips])
