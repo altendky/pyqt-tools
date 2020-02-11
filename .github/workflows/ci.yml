@@ -107,3 +107,8 @@ jobs:
           subprocess.run(['pip', 'install', 'py-tree'])
           for path in temp.glob('pip-*'):
             subprocess.run(['py-tree', fspath(path)])
+      - name: Archive temp
+        uses: actions/upload-artifact@v1
+        with:
+          name: temp-${{ matrix.system.platform }}
+          path: ${{ runner.temp }}
