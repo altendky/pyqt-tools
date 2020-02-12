@@ -98,7 +98,7 @@ jobs:
 #          tox -v -e "${{ matrix.toxenv }}"
       - name: Test
         run: |
-          tox -e ${{ matrix.system.toxenv }} --installpkg dist/
+          tox -e ${{ matrix.system.toxenv }} --installpkg dist/*.whl
       - name: Archive wheel
         uses: actions/upload-artifact@v1
         with:
