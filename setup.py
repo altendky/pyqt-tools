@@ -28,7 +28,7 @@ version = '.'.join((
     version.version,
 ))
 
-sys.stderr.write('another stderr test from {}\n'.format(__file__))
+# sys.stderr.write('another stderr test from {}\n'.format(__file__))
 
 with open('README.rst') as f:
     readme = f.read()
@@ -40,14 +40,14 @@ console_scripts = [
     'pyqt5qmltestrunner = pyqt5_tools.entrypoints:pyqt5qmltestrunner',
 ]
 
-print('--- console_scripts')
-for console_script in console_scripts:
-    print('    ' + repr(console_script))
+# print('--- console_scripts')
+# for console_script in console_scripts:
+#     print('    ' + repr(console_script))
 
-# TODO: do i really need this?  seems like it could be specified to be
-#       specific to whatever is running it without saying what that is
-#       or that it would default to that
-build_new.write_setup_cfg(here)
+# # TODO: do i really need this?  seems like it could be specified to be
+# #       specific to whatever is running it without saying what that is
+# #       or that it would default to that
+# build_new.write_setup_cfg(here)
 
 setuptools.setup(
     name="pyqt5-tools",
@@ -69,6 +69,7 @@ setuptools.setup(
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
         'Topic :: Software Development',
         'Topic :: Utilities',
     ],
@@ -77,6 +78,7 @@ setuptools.setup(
     package_dir={'': 'src'},
     version=version,
     include_package_data=True,
+    python_requires=">=3.5",
     install_requires=[
         'click',
         'python-dotenv',

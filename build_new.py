@@ -82,19 +82,19 @@ class Destinations:
 
 bits = int(platform.architecture()[0][0:2])
 
-platform_names = {
-    32: 'win32',
-    64: 'win_amd64'
-}
-try:
-    platform_name = platform_names[bits]
-except KeyError:
-    raise Exception(
-        'Bit depth {bits} not recognized {options}'.format(
-            bits=bits,
-            options=platform_names.keys(),
-        ),
-    )
+# platform_names = {
+#     32: 'win32',
+#     64: 'win_amd64'
+# }
+# try:
+#     platform_name = platform_names[bits]
+# except KeyError:
+#     raise Exception(
+#         'Bit depth {bits} not recognized {options}'.format(
+#             bits=bits,
+#             options=platform_names.keys(),
+#         ),
+#     )
 
 
 @attr.s(frozen=True)
@@ -372,19 +372,19 @@ def save_linuxdeployqt(version, directory):
     return path
 
 
-def write_setup_cfg(directory):
-    setup_cfg_path = directory / 'setup.cfg'
-
-    python_tag = 'cp{major}{minor}'.format(
-        major=sys.version_info[0],
-        minor=sys.version_info[1],
-    )
-
-    setup_cfg_path.write_text(textwrap.dedent('''\
-        [bdist_wheel]
-        python-tag = {python_tag}
-        plat-name = {platform_name}
-    ''').format(python_tag=python_tag, platform_name=platform_name))
+# def write_setup_cfg(directory):
+#     setup_cfg_path = directory / 'setup.cfg'
+#
+#     python_tag = 'cp{major}{minor}'.format(
+#         major=sys.version_info[0],
+#         minor=sys.version_info[1],
+#     )
+#
+#     setup_cfg_path.write_text(textwrap.dedent('''\
+#         [bdist_wheel]
+#         python-tag = {python_tag}
+#         plat-name = {platform_name}
+#     ''').format(python_tag=python_tag, platform_name=platform_name))
 
 
 def main(package_path, build_base_path):
