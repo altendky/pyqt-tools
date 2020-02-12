@@ -76,7 +76,7 @@ jobs:
           pip --version
           pip list
           pip freeze --all
-      - name: Install dependencies
+      - name: Install Linux dependencies
         if: matrix.system.platform == 'linux'
         run: |
           sudo apt-get update

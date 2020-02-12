@@ -446,7 +446,14 @@ def build(configuration: Configuration):
                 path=configuration.pyqt_source_path,
             )
 
-    build_pyqt(configuration, qt_paths)
+    build_path = build_pyqt(configuration, qt_paths)
+
+    package_plugins = destinations.package / 'Qt' / 'bin' / 'plugins'
+    package_plugins_designer = package_plugins / 'designer'
+    package_plugins_designer.mkdirs(parents=True, exist_ok=True)
+
+    pyqt5_dll_path = build_path / 'designer' / 'release' / 'pyqt5.dll'
+    shutil.copy(pyqt5_dll_path, package_plugins_designer)
 
     return Results(console_scripts=console_scripts)
 
@@ -490,11 +497,16 @@ def build_pyqt(configuration, qt_paths):
 
         command = ['make', '-j{}'.format(available_cpus)]
         env = {**os.environ}
+
+    build_path = configuration.pyqt_source_path / 'build'
+
     report_and_check_call(
         command=command,
         env=env,
-        cwd=fspath(configuration.pyqt_source_path / 'build'),
+        cwd=fspath(build_path),
     )
+
+    return build_path
 
 
 def install_qt(configuration):
