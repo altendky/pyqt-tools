@@ -451,7 +451,7 @@ def build(configuration: Configuration):
     if configuration.platform == 'win32':
         package_plugins = destinations.package / 'Qt' / 'bin' / 'plugins'
         package_plugins_designer = package_plugins / 'designer'
-        package_plugins_designer.mkdirs(parents=True, exist_ok=True)
+        package_plugins_designer.mkdir(parents=True, exist_ok=True)
 
         pyqt5_dll_path = build_path / 'designer' / 'release' / 'pyqt5.dll'
         shutil.copy(pyqt5_dll_path, package_plugins_designer)
