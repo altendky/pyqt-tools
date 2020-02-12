@@ -132,7 +132,7 @@ class QtPaths:
             compiler,
             platform_,
             deployqt,
-            application_filter=lambda path: path.suffix != '.conf',
+            application_filter,
     ):
         compiler_path = base / version / compiler
         bin_path = compiler_path / 'bin'
@@ -408,12 +408,19 @@ def main(package_path, build_base_path):
 def build(configuration: Configuration):
     deployqt = install_qt(configuration=configuration)
 
+    application_filter = {
+        'win32': lambda path: path.suffix == '.exe',
+        'linux': lambda path: path.suffix == '',
+        'darwin': lambda path: path.suffix == '',
+    }[configuration.platform]
+
     qt_paths = QtPaths.build(
         base=configuration.qt_path,
         version=configuration.qt_version,
         compiler=configuration.qt_compiler,
         platform_=configuration.platform,
         deployqt=deployqt,
+        application_filter=application_filter,
     )
 
     destinations = Destinations.build(package_path=configuration.package_path)
