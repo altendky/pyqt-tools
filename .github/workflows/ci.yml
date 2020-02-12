@@ -99,7 +99,10 @@ jobs:
       - name: Set WHEEL_PATH
         shell: python
         run: |
+          import os
           import pathlib
+          
+          fspath = getattr(os, 'fspath', str)
 
           dist = pathlib.Path.cwd() / 'dist'
           [wheel] = dist.glob('*.whl')
