@@ -448,12 +448,13 @@ def build(configuration: Configuration):
 
     build_path = build_pyqt(configuration, qt_paths)
 
-    package_plugins = destinations.package / 'Qt' / 'bin' / 'plugins'
-    package_plugins_designer = package_plugins / 'designer'
-    package_plugins_designer.mkdirs(parents=True, exist_ok=True)
+    if configuration.platform == 'win32':
+        package_plugins = destinations.package / 'Qt' / 'bin' / 'plugins'
+        package_plugins_designer = package_plugins / 'designer'
+        package_plugins_designer.mkdirs(parents=True, exist_ok=True)
 
-    pyqt5_dll_path = build_path / 'designer' / 'release' / 'pyqt5.dll'
-    shutil.copy(pyqt5_dll_path, package_plugins_designer)
+        pyqt5_dll_path = build_path / 'designer' / 'release' / 'pyqt5.dll'
+        shutil.copy(pyqt5_dll_path, package_plugins_designer)
 
     return Results(console_scripts=console_scripts)
 
