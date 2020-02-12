@@ -456,12 +456,21 @@ def build(configuration: Configuration):
     build_path = build_pyqt(configuration, qt_paths)
 
     if configuration.platform == 'win32':
-        package_plugins = destinations.package / 'Qt' / 'bin' / 'plugins'
+        package_plugins = destinations.qt_bin / 'plugins'
+        package_plugins.mkdir(parents=True, exist_ok=True)
         package_plugins_designer = package_plugins / 'designer'
         package_plugins_designer.mkdir(parents=True, exist_ok=True)
 
         pyqt5_dll_path = build_path / 'designer' / 'release' / 'pyqt5.dll'
-        shutil.copy(pyqt5_dll_path, package_plugins_designer)
+        shutil.copy(
+            pyqt5_dll_path,
+            package_plugins_designer,
+        )
+
+        shutil.copy(
+            build_path / 'qmlscene' / 'release' / 'pyqt5qmlplugin.dll',
+            package_plugins,
+        )
 
     return Results(console_scripts=console_scripts)
 
