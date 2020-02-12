@@ -22,18 +22,21 @@ jobs:
             vs_path: C:/Program Files (x86)/Microsoft Visual Studio/2017/Enterprise/VC/Auxiliary/Build/vcvars64.bat
             python_version: 3.8
             bitness: x64
+            toxenv: py38
           - image: ubuntu-18.04
             platform: linux
             aqt_name: gcc_64
             qt_compiler: gcc_64
             python_version: 3.8
             bitness: x64
+            toxenv: py38
           - image: macos-10.15
             platform: mac
             aqt_name: clang_64
             qt_compiler: clang_64
             python_version: 3.8
             bitness: x64
+            toxenv: py38
         versions:
           - qt: 5.14.1
             pyqt: 5.14.1
@@ -66,9 +69,15 @@ jobs:
 #          "${{ matrix.system.vs_path }}"
 #          pip wheel .
 #          choco install visualstudio2019buildtools
-      - name: Update pip and setuptools
+      - name: pip/setuptools/tox
         run: |
           python -m pip install --upgrade pip setuptools
+          pip install tox
+      - name: Install Linux dependencies
+        if: matrix.system.platform == 'linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install libgl1-mesa-dev
       - name: Report info
         run: |
           git show --quiet HEAD
@@ -76,11 +85,6 @@ jobs:
           pip --version
           pip list
           pip freeze --all
-      - name: Install Linux dependencies
-        if: matrix.system.platform == 'linux'
-        run: |
-          sudo apt-get update
-          sudo apt-get install libgl1-mesa-dev
       - name: Build wheel
 #        if: matrix.system.platform != 'windows'
         run: |
@@ -92,6 +96,9 @@ jobs:
 #      - name: Test
 #        run: |
 #          tox -v -e "${{ matrix.toxenv }}"
+      - name: Test
+        run: |
+          tox -e ${{ matrix.system.toxenv }} --installpkg dist/*.whl
       - name: Archive wheel
         uses: actions/upload-artifact@v1
         with:
