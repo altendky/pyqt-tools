@@ -100,11 +100,13 @@ jobs:
         run: |
           tox -e ${{ matrix.system.toxenv }} --installpkg dist/*.whl
       - name: Archive wheel
+        if: always()
         uses: actions/upload-artifact@v1
         with:
           name: pyqt5-tools-${{ matrix.system.platform }}
           path: dist
       - name: Tree /tmp/pip-*
+        if: always()
         shell: python
         run: |
           import os
@@ -120,6 +122,7 @@ jobs:
           for path in temp.glob('pip-*'):
             subprocess.run(['py-tree', fspath(path)])
       - name: Archive temp
+        if: always()
         uses: actions/upload-artifact@v1
         with:
           name: temp-${{ matrix.system.platform }}
