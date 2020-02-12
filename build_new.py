@@ -471,6 +471,10 @@ def build(configuration: Configuration):
             build_path / 'qmlscene' / 'release' / 'pyqt5qmlplugin.dll',
             package_plugins,
         )
+        shutil.copy(
+            build_path / 'qmlscene' / 'release' / 'pyqt5qmlplugin.dll',
+            destinations.examples,
+        )
 
     return Results(console_scripts=console_scripts)
 
