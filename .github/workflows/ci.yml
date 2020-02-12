@@ -96,9 +96,18 @@ jobs:
 #      - name: Test
 #        run: |
 #          tox -v -e "${{ matrix.toxenv }}"
+      - name: Set WHEEL_PATH
+        shell: python
+        run: |
+          import pathlib
+
+          dist = pathlib.Path.cwd() / 'dist'
+          [wheel] = dist.glob('*.whl')
+
+          print('::set-env name=WHEEL_PATH::{}'.format(fspath(wheel)))
       - name: Test
         run: |
-          tox -e ${{ matrix.system.toxenv }} --installpkg dist/*.whl
+          tox -e ${{ matrix.system.toxenv }} --installpkg ${{ env['WHEEL_PATH'] }}
       - name: Archive wheel
         if: always()
         uses: actions/upload-artifact@v1
