@@ -599,6 +599,7 @@ def copy_applications(destinations, qt_paths, skip_paths):
         report_and_check_call(
             command=[
                 qt_paths.deployqt,
+                '--compiler-runtime',
                 application.file_name,
             ],
             cwd=destinations.qt_bin,
