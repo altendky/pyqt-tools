@@ -60,16 +60,23 @@ class Destinations:
     examples = attr.ib()
     qt = attr.ib()
     qt_bin = attr.ib()
+    qt_plugins = attr.ib()
+    qt_platforms = attr.ib()
 
     @classmethod
     def build(cls, package_path):
         qt = package_path / 'Qt'
+        qt_bin = qt / 'bin'
+        qt_plugins = qt_bin / 'plugins'
+        qt_platforms = qt_plugins / 'platforms'
 
         return cls(
             package=package_path,
             examples=package_path / 'examples',
             qt=qt,
-            qt_bin=qt / 'bin',
+            qt_bin=qt_bin,
+            qt_plugins=qt_plugins,
+            qt_platforms=qt_platforms,
         )
 
     def create_directories(self):
@@ -475,6 +482,14 @@ def build(configuration: Configuration):
             build_path / 'qmlscene' / 'release' / 'pyqt5qmlplugin.dll',
             destinations.examples,
         )
+
+        platform_path = qt_paths.compiler / 'plugins' / 'platforms'
+        for platform_plugin in ('minimal',):
+            original = platform_path / 'q{}.dll'.format(platform_plugin)
+            shutil.copy(
+                original,
+                destinations.qt_platforms,
+            )
 
     return Results(console_scripts=console_scripts)
 
