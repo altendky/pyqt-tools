@@ -83,6 +83,8 @@ class Destinations:
         for path in [
             self.qt,
             self.qt_bin,
+            self.qt_plugins,
+            self.qt_platforms,
         ]:
             path.mkdir(parents=True, exist_ok=True)
 
@@ -474,17 +476,16 @@ def build(configuration: Configuration):
             package_plugins_designer,
         )
 
-        shutil.copy(
-            build_path / 'qmlscene' / 'release' / 'pyqt5qmlplugin.dll',
-            package_plugins,
-        )
-        shutil.copy(
-            build_path / 'qmlscene' / 'release' / 'pyqt5qmlplugin.dll',
-            destinations.examples,
-        )
+        qml_plugin = build_path / 'qmlscene' / 'release' / 'pyqt5qmlplugin.dll'
+
+        for destination in [package_plugins, destinations.examples]:
+            shutil.copy(
+                qml_plugin,
+                destination,
+            )
 
         platform_path = qt_paths.compiler / 'plugins' / 'platforms'
-        for platform_plugin in ('minimal',):
+        for platform_plugin in ['minimal']:
             original = platform_path / 'q{}.dll'.format(platform_plugin)
             shutil.copy(
                 original,
