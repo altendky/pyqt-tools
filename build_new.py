@@ -1,6 +1,7 @@
 import faulthandler
 faulthandler.enable()
 
+import functools
 import inspect
 import itertools
 import os
@@ -444,7 +445,10 @@ def build(configuration: Configuration):
 
     collectors: Collector = {
         "linux": linux_collect_dependencies,
-        # 'win32': win32_collect_dependencies,
+        'win32': functools.partial(
+            win32_collect_dependencies,
+            windeloyqt=qt_paths.windeployqt,
+        ),
         # 'darwin': darwin_collect_dependencies,
     }
 
@@ -605,7 +609,7 @@ def build(configuration: Configuration):
     return Results(console_scripts=console_scripts)
 
 
-def linux_filtered_relative_to(
+def filtered_relative_to(
         base: pathlib.Path,
         paths: typing.Iterable[pathlib.Path],
 ) -> typing.Generator[pathlib.Path, None, None]:
@@ -622,12 +626,51 @@ def linux_collect_dependencies(
         source_base: pathlib.Path,
         target: pathlib.Path,
 ) -> typing.Generator[pathlib.Path, None, None]:
-    yield from linux_filtered_relative_to(
+    yield from filtered_relative_to(
         base=source_base,
         paths=(
             dependency.path.resolve()
             for dependency in lddwrap.list_dependencies(path=target)
             if dependency.path is not None
+        ),
+    )
+
+
+def windeployqt_list_source(
+        target: pathlib.Path,
+        windeployqt: pathlib.Path,
+) -> typing.Iterable[pathlib.Path]:
+    process = report_and_check_call(
+        command=[
+            windeployqt,
+            '--dry-run',
+            '--list', 'source',
+            # '--compiler-runtime',
+            target,
+        ],
+    )
+
+    paths = [
+        pathlib.Path(line)
+        for line in process.stdout
+    ]
+
+    return paths
+
+
+def win32_collect_dependencies(
+        source_base: pathlib.Path,
+        target: pathlib.Path,
+        windeployqt: pathlib.Path,
+) -> typing.Generator[pathlib.Path, None, None]:
+    yield from filtered_relative_to(
+        base=source_base,
+        paths=(
+            dependency.resolve()
+            for dependency in windeployqt_list_source(
+                target=target,
+                windeployqt=windeployqt,
+            )
         ),
     )
 
