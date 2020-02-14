@@ -449,7 +449,7 @@ def build(configuration: Configuration):
         "linux": linux_collect_dependencies,
         'win32': functools.partial(
             win32_collect_dependencies,
-            windeloyqt=qt_paths.windeployqt,
+            windeployqt=qt_paths.windeployqt,
         ),
         # 'darwin': darwin_collect_dependencies,
     }
