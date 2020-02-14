@@ -139,6 +139,7 @@ class QtPaths:
     compiler = attr.ib()
     bin = attr.ib()
     qmake = attr.ib()
+    windeployqt = attr.ib()
     applications = attr.ib()
     platform_plugins = attr.ib()
 
@@ -171,6 +172,7 @@ class QtPaths:
             compiler=compiler_path,
             bin=bin_path,
             qmake=(bin_path / 'qmake').with_suffix(suffix),
+            windeployqt=bin_path / 'windeployqt.exe',
             applications=applications,
             platform_plugins=compiler_path / 'plugins' / 'platforms',
         )
