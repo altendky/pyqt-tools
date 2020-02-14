@@ -608,6 +608,7 @@ def linux_collect_dependencies(
         paths=(
             dependency.path.resolve()
             for dependency in lddwrap.list_dependencies(path=target)
+            if dependency.path is not None
         ),
     )
 
