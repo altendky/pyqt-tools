@@ -582,6 +582,25 @@ def build(configuration: Configuration):
                 original,
                 destinations.qt_platforms,
             )
+    elif configuration.platform == 'linux':
+        package_plugins = destinations.qt / 'plugins'
+        package_plugins.mkdir(parents=True, exist_ok=True)
+        package_plugins_designer = package_plugins / 'designer'
+        package_plugins_designer.mkdir(parents=True, exist_ok=True)
+
+        pyqt5_dll_path = build_path / 'designer' / 'libpyqt5.so'
+        shutil.copy(
+            pyqt5_dll_path,
+            package_plugins_designer,
+        )
+
+        # qml_plugin = build_path / 'qmlscene' / 'release' / 'libpyqt5qmlplugin.so'
+        #
+        # for destination in [package_plugins, destinations.examples]:
+        #     shutil.copy(
+        #         qml_plugin,
+        #         destination,
+        #     )
 
     return Results(console_scripts=console_scripts)
 
