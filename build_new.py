@@ -650,6 +650,8 @@ def windeployqt_list_source(
             # '--compiler-runtime',
             target,
         ],
+        stdout=subprocess.PIPE,
+        encoding='utf-8',
     )
 
     paths = [
