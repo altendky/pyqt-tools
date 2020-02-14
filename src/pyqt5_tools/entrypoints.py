@@ -3,6 +3,7 @@ import pathlib
 import shutil
 import subprocess
 import sys
+import sysconfig
 
 import click
 import dotenv
@@ -143,6 +144,13 @@ def pyqt5designer(
     if test_exception_dialog:
         widget_paths.append(bad_path)
 
+    vars_to_print = [
+        'PYQTDESIGNERPATH',
+        'PYTHONPATH',
+        'PATH',
+        'QT_DEBUG_PLUGINS',
+    ]
+
     env = dict(os.environ)
     env.update(add_to_env_var_path_list(
         env=env,
@@ -151,18 +159,21 @@ def pyqt5designer(
         after=[''],
     ))
 
+    if sys.platform == 'linux':
+        vars_to_print.append('LD_LIBRARY_PATH')
+        env.update(add_to_env_var_path_list(
+            env=env,
+            name='LD_LIBRARY_PATH',
+            before=[''],
+            after=[sysconfig.get_config_var('LIBDIR')],
+        ))
+
     mutate_env_for_paths(env)
 
     if qt_debug_plugins:
         env['QT_DEBUG_PLUGINS'] = '1'
 
-    print_environment_variables(
-        env,
-        'PYQTDESIGNERPATH',
-        'PYTHONPATH',
-        'PATH',
-        'QT_DEBUG_PLUGINS',
-    )
+    print_environment_variables(env, *vars_to_print)
 
     command = [
         str(bin / maybe_extension('designer')),
