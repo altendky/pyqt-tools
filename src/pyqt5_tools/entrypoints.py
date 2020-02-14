@@ -23,12 +23,22 @@ bad_path = str(
     pathlib.Path(pyqt5_tools.badplugin.__file__).parent,
 )
 
+maybe_extension = {
+    'linux': lambda name: name,
+    'win32': lambda name: '{}.exe'.format(name),
+    'darwin': lambda name: name,
+}[sys.platform]
+
+
 def pyqt5toolsinstalluic():
     destination = bin/'bin'
     destination.mkdir(parents=True, exist_ok=True)
     there = pathlib.Path(sys.executable).parent
 
-    shutil.copy(str(there/'pyuic5.exe'), str(destination/'uic.exe'))
+    shutil.copy(
+        src=str(there / maybe_extension('pyuic5')),
+        dst=str(destination/maybe_extension('uic')),
+    )
 
 
 def load_dotenv():
@@ -155,7 +165,7 @@ def pyqt5designer(
     )
 
     command = [
-        str(bin / 'designer.exe'),
+        str(bin / maybe_extension('designer')),
         *extras,
         *ctx.args,
     ]
@@ -237,7 +247,7 @@ def pyqt5qmlscene(
     )
 
     command = [
-        str(bin / 'qmlscene.exe'),
+        str(bin / maybe_extension('qmlscene')),
         *extras,
         *ctx.args,
     ]
@@ -303,7 +313,7 @@ def pyqt5qmltestrunner(
     )
 
     command = [
-        str(bin / 'qmltestrunner.exe'),
+        str(bin / maybe_extension('qmltestrunner')),
         *extras,
         *ctx.args,
     ]

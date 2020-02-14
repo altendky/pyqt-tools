@@ -1,3 +1,6 @@
+import faulthandler
+faulthandler.enable()
+
 import inspect
 import itertools
 import os
@@ -15,6 +18,7 @@ import typing
 
 import attr
 import hyperlink
+import lddwrap
 import psutil
 import requests
 import setuptools.command.build_py
@@ -47,6 +51,12 @@ class BuildPy(setuptools.command.build_py.build_py):
 
         console_scripts = self.distribution.entry_points['console_scripts']
         console_scripts.extend(results.console_scripts)
+
+
+Collector = typing.Callable[
+    [pathlib.Path, pathlib.Path],
+    typing.Iterable[pathlib.Path],
+]
 
 
 @attr.s(frozen=True)
@@ -114,9 +124,7 @@ class Application:
     identifier = attr.ib()
 
     @classmethod
-    def build(cls, path):
-        relative_path = path.relative_to(path.parent)
-
+    def build(cls, path, relative_path):
         return cls(
             original_path=path,
             relative_path=relative_path,
@@ -129,9 +137,9 @@ class Application:
 class QtPaths:
     compiler = attr.ib()
     bin = attr.ib()
-    deployqt = attr.ib()
     qmake = attr.ib()
     applications = attr.ib()
+    platform_plugins = attr.ib()
 
     @classmethod
     def build(
@@ -140,13 +148,15 @@ class QtPaths:
             version,
             compiler,
             platform_,
-            deployqt,
             application_filter,
     ):
         compiler_path = base / version / compiler
         bin_path = compiler_path / 'bin'
         applications = tuple(
-            Application.build(path=path)
+            Application.build(
+                path=bin_path / path,
+                relative_path=(bin_path / path).relative_to(compiler_path),
+            )
             for path in bin_path.glob('*')
             if application_filter(path)
         )
@@ -159,39 +169,30 @@ class QtPaths:
         return cls(
             compiler=compiler_path,
             bin=bin_path,
-            deployqt=bin_path / deployqt,
             qmake=(bin_path / 'qmake').with_suffix(suffix),
             applications=applications,
+            platform_plugins=compiler_path / 'plugins' / 'platforms',
         )
 
 
-def filter_application_paths(
-        applications,
-        destination,
-        deployqt_path,
-        skip_paths=[],
+def filter_applications(
+        base: pathlib.Path,
+        applications: typing.Iterable[Application],
+        collector: Collector,
+        skip_paths: typing.Iterable[pathlib.Path] = [],
 ) -> typing.Generator[Application, None, None]:
     skip_paths = list(skip_paths)
 
     for application in applications:
         print('\n\nChecking: {}'.format(application.file_name))
 
-        try:
-            output = subprocess.check_output(
-                [
-                    fspath(deployqt_path),
-                    fspath(application.original_path),
-                    '--dry-run',
-                    '--list', 'source',
-                ],
-                cwd=destination,
-                encoding='utf-8',
-            )
-        except subprocess.CalledProcessError:
-            continue
+        folded_path_set = {
+            fspath(path).casefold()
+            for path in collector(base, application.original_path)
+        }
 
         if any(
-                fspath(path).casefold() in output.casefold()
+                fspath(path).casefold() in folded_path_set
                 for path in skip_paths
         ):
             print('    skipped')
@@ -396,6 +397,13 @@ def save_linuxdeployqt(version, directory):
 #     ''').format(python_tag=python_tag, platform_name=platform_name))
 
 
+def linux_plugin_to_path(plugin_path, name):
+    filename = 'libq{}.so'.format(name)
+    path = plugin_path / filename
+
+    return path
+
+
 def main(package_path, build_base_path):
     print('before ---!!!', file=sys.stderr)
     # TODO: uhhh....  i'm trying to use an existing directory i thought
@@ -415,7 +423,7 @@ def main(package_path, build_base_path):
 
 
 def build(configuration: Configuration):
-    deployqt = install_qt(configuration=configuration)
+    install_qt(configuration=configuration)
 
     application_filter = {
         'win32': lambda path: path.suffix == '.exe',
@@ -428,18 +436,101 @@ def build(configuration: Configuration):
         version=configuration.qt_version,
         compiler=configuration.qt_compiler,
         platform_=configuration.platform,
-        deployqt=deployqt,
         application_filter=application_filter,
     )
 
     destinations = Destinations.build(package_path=configuration.package_path)
     destinations.create_directories()
 
-    filtered_applications = copy_applications(
-        destinations=destinations,
-        qt_paths=qt_paths,
+    collectors: Collector = {
+        "linux": linux_collect_dependencies,
+        # 'win32': win32_collect_dependencies,
+        # 'darwin': darwin_collect_dependencies,
+    }
+
+    collector = collectors[configuration.platform]
+
+    filtered_applications = list(filter_applications(
+        base=qt_paths.compiler,
+        applications=qt_paths.applications,
+        collector=collector,
         skip_paths=['webengine'],
-    )
+    ))
+
+    dependencies = list(itertools.chain.from_iterable(
+        collector(
+            source_base=qt_paths.compiler,
+            target=application.original_path,
+        )
+        for application in filtered_applications
+    ))
+
+    platform_plugins = {
+        'linux': ['xcb'],
+        'win32': ['minimal'],
+        # 'darwin': [],
+    }[configuration.platform]
+
+    platform_plugin_to_path = {
+        'linux': linux_plugin_to_path,
+        # 'win32': ['minimal'],
+        # 'darwin': [],
+    }[configuration.platform]
+
+    platform_plugin_paths = [
+        platform_plugin_to_path(
+            plugin_path=qt_paths.platform_plugins,
+            name=name,
+        )
+        for name in platform_plugins
+    ]
+
+    platform_plugin_dependencies = list(itertools.chain.from_iterable(
+        collector(
+            source_base=qt_paths.compiler,
+            target=plugin,
+        )
+        for plugin in platform_plugin_paths
+    ))
+
+    paths_to_copy = set(itertools.chain(
+            (
+                application.relative_path
+                for application in filtered_applications
+            ),
+            dependencies,
+            (
+                path.relative_to(qt_paths.compiler)
+                for path in platform_plugin_paths
+            ),
+            platform_plugin_dependencies,
+    ))
+
+    print('about to copy stuff')
+
+    for path in paths_to_copy:
+        destination = destinations.qt / path
+        destination.parent.mkdir(parents=True, exist_ok=True)
+
+        shutil.copy(
+            src=qt_paths.compiler / path,
+            dst=destination,
+        )
+
+        if sys.platform == 'linux' and '.so.' in path.name:
+            marker = '.so.'
+            index = path.name.find(marker)
+            index = path.name.find('.', index + len(marker));
+            link = path.with_name(path.name[:index])
+
+            if path != link and not (destinations.qt / link).is_symlink():
+                print()
+                os.symlink(
+                    src=destinations.qt / path,
+                    dst=destinations.qt / link,
+                )
+
+    print('done copying stuff')
 
     entry_points_py = destinations.package / 'entrypoints.py'
 
@@ -493,6 +584,32 @@ def build(configuration: Configuration):
             )
 
     return Results(console_scripts=console_scripts)
+
+
+def linux_filtered_relative_to(
+        base: pathlib.Path,
+        paths: typing.Iterable[pathlib.Path],
+) -> typing.Generator[pathlib.Path, None, None]:
+    for path in paths:
+        try:
+            relative_path = path.relative_to(base)
+        except ValueError:
+            continue
+
+        yield relative_path
+
+
+def linux_collect_dependencies(
+        source_base: pathlib.Path,
+        target: pathlib.Path,
+) -> typing.Generator[pathlib.Path, None, None]:
+    yield from linux_filtered_relative_to(
+        base=source_base,
+        paths=(
+            dependency.path.resolve()
+            for dependency in lddwrap.list_dependencies(path=target)
+        ),
+    )
 
 
 def build_pyqt(configuration, qt_paths):
@@ -571,41 +688,39 @@ def install_qt(configuration):
             configuration.architecture,
         ],
     )
-    if configuration.platform == 'linux':
-        deployqt = save_linuxdeployqt(6, configuration.download_path)
-        deployqt = deployqt.resolve()
-    elif configuration.platform == 'win32':
-        deployqt = pathlib.Path('windeployqt.exe')
-    elif configuration.platform == 'darwin':
-        deployqt = pathlib.Path('macdeployqt')
-    else:
-        raise Exception(
-            'Unsupported platform: {}'.format(configuration.platform),
-        )
-    return deployqt
+    # if configuration.platform == 'linux':
+    #     deployqt = save_linuxdeployqt(6, configuration.download_path)
+    #     deployqt = deployqt.resolve()
+    # elif configuration.platform == 'win32':
+    #     deployqt = pathlib.Path('windeployqt.exe')
+    # elif configuration.platform == 'darwin':
+    #     deployqt = pathlib.Path('macdeployqt')
+    # else:
+    #     raise Exception(
+    #         'Unsupported platform: {}'.format(configuration.platform),
+    #     )
+    # return deployqt
 
 
-def copy_applications(destinations, qt_paths, skip_paths):
-    filtered_applications = list(
-        filter_application_paths(
-            applications=qt_paths.applications,
-            deployqt_path=qt_paths.deployqt,
-            destination=destinations.package,
-            skip_paths=skip_paths,
-        ),
-    )
-    for application in filtered_applications:
-        shutil.copy(application.original_path, destinations.qt_bin)
-
-        report_and_check_call(
-            command=[
-                qt_paths.deployqt,
-                '--compiler-runtime',
-                application.file_name,
-            ],
-            cwd=destinations.qt_bin,
-        )
-    return filtered_applications
+# def collect_dependencies(
+#         base,
+#         target,
+#         collector,
+# ):
+#     yield from
+#     for application in targets:
+#         yield from collector
+#         shutil.copy(application.original_path, destinations.qt_bin)
+#
+#         report_and_check_call(
+#             command=[
+#                 qt_paths.deployqt,
+#                 '--compiler-runtime',
+#                 application.file_name,
+#             ],
+#             cwd=destinations.qt_bin,
+#         )
+#     return filtered_applications
 
 
 def write_entry_points(entry_points_py, filtered_applications):

@@ -4,6 +4,7 @@ requires = [
     "aqtinstall",
     "hyperlink",
     "psutil",
+    "pylddwrap",
     "PyQt-builder",
     "requests",
     "setuptools",
