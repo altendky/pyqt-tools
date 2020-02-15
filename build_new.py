@@ -55,6 +55,8 @@ class BuildPy(setuptools.command.build_py.build_py):
             console_scripts = self.distribution.entry_points['console_scripts']
             console_scripts.extend(results.console_scripts)
         except:
+            # something apparently consumes tracebacks (not exception messages)
+            # for OSError at least.  let's avoid that silliness.
             traceback.print_exc()
             raise
 
@@ -546,13 +548,12 @@ def build(configuration: Configuration):
             marker = '.so.'
             index = path.name.find(marker)
             index = path.name.find('.', index + len(marker));
-            link = path.with_name(path.name[:index])
+            less_specific = path.with_name(path.name[:index])
 
-            if path != link and not (destinations.qt / link).is_symlink():
-                src = destinations.qt / path
-                dst = destinations.qt / link
-                print(src, '->', dst)
-                os.symlink(src=src, dst=dst)
+            if path != less_specific:
+                (destinations.qt / path).rename(
+                    destinations.qt / less_specific,
+                )
 
     print('done copying stuff')
 
