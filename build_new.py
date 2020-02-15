@@ -661,7 +661,7 @@ def windeployqt_list_source(
 
     paths = [
         pathlib.Path(line)
-        for line in process.stdout
+        for line in process.stdout.splitlines()
     ]
 
     return paths
