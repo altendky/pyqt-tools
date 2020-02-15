@@ -15,6 +15,7 @@ import sys
 import tarfile
 import tempfile
 import textwrap
+import traceback
 import typing
 
 import attr
@@ -32,26 +33,30 @@ class BuildPy(setuptools.command.build_py.build_py):
     def run(self):
         super().run()
 
-        [package_name] = (
-            package
-            for package in self.distribution.packages
-            if '.' not in package
-        )
+        try:
+            [package_name] = (
+                package
+                for package in self.distribution.packages
+                if '.' not in package
+            )
 
-        build_command = self.distribution.command_obj['build']
+            build_command = self.distribution.command_obj['build']
 
-        cwd = pathlib.Path.cwd()
-        print('::set-env name=BUILD_PATH::{}'.format(fspath(cwd)))
-        lib_path = cwd / build_command.build_lib
-        package_path = lib_path / package_name
+            cwd = pathlib.Path.cwd()
+            print('::set-env name=BUILD_PATH::{}'.format(fspath(cwd)))
+            lib_path = cwd / build_command.build_lib
+            package_path = lib_path / package_name
 
-        results = main(
-            package_path=package_path,
-            build_base_path=cwd / build_command.build_base,
-        )
+            results = main(
+                package_path=package_path,
+                build_base_path=cwd / build_command.build_base,
+            )
 
-        console_scripts = self.distribution.entry_points['console_scripts']
-        console_scripts.extend(results.console_scripts)
+            console_scripts = self.distribution.entry_points['console_scripts']
+            console_scripts.extend(results.console_scripts)
+        except:
+            traceback.print_exc()
+            raise
 
 
 Collector = typing.Callable[
