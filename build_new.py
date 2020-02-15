@@ -21,6 +21,7 @@ import typing
 import attr
 import hyperlink
 import lddwrap
+import macholib
 import psutil
 import requests
 import setuptools.command.build_py
@@ -370,30 +371,30 @@ def save_sdist(project, version, directory):
     return path
 
 
-def save_linuxdeployqt(version, directory):
-    url = hyperlink.URL(
-        scheme='https',
-        host='github.com',
-        path=(
-            'probonopd',
-            'linuxdeployqt',
-            'releases',
-            'download',
-            str(version),
-            'linuxdeployqt-{version}-x86_64.AppImage'.format(version=version),
-        ),
-    )
-
-    directory.mkdir(parents=True, exist_ok=True)
-    path = directory / url.path[-1]
-
-    with path.open('wb') as file:
-        get_down(file=file, url=url)
-
-    st = os.stat(path)
-    path.chmod(st.st_mode | stat.S_IXUSR)
-
-    return path
+# def save_linuxdeployqt(version, directory):
+#     url = hyperlink.URL(
+#         scheme='https',
+#         host='github.com',
+#         path=(
+#             'probonopd',
+#             'linuxdeployqt',
+#             'releases',
+#             'download',
+#             str(version),
+#             'linuxdeployqt-{version}-x86_64.AppImage'.format(version=version),
+#         ),
+#     )
+#
+#     directory.mkdir(parents=True, exist_ok=True)
+#     path = directory / url.path[-1]
+#
+#     with path.open('wb') as file:
+#         get_down(file=file, url=url)
+#
+#     st = os.stat(path)
+#     path.chmod(st.st_mode | stat.S_IXUSR)
+#
+#     return path
 
 
 # def write_setup_cfg(directory):
@@ -425,6 +426,14 @@ def win32_plugin_to_path(plugin_path, name):
     return path
 
 
+def darwin_plugin_to_path(plugin_path, name):
+    # TODO: darwin
+    filename = 'q{}.dll'.format(name)
+    path = plugin_path / filename
+
+    return path
+
+
 def main(package_path, build_base_path):
     print('before ---!!!', file=sys.stderr)
     # TODO: uhhh....  i'm trying to use an existing directory i thought
@@ -449,6 +458,7 @@ def build(configuration: Configuration):
     application_filter = {
         'win32': lambda path: path.suffix == '.exe',
         'linux': lambda path: path.suffix == '',
+        # TODO: darwin
         'darwin': lambda path: path.suffix == '',
     }[configuration.platform]
 
@@ -469,7 +479,7 @@ def build(configuration: Configuration):
             win32_collect_dependencies,
             windeployqt=qt_paths.windeployqt,
         ),
-        # 'darwin': darwin_collect_dependencies,
+        'darwin': darwin_collect_dependencies,
     }
 
     collector = collectors[configuration.platform]
@@ -492,13 +502,14 @@ def build(configuration: Configuration):
     platform_plugins = {
         'linux': ['xcb'],
         'win32': ['minimal'],
-        # 'darwin': [],
+        # TODO: darwin
+        'darwin': [],
     }[configuration.platform]
 
     platform_plugin_to_path = {
         'linux': linux_plugin_to_path,
         'win32': win32_plugin_to_path,
-        # 'darwin': [],
+        'darwin': darwin_plugin_to_path,
     }[configuration.platform]
 
     platform_plugin_paths = [
@@ -656,6 +667,22 @@ def linux_collect_dependencies(
             if dependency.path is not None
         ),
     )
+
+
+def darwin_collect_dependencies(
+        source_base: pathlib.Path,
+        target: pathlib.Path,
+) -> typing.Generator[pathlib.Path, None, None]:
+    # TODO: darwin
+    # yield from filtered_relative_to(
+    #     base=source_base,
+    #     paths=(
+    #         dependency.path.resolve()
+    #         for dependency in lddwrap.list_dependencies(path=target)
+    #         if dependency.path is not None
+    #     ),
+    # )
+    pass
 
 
 class DependencyCollectionError(Exception):
