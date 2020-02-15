@@ -527,8 +527,8 @@ def build(configuration: Configuration):
         destination = destinations.qt / path
         destination.parent.mkdir(parents=True, exist_ok=True)
 
-        src = qt_paths.compiler / path,
-        dst = destination,
+        src = qt_paths.compiler / path
+        dst = destination
         print(src, '+->', dst)
         shutil.copy(src=src, dst=dst)
 
