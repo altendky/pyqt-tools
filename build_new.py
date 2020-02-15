@@ -621,8 +621,9 @@ def filtered_relative_to(
 ) -> typing.Generator[pathlib.Path, None, None]:
     for path in paths:
         try:
-            relative_path = path.relative_to(base)
-        except ValueError:
+            relative_path = path.resolve().relative_to(base)
+        except (ValueError, OSError):
+            print('filtering out: {}'.format(fspath(path)))
             continue
 
         yield relative_path
@@ -673,12 +674,9 @@ def win32_collect_dependencies(
 ) -> typing.Generator[pathlib.Path, None, None]:
     yield from filtered_relative_to(
         base=source_base,
-        paths=(
-            dependency.resolve()
-            for dependency in windeployqt_list_source(
-                target=target,
-                windeployqt=windeployqt,
-            )
+        paths=windeployqt_list_source(
+            target=target,
+            windeployqt=windeployqt,
         ),
     )
 
