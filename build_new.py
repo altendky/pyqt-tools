@@ -194,10 +194,14 @@ def filter_applications(
     for application in applications:
         print('\n\nChecking: {}'.format(application.file_name))
 
-        folded_path_set = {
-            fspath(path).casefold()
-            for path in collector(base, application.original_path)
-        }
+        try:
+            folded_path_set = {
+                fspath(path).casefold()
+                for path in collector(base, application.original_path)
+            }
+        except DependencyCollectionError:
+            print('    failed')
+            continue
 
         if any(
                 fspath(path).casefold() in folded_path_set
@@ -643,21 +647,28 @@ def linux_collect_dependencies(
     )
 
 
+class DependencyCollectionError(Exception):
+    pass
+
+
 def windeployqt_list_source(
         target: pathlib.Path,
         windeployqt: pathlib.Path,
 ) -> typing.Iterable[pathlib.Path]:
-    process = report_and_check_call(
-        command=[
-            windeployqt,
-            '--dry-run',
-            '--list', 'source',
-            # '--compiler-runtime',
-            target,
-        ],
-        stdout=subprocess.PIPE,
-        encoding='utf-8',
-    )
+    try:
+        process = report_and_check_call(
+            command=[
+                windeployqt,
+                '--dry-run',
+                '--list', 'source',
+                # '--compiler-runtime',
+                target,
+            ],
+            stdout=subprocess.PIPE,
+            encoding='utf-8',
+        )
+    except subprocess.CalledProcessError as e:
+        raise DependencyCollectionError(target) from e
 
     paths = [
         pathlib.Path(line)
