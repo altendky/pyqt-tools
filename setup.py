@@ -49,6 +49,15 @@ console_scripts = [
 # #       or that it would default to that
 # build_new.write_setup_cfg(here)
 
+
+class Dist(setuptools.Distribution):
+    def has_ext_modules(self):
+        # Event if we don't have extension modules (e.g. on PyPy) we want to
+        # claim that we do so that wheels get properly tagged as Python
+        # specific.  (thanks dstufft!)
+        return True
+
+
 setuptools.setup(
     name="pyqt5-tools",
     description="Tools to supplement the official PyQt5 wheels",
@@ -74,6 +83,7 @@ setuptools.setup(
         'Topic :: Utilities',
     ],
     cmdclass={'build_py': build_new.BuildPy},
+    distclass=Dist,
     packages=setuptools.find_packages('src'),
     package_dir={'': 'src'},
     version=version,
