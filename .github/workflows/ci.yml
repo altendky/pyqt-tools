@@ -115,10 +115,10 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v1
         with:
-          name: pyqt5-tools-${{ matrix.system.platform }}
+          name: pyqt5-tools-${{ matrix.system.platform }}-${{ matrix.system.toxenv }}-${{ matrix.system.bitness }}
           path: dist
       - name: Tree /tmp/pip-*
-        if: always()
+        if: always() && matrix.system.platform == 'mac'
         shell: python
         run: |
           import os
@@ -134,7 +134,7 @@ jobs:
           for path in temp.glob('pip-*'):
             subprocess.run(['py-tree', fspath(path)])
       - name: Archive temp
-        if: always()
+        if: always() && matrix.system.platform == 'mac'
         uses: actions/upload-artifact@v1
         with:
           name: temp-${{ matrix.system.platform }}
