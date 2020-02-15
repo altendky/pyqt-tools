@@ -416,6 +416,13 @@ def linux_plugin_to_path(plugin_path, name):
     return path
 
 
+def win32_plugin_to_path(plugin_path, name):
+    filename = 'q{}.dll'.format(name)
+    path = plugin_path / filename
+
+    return path
+
+
 def main(package_path, build_base_path):
     print('before ---!!!', file=sys.stderr)
     # TODO: uhhh....  i'm trying to use an existing directory i thought
@@ -488,7 +495,7 @@ def build(configuration: Configuration):
 
     platform_plugin_to_path = {
         'linux': linux_plugin_to_path,
-        # 'win32': ['minimal'],
+        'win32': win32_plugin_to_path,
         # 'darwin': [],
     }[configuration.platform]
 
@@ -500,13 +507,16 @@ def build(configuration: Configuration):
         for name in platform_plugins
     ]
 
-    platform_plugin_dependencies = list(itertools.chain.from_iterable(
-        collector(
-            source_base=qt_paths.compiler,
-            target=plugin,
-        )
-        for plugin in platform_plugin_paths
-    ))
+    platform_plugin_dependencies = []
+    for plugin in platform_plugin_paths:
+        try:
+            for path in collector(
+                source_base=qt_paths.compiler,
+                target=plugin,
+            ):
+                platform_plugin_dependencies.append(path)
+        except DependencyCollectionError:
+            print('    failed collecting', plugin)
 
     paths_to_copy = set(itertools.chain(
             (
