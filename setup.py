@@ -23,6 +23,10 @@ def pad_version(v):
     split = v.split('.')
     return '.'.join(split + ['0'] * (3 - len(split)))
 
+# TODO: really doesn't seem quite proper here and probably should come
+#       in some other way?
+os.environ.setdefault('PYQT_VERSION', '5.14.1')
+
 version = '.'.join((
     pad_version(os.environ['PYQT_VERSION']),
     version.version,
