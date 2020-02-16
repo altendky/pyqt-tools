@@ -458,7 +458,8 @@ def build(configuration: Configuration):
     application_filter = {
         'win32': lambda path: path.suffix == '.exe',
         'linux': lambda path: path.suffix == '',
-        # TODO: darwin
+        # TODO: darwin  the .app is for directories but it still grabs files but not designer...
+        # 'darwin': lambda path: path.suffix == '.app',
         'darwin': lambda path: path.suffix == '',
     }[configuration.platform]
 
@@ -624,9 +625,9 @@ def build(configuration: Configuration):
         package_plugins_designer = package_plugins / 'designer'
         package_plugins_designer.mkdir(parents=True, exist_ok=True)
 
-        pyqt5_dll_path = build_path / 'designer' / 'libpyqt5.so'
+        designer_plugin_path = build_path / 'designer' / 'libpyqt5.so'
         shutil.copy(
-            pyqt5_dll_path,
+            designer_plugin_path,
             package_plugins_designer,
         )
 
@@ -637,6 +638,17 @@ def build(configuration: Configuration):
         #         qml_plugin,
         #         destination,
         #     )
+    elif configuration.platform == 'darwin':
+        package_plugins = destinations.qt / 'plugins'
+        package_plugins.mkdir(parents=True, exist_ok=True)
+        package_plugins_designer = package_plugins / 'designer'
+        package_plugins_designer.mkdir(parents=True, exist_ok=True)
+
+        # designer_plugin_path = build_path / 'designer' / 'libpyqt5.so'
+        # shutil.copy(
+        #     designer_plugin_path,
+        #     package_plugins_designer,
+        # )
 
     return Results(console_scripts=console_scripts)
 
