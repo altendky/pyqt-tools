@@ -139,3 +139,5 @@ jobs:
         with:
           name: temp-${{ matrix.system.platform }}
           path: ${{ env['BUILD_PATH'] }}
+      - name: Setup tmate session
+        uses: mxschmitt/action-tmate@v1
