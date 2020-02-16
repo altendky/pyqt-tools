@@ -682,7 +682,8 @@ def darwin_collect_dependencies(
     #         if dependency.path is not None
     #     ),
     # )
-    pass
+
+    return []
 
 
 class DependencyCollectionError(Exception):
