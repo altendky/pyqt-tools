@@ -226,6 +226,7 @@ def linux_executable_copy_actions(
                     for dependency in lddwrap.list_dependencies(
                         path=source_path,
                     )
+                    if dependency.path is not None
                 ),
             )
         ),
@@ -354,6 +355,7 @@ class Win32Executable:
             cls: typing.Type[T],
             directory: pathlib.Path,
             reference_path: pathlib.Path,
+            windeployqt: pathlib.Path,
     ) -> typing.List[T]:
         applications = []
 
@@ -365,6 +367,7 @@ class Win32Executable:
                 application = cls.from_path(
                     path=path,
                     reference_path=reference_path,
+                    windeployqt=windeployqt,
                 )
             except DependencyCollectionError:
                 continue
@@ -587,7 +590,11 @@ class QtPaths:
 
         application_types = application_types_by_platform[platform_]
         applications = list(itertools.chain.from_iterable(
-            application_type.list_from_directory(directory=bin_path, **extras)
+            application_type.list_from_directory(
+                directory=bin_path,
+                reference_path=compiler_path,
+                **extras,
+            )
             for application_type in application_types
         ))
 
