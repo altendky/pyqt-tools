@@ -146,6 +146,7 @@ class Application:
 class QtPaths:
     compiler = attr.ib()
     bin = attr.ib()
+    lib = attr.ib()
     qmake = attr.ib()
     windeployqt = attr.ib()
     applications = attr.ib()
@@ -162,6 +163,7 @@ class QtPaths:
     ):
         compiler_path = base / version / compiler
         bin_path = compiler_path / 'bin'
+        lib_path = compiler_path / 'lib'
         applications = tuple(
             Application.build(
                 path=bin_path / path,
@@ -179,6 +181,7 @@ class QtPaths:
         return cls(
             compiler=compiler_path,
             bin=bin_path,
+            lib=lib_path,
             qmake=(bin_path / 'qmake').with_suffix(suffix),
             windeployqt=bin_path / 'windeployqt.exe',
             applications=applications,
@@ -427,8 +430,7 @@ def win32_plugin_to_path(plugin_path, name):
 
 
 def darwin_plugin_to_path(plugin_path, name):
-    # TODO: darwin
-    filename = 'q{}.dll'.format(name)
+    filename = 'libq{}.dylib'.format(name)
     path = plugin_path / filename
 
     return path
@@ -480,7 +482,10 @@ def build(configuration: Configuration):
             win32_collect_dependencies,
             windeployqt=qt_paths.windeployqt,
         ),
-        'darwin': darwin_collect_dependencies,
+        'darwin': functools.partial(
+            darwin_collect_dependencies,
+            lib_path=qt_paths.
+        ),
     }
 
     collector = collectors[configuration.platform]
@@ -503,8 +508,7 @@ def build(configuration: Configuration):
     platform_plugins = {
         'linux': ['xcb'],
         'win32': ['minimal'],
-        # TODO: darwin
-        'darwin': [],
+        'darwin': ['cocoa'],
     }[configuration.platform]
 
     platform_plugin_to_path = {
@@ -684,18 +688,16 @@ def linux_collect_dependencies(
 def darwin_collect_dependencies(
         source_base: pathlib.Path,
         target: pathlib.Path,
+        lib_path: pathlib.Path,
 ) -> typing.Generator[pathlib.Path, None, None]:
-    # TODO: darwin
-    # yield from filtered_relative_to(
-    #     base=source_base,
-    #     paths=(
-    #         dependency.path.resolve()
-    #         for dependency in lddwrap.list_dependencies(path=target)
-    #         if dependency.path is not None
-    #     ),
-    # )
-
-    return []
+    yield from filtered_relative_to(
+        base=source_base,
+        paths=(
+            dependency.path.resolve()
+            for dependency in lib_path.glob('*.framework')
+            if dependency.path is not None
+        ),
+    )
 
 
 class DependencyCollectionError(Exception):
