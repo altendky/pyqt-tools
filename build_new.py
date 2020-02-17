@@ -276,7 +276,7 @@ class LinuxExecutable:
 
         for path in directory.iterdir():
             if not path.is_file() or path.suffix != '':
-                print('skipping: {]'.format(path))
+                print('skipping: {}'.format(path))
                 continue
 
             try:
@@ -285,7 +285,7 @@ class LinuxExecutable:
                     reference_path=reference_path,
                 )
             except DependencyCollectionError:
-                print('failed: {]'.format(path))
+                print('failed: {}'.format(path))
                 continue
 
             print('including: {}'.format(path))
@@ -365,7 +365,7 @@ class Win32Executable:
 
         for path in directory.iterdir():
             if not path.is_file() or path.suffix != '.exe':
-                print('skipping: {]'.format(path))
+                print('skipping: {}'.format(path))
                 continue
 
             try:
@@ -375,7 +375,7 @@ class Win32Executable:
                     windeployqt=windeployqt
                 )
             except DependencyCollectionError:
-                print('failed: {]'.format(path))
+                print('failed: {}'.format(path))
                 continue
 
             print('including: {}'.format(path))
@@ -449,7 +449,7 @@ class DarwinExecutable:
 
         for path in directory.iterdir():
             if not path.is_file() or path.suffix != '':
-                print('skipping: {]'.format(path))
+                print('skipping: {}'.format(path))
                 continue
 
             try:
@@ -459,7 +459,7 @@ class DarwinExecutable:
                     lib_path=lib_path,
                 )
             except DependencyCollectionError:
-                print('failed: {]'.format(path))
+                print('failed: {}'.format(path))
                 continue
 
             print('including: {}'.format(path))
