@@ -288,7 +288,7 @@ class LinuxExecutable:
                 print('failed: {]'.format(path))
                 continue
 
-            print('including: {]'.format(path))
+            print('including: {}'.format(path))
             applications.append(application)
 
         return applications
@@ -378,7 +378,7 @@ class Win32Executable:
                 print('failed: {]'.format(path))
                 continue
 
-            print('including: {]'.format(path))
+            print('including: {}'.format(path))
             applications.append(application)
 
         return applications
@@ -462,7 +462,7 @@ class DarwinExecutable:
                 print('failed: {]'.format(path))
                 continue
 
-            print('including: {]'.format(path))
+            print('including: {}'.format(path))
             applications.append(application)
 
         return applications
