@@ -1,7 +1,6 @@
 import faulthandler
 faulthandler.enable()
 
-import functools
 import inspect
 import itertools
 import os
@@ -9,7 +8,6 @@ import pathlib
 import platform
 import shlex
 import shutil
-import stat
 import subprocess
 import sys
 import tarfile
@@ -21,7 +19,6 @@ import typing
 import attr
 import hyperlink
 import lddwrap
-import macholib
 import psutil
 import requests
 import setuptools.command.build_py
@@ -125,21 +122,434 @@ bits = int(platform.architecture()[0][0:2])
 #     )
 
 
+# @attr.s(frozen=True)
+# class Application:
+#     original_path = attr.ib()
+#     relative_path = attr.ib()
+#     file_name = attr.ib()
+#     identifier = attr.ib()
+#
+#     @classmethod
+#     def build(cls, path, relative_path):
+#         return cls(
+#             original_path=path,
+#             relative_path=relative_path,
+#             file_name=path.name,
+#             identifier=path.stem.replace('-', '_'),
+#         )
+
+
+T = typing.TypeVar('T')
+
+
 @attr.s(frozen=True)
-class Application:
-    original_path = attr.ib()
-    relative_path = attr.ib()
-    file_name = attr.ib()
-    identifier = attr.ib()
+class FileCopyAction:
+    source = attr.ib()
+    destination = attr.ib() # including file name, relative
 
     @classmethod
-    def build(cls, path, relative_path):
+    def from_path(
+            cls: typing.Type[T],
+            source: pathlib.Path,
+            root: pathlib.Path,
+    ) -> T:
+        action = cls(
+            source=source,
+            destination=source.relative_to(root),
+        )
+
+        return action
+
+    @classmethod
+    def from_tree_path(
+            cls: typing.Type[T],
+            source: pathlib.Path,
+            root: pathlib.Path,
+            filter: typing.Callable[[pathlib.Path], bool] = lambda path: True,
+    ) -> typing.Set[T]:
+        actions = {
+            cls(
+                source=source,
+                destination=source.relative_to(root),
+            )
+            for source in source.rglob('*')
+            if filter(source)
+        }
+
+        return actions
+
+    def copy(self, destination_root: pathlib.Path) -> None:
+        destination = destination_root / self.destination
+        destination.parent.mkdir(parents=True, exist_ok=True)
+
+        shutil.copy(src=self.source, dst=self.destination)
+
+
+# @attr.s(frozen=True)
+# class DirectoryCopyAction:
+#     source = attr.ib()
+#     destination = attr.ib() # including target root directory name, relative
+#
+#     def copy(self, destination_root: pathlib.Path) -> None:
+#         destination = destination_root / self.destination
+#         destination.mkdir(parents=True, exist_ok=True)
+#
+#         shutil.copytree(
+#             src=self.source,
+#             dst=destination,
+#             dirs_exist_ok=True,
+#         )
+
+
+def create_script_function_name(path: pathlib.Path):
+    return path.stem.replace('-', '_')
+
+
+def linux_executable_copy_actions(
+        source_path: pathlib.Path,
+        reference_path: pathlib.Path,
+) -> typing.Set[FileCopyAction]:
+    actions = {
+        FileCopyAction.from_path(
+            source=source_path,
+            root=reference_path,
+        ),
+        *(
+            FileCopyAction.from_path(
+                source=path,
+                root=reference_path,
+            )
+            for path in filtered_relative_to(
+                base=reference_path,
+                paths=(
+                    dependency.path
+                    for dependency in lddwrap.list_dependencies(
+                        path=source_path,
+                    )
+                ),
+            )
+        ),
+    }
+
+    return actions
+
+
+@attr.s(frozen=True)
+class LinuxExecutable:
+    original_path = attr.ib()
+    relative_path = attr.ib()
+    executable_relative_path = attr.ib()
+    path_name = attr.ib()
+    script_function_name = attr.ib()
+    copy_actions = attr.ib()
+
+    @classmethod
+    def from_path(
+            cls: typing.Type[T],
+            path: pathlib.Path,
+            reference_path: pathlib.Path,
+    ) -> T:
+        relative_path = path.resolve().relative_to(reference_path)
+        copy_actions = linux_executable_copy_actions(
+            source_path=path,
+            reference_path=reference_path,
+        )
+
         return cls(
             original_path=path,
             relative_path=relative_path,
-            file_name=path.name,
-            identifier=path.stem.replace('-', '_'),
+            executable_relative_path=relative_path,
+            path_name=path.name,
+            script_function_name=create_script_function_name(path=path),
+            copy_actions=copy_actions,
         )
+
+    @classmethod
+    def list_from_directory(
+            cls: typing.Type[T],
+            directory: pathlib.Path,
+            reference_path: pathlib.Path,
+    ) -> typing.List[T]:
+        applications = []
+
+        for path in directory.iterdir():
+            if not path.is_file() or path.suffix != '':
+                continue
+
+            try:
+                application = cls.from_path(
+                    path=path,
+                    reference_path=reference_path,
+                )
+            except DependencyCollectionError:
+                continue
+
+            applications.append(application)
+
+        return applications
+
+
+def win32_executable_copy_actions(
+        source_path: pathlib.Path,
+        reference_path: pathlib.Path,
+        windeployqt: pathlib.Path,
+) -> typing.Set[FileCopyAction]:
+    actions = {
+        FileCopyAction.from_path(
+            source=source_path,
+            root=reference_path,
+        ),
+        *(
+            FileCopyAction.from_path(
+                source=path,
+                root=reference_path,
+            )
+            for path in filtered_relative_to(
+                base=reference_path,
+                paths=windeployqt_list_source(
+                    target=source_path,
+                    windeployqt=windeployqt,
+                ),
+            )
+        ),
+    }
+
+    return actions
+
+
+@attr.s(frozen=True)
+class Win32Executable:
+    original_path = attr.ib()
+    relative_path = attr.ib()
+    executable_relative_path = attr.ib()
+    path_name = attr.ib()
+    script_function_name = attr.ib()
+    copy_actions = attr.ib()
+
+    @classmethod
+    def from_path(
+            cls: typing.Type[T],
+            path: pathlib.Path,
+            reference_path: pathlib.Path,
+            windeployqt: pathlib.Path,
+    ) -> T:
+        relative_path = path.resolve().relative_to(reference_path)
+        copy_actions = win32_executable_copy_actions(
+            source_path=path,
+            reference_path=reference_path,
+            windeployqt=windeployqt,
+        )
+
+        return cls(
+            original_path=path,
+            relative_path=relative_path,
+            executable_relative_path=relative_path,
+            path_name=path.name,
+            script_function_name=create_script_function_name(path=path),
+            copy_actions=copy_actions,
+        )
+
+    @classmethod
+    def list_from_directory(
+            cls: typing.Type[T],
+            directory: pathlib.Path,
+            reference_path: pathlib.Path,
+    ) -> typing.List[T]:
+        applications = []
+
+        for path in directory.iterdir():
+            if not path.is_file() or path.suffix != '.exe':
+                continue
+
+            try:
+                application = cls.from_path(
+                    path=path,
+                    reference_path=reference_path,
+                )
+            except DependencyCollectionError:
+                continue
+
+            applications.append(application)
+
+        return applications
+
+
+def darwin_executable_copy_actions(
+        source_path: pathlib.Path,
+        reference_path: pathlib.Path,
+        # TODO: shouldn't need this once using a real lib to identify dependencies
+        lib_path: pathlib.Path,
+) -> typing.Set[FileCopyAction]:
+    actions = {
+        FileCopyAction.from_path(
+            source=source_path,
+            root=reference_path,
+        ),
+        *FileCopyAction.from_tree_path(
+            source=lib_path,
+            root=reference_path,
+        ),
+    }
+
+    return actions
+
+
+@attr.s(frozen=True)
+class DarwinExecutable:
+    # The single-file ones
+
+    original_path = attr.ib()
+    relative_path = attr.ib()
+    executable_relative_path = attr.ib()
+    path_name = attr.ib()
+    script_function_name = attr.ib()
+    copy_actions = attr.ib()
+
+    @classmethod
+    def from_path(
+            cls: typing.Type[T],
+            path: pathlib.Path,
+            reference_path: pathlib.Path,
+            lib_path: pathlib.Path,
+    ) -> T:
+        relative_path = path.resolve().relative_to(reference_path)
+        copy_actions = darwin_executable_copy_actions(
+            source_path=path,
+            reference_path=reference_path,
+            lib_path=lib_path,
+        )
+
+        return cls(
+            original_path=path,
+            relative_path=relative_path,
+            executable_relative_path=relative_path,
+            path_name=path.name,
+            script_function_name=create_script_function_name(path=path),
+            copy_actions=copy_actions,
+        )
+
+    @classmethod
+    def list_from_directory(
+            cls: typing.Type[T],
+            directory: pathlib.Path,
+            reference_path: pathlib.Path,
+            lib_path: pathlib.Path,
+    ) -> typing.List[T]:
+        applications = []
+
+        for path in directory.iterdir():
+            if not path.is_file() or path.suffix != '':
+                continue
+
+            try:
+                application = cls.from_path(
+                    path=path,
+                    reference_path=reference_path,
+                    lib_path=lib_path,
+                )
+            except DependencyCollectionError:
+                continue
+
+            applications.append(application)
+
+        return applications
+
+
+def darwin_dot_app_copy_actions(
+        source_path: pathlib.Path,
+        reference_path: pathlib.Path,
+        # TODO: doesn't seem like we should generally need this?  but maybe?
+        lib_path: pathlib.Path,
+) -> typing.Set[FileCopyAction]:
+    actions = {
+        FileCopyAction.from_tree_path(
+            source=source_path,
+            root=reference_path,
+        ),
+        *FileCopyAction.from_tree_path(
+            source=lib_path,
+            root=reference_path,
+        ),
+    }
+
+    return actions
+
+
+@attr.s(frozen=True)
+class DarwinDotApp:
+    # The *.app directory-file ones
+
+    original_path = attr.ib()
+    relative_path = attr.ib()
+    executable_relative_path = attr.ib()
+    path_name = attr.ib()
+    script_function_name = attr.ib()
+    copy_actions = attr.ib(factory=list)
+
+    @classmethod
+    def from_path(
+            cls: typing.Type[T],
+            path: pathlib.Path,
+            reference_path: pathlib.Path,
+            lib_path: pathlib.Path,
+    ) -> T:
+        relative_path = path.resolve().relative_to(reference_path)
+        copy_actions = darwin_dot_app_copy_actions(
+            source_path=path,
+            reference_path=reference_path,
+            lib_path=lib_path,
+        )
+
+        return cls(
+            original_path=path,
+            relative_path=relative_path,
+            executable_relative_path=relative_path,
+            path_name=path.name,
+            script_function_name=create_script_function_name(path=path),
+            copy_actions=copy_actions,
+        )
+
+    @classmethod
+    def list_from_directory(
+            cls: typing.Type[T],
+            directory: pathlib.Path,
+            reference_path: pathlib.Path,
+            lib_path: pathlib.Path,
+    ) -> typing.List[T]:
+        applications = []
+
+        for path in directory.iterdir():
+            if not path.is_file() or path.suffix != '.app':
+                continue
+
+            try:
+                application = cls.from_path(
+                    path=path,
+                    reference_path=reference_path,
+                    lib_path=lib_path,
+                )
+            except DependencyCollectionError:
+                continue
+
+            applications.append(application)
+
+        return applications
+
+
+AnyApplication = typing.Union[
+    DarwinExecutable,
+    DarwinDotApp,
+    Win32Executable,
+]
+
+application_types_by_platform: typing.Dict[
+    str,
+    typing.List[AnyApplication],
+] = {
+    'linux': [],
+    'win32': [Win32Executable],
+    'darwin': [DarwinExecutable, DarwinDotApp],
+}
 
 
 @attr.s(frozen=True)
@@ -159,64 +569,58 @@ class QtPaths:
             version,
             compiler,
             platform_,
-            application_filter,
     ):
         compiler_path = base / version / compiler
         bin_path = compiler_path / 'bin'
         lib_path = compiler_path / 'lib'
-        applications = tuple(
-            Application.build(
-                path=bin_path / path,
-                relative_path=(bin_path / path).relative_to(compiler_path),
-            )
-            for path in bin_path.glob('*')
-            if application_filter(path)
-        )
 
+        windeployqt = bin_path / 'windeployqt.exe'
+
+        # TODO: CAMPid 05470781340806731460631
+        qmake_suffix = ''
+        extras = {}
         if platform_ == 'win32':
-            suffix = '.exe'
-        else:
-            suffix = ''
+            qmake_suffix = '.exe'
+            extras['windeployqt'] = windeployqt
+        elif platform_ == 'darwin':
+            extras['lib_path'] = lib_path
+
+        application_types = application_types_by_platform[platform_]
+        applications = list(itertools.chain.from_iterable(
+            application_type.list_from_directory(directory=bin_path, **extras)
+            for application_type in application_types
+        ))
 
         return cls(
             compiler=compiler_path,
             bin=bin_path,
             lib=lib_path,
-            qmake=(bin_path / 'qmake').with_suffix(suffix),
-            windeployqt=bin_path / 'windeployqt.exe',
+            qmake=(bin_path / 'qmake').with_suffix(qmake_suffix),
+            windeployqt=windeployqt,
             applications=applications,
             platform_plugins=compiler_path / 'plugins' / 'platforms',
         )
 
 
-def filter_applications(
-        base: pathlib.Path,
-        applications: typing.Iterable[Application],
-        collector: Collector,
-        skip_paths: typing.Iterable[pathlib.Path] = [],
-) -> typing.Generator[Application, None, None]:
-    skip_paths = list(skip_paths)
+def filtered_applications(
+        applications: typing.Iterable[AnyApplication],
+        filter: typing.Callable[[pathlib.Path], bool] = lambda path: True,
+) -> typing.List[AnyApplication]:
+    results = []
 
     for application in applications:
-        print('\n\nChecking: {}'.format(application.file_name))
-
-        try:
-            folded_path_set = {
-                fspath(path).casefold()
-                for path in collector(base, application.original_path)
-            }
-        except DependencyCollectionError:
-            print('    failed')
-            continue
+        print('\n\nChecking: {}'.format(application.path_name))
 
         if any(
-                fspath(path).casefold() in folded_path_set
-                for path in skip_paths
+                filter(copy_action.destination)
+                for copy_action in application.copy_actions
         ):
             print('    skipped')
             continue
 
-        yield application
+        results.append(application)
+
+    return results
 
 
 def identify_preferred_newlines(f):
@@ -415,25 +819,92 @@ def save_sdist(project, version, directory):
 #     ''').format(python_tag=python_tag, platform_name=platform_name))
 
 
-def linux_plugin_to_path(plugin_path, name):
-    filename = 'libq{}.so'.format(name)
-    path = plugin_path / filename
+@attr.s
+class LinuxPlugin:
+    original_path = attr.ib()
+    relative_path = attr.ib()
+    copy_actions = attr.ib()
 
-    return path
+    @classmethod
+    def from_name(
+            cls: typing.Type[T],
+            name: str,
+            reference_path: pathlib.Path,
+            plugin_path: pathlib.Path,
+    ) -> T:
+        file_name = 'libq{}.so'.format(name)
+        path = plugin_path / file_name
+
+        copy_actions = linux_executable_copy_actions(
+            source_path=path,
+            reference_path=reference_path,
+        )
+
+        return cls(
+            original_path=path,
+            relative_path=path.relative_to(reference_path),
+            copy_actions=copy_actions,
+        )
 
 
-def win32_plugin_to_path(plugin_path, name):
-    filename = 'q{}.dll'.format(name)
-    path = plugin_path / filename
+@attr.s
+class Win32Plugin:
+    original_path = attr.ib()
+    relative_path = attr.ib()
+    copy_actions = attr.ib()
 
-    return path
+    @classmethod
+    def from_name(
+            cls: typing.Type[T],
+            name: str,
+            reference_path: pathlib.Path,
+            plugin_path: pathlib.Path,
+            windeployqt: pathlib.Path,
+    ) -> T:
+        file_name = 'q{}.dll'.format(name)
+        path = plugin_path / file_name
+
+        copy_actions = win32_executable_copy_actions(
+            source_path=path,
+            reference_path=reference_path,
+            windeployqt=windeployqt,
+        )
+
+        return cls(
+            original_path=path,
+            relative_path=path.relative_to(reference_path),
+            copy_actions=copy_actions,
+        )
 
 
-def darwin_plugin_to_path(plugin_path, name):
-    filename = 'libq{}.dylib'.format(name)
-    path = plugin_path / filename
+@attr.s
+class DarwinPlugin:
+    original_path = attr.ib()
+    relative_path = attr.ib()
+    copy_actions = attr.ib()
 
-    return path
+    @classmethod
+    def from_name(
+            cls: typing.Type[T],
+            name: str,
+            reference_path: pathlib.Path,
+            plugin_path: pathlib.Path,
+            lib_path: pathlib.Path,
+    ) -> T:
+        file_name = 'libq{}.dylib'.format(name)
+        path = plugin_path / file_name
+
+        copy_actions = darwin_executable_copy_actions(
+            source_path=path,
+            reference_path=reference_path,
+            lib_path=lib_path,
+        )
+
+        return cls(
+            original_path=path,
+            relative_path=path.relative_to(reference_path),
+            copy_actions=copy_actions,
+        )
 
 
 def main(package_path, build_base_path):
@@ -457,119 +928,93 @@ def main(package_path, build_base_path):
 def build(configuration: Configuration):
     install_qt(configuration=configuration)
 
-    application_filter = {
-        'win32': lambda path: path.suffix == '.exe',
-        'linux': lambda path: path.suffix == '',
-        # TODO: darwin  the .app is for directories but it still grabs files but not designer...
-        # 'darwin': lambda path: path.suffix == '.app',
-        'darwin': lambda path: path.suffix == '',
-    }[configuration.platform]
+    # application_filter = {
+    #     'win32': lambda path: path.suffix == '.exe',
+    #     'linux': lambda path: path.suffix == '',
+    #     # TODO: darwin  the .app is for directories but it still grabs files but not designer...
+    #     # 'darwin': lambda path: path.suffix == '.app',
+    #     'darwin': lambda path: path.suffix == '',
+    # }[configuration.platform]
 
     qt_paths = QtPaths.build(
         base=configuration.qt_path,
         version=configuration.qt_version,
         compiler=configuration.qt_compiler,
         platform_=configuration.platform,
-        application_filter=application_filter,
     )
 
     destinations = Destinations.build(package_path=configuration.package_path)
     destinations.create_directories()
 
-    collectors: Collector = {
-        "linux": linux_collect_dependencies,
-        'win32': functools.partial(
-            win32_collect_dependencies,
-            windeployqt=qt_paths.windeployqt,
-        ),
-        'darwin': functools.partial(
-            darwin_collect_dependencies,
-            lib_path=qt_paths.lib,
-        ),
-    }
-
-    collector = collectors[configuration.platform]
-
-    filtered_applications = list(filter_applications(
-        base=qt_paths.compiler,
+    applications = filtered_applications(
         applications=qt_paths.applications,
-        collector=collector,
-        skip_paths=['webengine'],
-    ))
+        filter=lambda path: 'webengine' in fspath(path).casefold(),
+    )
 
-    dependencies = list(itertools.chain.from_iterable(
-        collector(
-            source_base=qt_paths.compiler,
-            target=application.original_path,
-        )
-        for application in filtered_applications
-    ))
-
-    platform_plugins = {
+    platform_plugin_names = {
         'linux': ['xcb'],
         'win32': ['minimal'],
         'darwin': ['cocoa'],
     }[configuration.platform]
 
-    platform_plugin_to_path = {
-        'linux': linux_plugin_to_path,
-        'win32': win32_plugin_to_path,
-        'darwin': darwin_plugin_to_path,
+    platform_plugin_type = {
+        'linux': LinuxPlugin,
+        'win32': Win32Plugin,
+        'darwin': DarwinPlugin,
     }[configuration.platform]
 
-    platform_plugin_paths = [
-        platform_plugin_to_path(
-            plugin_path=qt_paths.platform_plugins,
+    # TODO: CAMPid 05470781340806731460631
+    extras = {}
+    if configuration.platform == 'win32':
+        extras['windeployqt'] = qt_paths.windeployqt
+    elif configuration.platform == 'darwin':
+        extras['lib_path'] = qt_paths.lib
+
+    platform_plugins = [
+        platform_plugin_type.from_name(
             name=name,
+            plugin_path=qt_paths.platform_plugins,
+            reference_path=qt_paths.compiler,
+            **extras,
         )
-        for name in platform_plugins
+        for name in platform_plugin_names
     ]
-
-    platform_plugin_dependencies = []
-    for plugin in platform_plugin_paths:
-        try:
-            for path in collector(
-                source_base=qt_paths.compiler,
-                target=plugin,
-            ):
-                platform_plugin_dependencies.append(path)
-        except DependencyCollectionError:
-            print('    failed collecting', plugin)
-
-    paths_to_copy = set(itertools.chain(
-            (
-                application.relative_path
-                for application in filtered_applications
-            ),
-            dependencies,
-            (
-                path.relative_to(qt_paths.compiler)
-                for path in platform_plugin_paths
-            ),
-            platform_plugin_dependencies,
-    ))
 
     print('about to copy stuff')
 
-    for path in paths_to_copy:
-        destination = destinations.qt / path
-        destination.parent.mkdir(parents=True, exist_ok=True)
+    copy_actions = set(
+        *itertools.chain.from_iterable(
+            application.copy_actions
+            for application in applications
+        ),
+        *itertools.chain.from_iterable(
+            plugin.copy_actions
+            for plugin in platform_plugins
+        ),
+    )
 
-        src = qt_paths.compiler / path
-        dst = destination
-        print(src, '+->', dst)
-        shutil.copy(src=src, dst=dst)
+    for copy_action in copy_actions:
+        copy_action.copy(destination_root=destinations.qt)
 
-        if sys.platform == 'linux' and '.so.' in path.name:
-            marker = '.so.'
-            index = path.name.find(marker)
-            index = path.name.find('.', index + len(marker));
-            less_specific = path.with_name(path.name[:index])
-
-            if path != less_specific:
-                (destinations.qt / path).rename(
-                    destinations.qt / less_specific,
-                )
+    # for path in paths_to_copy:
+    #     destination = destinations.qt / path
+    #     destination.parent.mkdir(parents=True, exist_ok=True)
+    #
+    #     src = qt_paths.compiler / path
+    #     dst = destination
+    #     print(src, '+->', dst)
+    #     shutil.copy(src=src, dst=dst)
+    #
+    #     if sys.platform == 'linux' and '.so.' in path.name:
+    #         marker = '.so.'
+    #         index = path.name.find(marker)
+    #         index = path.name.find('.', index + len(marker));
+    #         less_specific = path.with_name(path.name[:index])
+    #
+    #         if path != less_specific:
+    #             (destinations.qt / path).rename(
+    #                 destinations.qt / less_specific,
+    #             )
 
     print('done copying stuff')
 
@@ -577,7 +1022,7 @@ def build(configuration: Configuration):
 
     console_scripts = write_entry_points(
         entry_points_py=entry_points_py,
-        filtered_applications=filtered_applications,
+        applications=applications,
     )
 
     pyqt5_sdist_path = save_sdist(
@@ -663,12 +1108,12 @@ def filtered_relative_to(
 ) -> typing.Generator[pathlib.Path, None, None]:
     for path in paths:
         try:
-            relative_path = path.resolve().relative_to(base)
+            path.resolve().relative_to(base)
         except (ValueError, OSError):
             print('filtering out: {}'.format(fspath(path)))
             continue
 
-        yield relative_path
+        yield path
 
 
 def linux_collect_dependencies(
@@ -730,18 +1175,18 @@ def windeployqt_list_source(
     return paths
 
 
-def win32_collect_dependencies(
-        source_base: pathlib.Path,
-        target: pathlib.Path,
-        windeployqt: pathlib.Path,
-) -> typing.Generator[pathlib.Path, None, None]:
-    yield from filtered_relative_to(
-        base=source_base,
-        paths=windeployqt_list_source(
-            target=target,
-            windeployqt=windeployqt,
-        ),
-    )
+# def win32_collect_dependencies(
+#         source_base: pathlib.Path,
+#         target: pathlib.Path,
+#         windeployqt: pathlib.Path,
+# ) -> typing.Generator[pathlib.Path, None, None]:
+#     yield from filtered_relative_to(
+#         base=source_base,
+#         paths=windeployqt_list_source(
+#             target=target,
+#             windeployqt=windeployqt,
+#         ),
+#     )
 
 
 def build_pyqt(configuration, qt_paths):
@@ -855,7 +1300,10 @@ def install_qt(configuration):
 #     return filtered_applications
 
 
-def write_entry_points(entry_points_py, filtered_applications):
+def write_entry_points(
+        entry_points_py: pathlib.Path,
+        applications: typing.List[AnyApplication],
+) -> typing.List[str]:
     with entry_points_py.open(newline='') as f:
         f.read()
         newlines = identify_preferred_newlines(f)
@@ -866,20 +1314,20 @@ def write_entry_points(entry_points_py, filtered_applications):
         
         '''))
 
-        for application in filtered_applications:
+        for application in applications:
             function_def = textwrap.dedent('''\
-                def {function}():
+                def {function_name}():
                     load_dotenv()
                     return subprocess.call([
-                        str(here/'Qt'/'bin'/'{application}'),
+                        str(here/'Qt'/'{application}'),
                         *sys.argv[1:],
                     ])
     
     
             ''')
             function_def_formatted = function_def.format(
-                function=application.identifier,
-                application=fspath(application.relative_path),
+                function_name=application.script_function_name,
+                application=fspath(application.executable_relative_path),
             )
             f.write(function_def_formatted)
 
@@ -890,10 +1338,10 @@ def write_entry_points(entry_points_py, filtered_applications):
         '''))
 
         console_scripts = [
-            '{application} = pyqt5_tools.entrypoints:{function}'.format(
-                function=application.identifier,
-                application=application.file_name,
+            '{application} = pyqt5_tools.entrypoints:{function_name}'.format(
+                function_name=application.script_function_name,
+                application=application.path_name,
             )
-            for application in filtered_applications
+            for application in applications
         ]
     return console_scripts
