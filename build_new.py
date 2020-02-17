@@ -559,7 +559,7 @@ application_types_by_platform: typing.Dict[
     str,
     typing.List[AnyApplication],
 ] = {
-    'linux': [],
+    'linux': [LinuxExecutable],
     'win32': [Win32Executable],
     'darwin': [DarwinExecutable, DarwinDotApp],
 }
