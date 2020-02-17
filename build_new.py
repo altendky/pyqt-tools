@@ -997,8 +997,6 @@ def build(configuration: Configuration):
         for name in platform_plugin_names
     ]
 
-    print('about to copy stuff')
-
     copy_actions = {
         *itertools.chain.from_iterable(
             application.copy_actions
@@ -1009,9 +1007,6 @@ def build(configuration: Configuration):
             for plugin in platform_plugins
         ),
     }
-
-    for copy_action in copy_actions:
-        copy_action.copy(destination_root=destinations.qt)
 
     # for path in paths_to_copy:
     #     destination = destinations.qt / path
@@ -1032,8 +1027,6 @@ def build(configuration: Configuration):
     #             (destinations.qt / path).rename(
     #                 destinations.qt / less_specific,
     #             )
-
-    print('done copying stuff')
 
     entry_points_py = destinations.package / 'entrypoints.py'
 
@@ -1058,63 +1051,78 @@ def build(configuration: Configuration):
 
     build_path = build_pyqt(configuration, qt_paths)
 
+    all_copy_actions = {
+        destinations.qt: copy_actions,
+        destinations.package: set(),
+    }
+
     if configuration.platform == 'win32':
-        package_plugins = destinations.qt_bin / 'plugins'
-        package_plugins.mkdir(parents=True, exist_ok=True)
+        relative_bin = destinations.qt_bin.relative_to(destinations.qt)
+        package_plugins = relative_bin / 'plugins'
         package_plugins_designer = package_plugins / 'designer'
-        package_plugins_designer.mkdir(parents=True, exist_ok=True)
 
         pyqt5_dll_path = build_path / 'designer' / 'release' / 'pyqt5.dll'
-        shutil.copy(
-            pyqt5_dll_path,
-            package_plugins_designer,
-        )
+
+        copy_actions.add(FileCopyAction(
+            source=pyqt5_dll_path,
+            destination=package_plugins_designer,
+        ))
 
         qml_plugin = build_path / 'qmlscene' / 'release' / 'pyqt5qmlplugin.dll'
 
-        for destination in [package_plugins, destinations.examples]:
-            shutil.copy(
-                qml_plugin,
-                destination,
-            )
+        copy_actions.add(FileCopyAction(
+            source=qml_plugin,
+            destination=package_plugins,
+        ))
 
-        platform_path = qt_paths.compiler / 'plugins' / 'platforms'
-        for platform_plugin in ['minimal']:
-            original = platform_path / 'q{}.dll'.format(platform_plugin)
-            shutil.copy(
-                original,
-                destinations.qt_platforms,
-            )
+        all_copy_actions[destinations.package].add(FileCopyAction(
+            source=qml_plugin,
+            destination=destinations.examples.relative_to(
+                destinations.package,
+            ),
+        ))
     elif configuration.platform == 'linux':
         package_plugins = destinations.qt / 'plugins'
-        package_plugins.mkdir(parents=True, exist_ok=True)
         package_plugins_designer = package_plugins / 'designer'
-        package_plugins_designer.mkdir(parents=True, exist_ok=True)
 
         designer_plugin_path = build_path / 'designer' / 'libpyqt5.so'
-        shutil.copy(
-            designer_plugin_path,
-            package_plugins_designer,
+
+        copy_actions.add(FileCopyAction(
+            source=designer_plugin_path,
+            destination=package_plugins_designer.relative_to(destinations.qt),
+        ))
+
+        qml_plugin = (
+            build_path / 'qmlscene' / 'libpyqt5qmlplugin.so'
         )
 
-        # qml_plugin = build_path / 'qmlscene' / 'release' / 'libpyqt5qmlplugin.so'
-        #
-        # for destination in [package_plugins, destinations.examples]:
-        #     shutil.copy(
-        #         qml_plugin,
-        #         destination,
-        #     )
-    elif configuration.platform == 'darwin':
-        package_plugins = destinations.qt / 'plugins'
-        package_plugins.mkdir(parents=True, exist_ok=True)
-        package_plugins_designer = package_plugins / 'designer'
-        package_plugins_designer.mkdir(parents=True, exist_ok=True)
+        copy_actions.add(FileCopyAction(
+            source=qml_plugin,
+            destination=package_plugins,
+        ))
+        all_copy_actions[destinations.package].add(FileCopyAction(
+            source=qml_plugin,
+            destination=destinations.examples.relative_to(
+                destinations.package,
+            ),
+        ))
+    # elif configuration.platform == 'darwin':
+    #     package_plugins = destinations.qt / 'plugins'
+    #     package_plugins_designer = package_plugins / 'designer'
+    #
+    #     # designer_plugin_path = build_path / 'designer' / 'libpyqt5.so'
+    #     # shutil.copy(
+    #     #     designer_plugin_path,
+    #     #     package_plugins_designer,
+    #     # )
 
-        # designer_plugin_path = build_path / 'designer' / 'libpyqt5.so'
-        # shutil.copy(
-        #     designer_plugin_path,
-        #     package_plugins_designer,
-        # )
+    print('about to copy stuff')
+
+    for reference, actions in all_copy_actions.items():
+        for action in actions:
+            action.copy(destination_root=reference)
+
+    print('done copying stuff')
 
     return Results(console_scripts=console_scripts)
 
