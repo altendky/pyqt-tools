@@ -1057,14 +1057,18 @@ def build(configuration: Configuration):
     }
 
     if configuration.platform == 'win32':
+        designer_plugin_path = (
+            build_path / 'designer' / 'release' / 'pyqt5.dll'
+        )
+
         relative_bin = destinations.qt_bin.relative_to(destinations.qt)
         package_plugins = relative_bin / 'plugins'
-        package_plugins_designer = package_plugins / 'designer'
-
-        pyqt5_dll_path = build_path / 'designer' / 'release' / 'pyqt5.dll'
+        package_plugins_designer = (
+            package_plugins / 'designer' / designer_plugin_path.name
+        )
 
         copy_actions.add(FileCopyAction(
-            source=pyqt5_dll_path,
+            source=designer_plugin_path,
             destination=package_plugins_designer,
         ))
 
@@ -1082,10 +1086,12 @@ def build(configuration: Configuration):
             ),
         ))
     elif configuration.platform == 'linux':
-        package_plugins = destinations.qt / 'plugins'
-        package_plugins_designer = package_plugins / 'designer'
-
         designer_plugin_path = build_path / 'designer' / 'libpyqt5.so'
+
+        package_plugins = destinations.qt / 'plugins'
+        package_plugins_designer = (
+            package_plugins / 'designer' / designer_plugin_path.name
+        )
 
         copy_actions.add(FileCopyAction(
             source=designer_plugin_path,
@@ -1098,13 +1104,13 @@ def build(configuration: Configuration):
 
         copy_actions.add(FileCopyAction(
             source=qml_plugin,
-            destination=package_plugins,
+            destination=package_plugins / qml_plugin.name,
         ))
         all_copy_actions[destinations.package].add(FileCopyAction(
             source=qml_plugin,
             destination=destinations.examples.relative_to(
                 destinations.package,
-            ),
+            ) / qml_plugin.name,
         ))
     # elif configuration.platform == 'darwin':
     #     package_plugins = destinations.qt / 'plugins'
