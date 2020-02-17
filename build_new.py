@@ -182,7 +182,7 @@ class FileCopyAction:
         destination = destination_root / self.destination
         destination.parent.mkdir(parents=True, exist_ok=True)
 
-        shutil.copy(src=self.source, dst=self.destination)
+        shutil.copy(src=self.source, dst=destination)
 
 
 # @attr.s(frozen=True)
