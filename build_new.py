@@ -693,9 +693,8 @@ def darwin_collect_dependencies(
     yield from filtered_relative_to(
         base=source_base,
         paths=(
-            dependency.path.resolve()
+            dependency.resolve()
             for dependency in lib_path.glob('*.framework')
-            if dependency.path is not None
         ),
     )
 
