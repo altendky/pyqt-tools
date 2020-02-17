@@ -484,7 +484,7 @@ def build(configuration: Configuration):
         ),
         'darwin': functools.partial(
             darwin_collect_dependencies,
-            lib_path=qt_paths.
+            lib_path=qt_paths.lib,
         ),
     }
 
