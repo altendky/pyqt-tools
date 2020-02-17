@@ -989,7 +989,7 @@ def build(configuration: Configuration):
 
     print('about to copy stuff')
 
-    copy_actions = set(
+    copy_actions = {
         *itertools.chain.from_iterable(
             application.copy_actions
             for application in applications
@@ -998,7 +998,7 @@ def build(configuration: Configuration):
             plugin.copy_actions
             for plugin in platform_plugins
         ),
-    )
+    }
 
     for copy_action in copy_actions:
         copy_action.copy(destination_root=destinations.qt)
