@@ -174,6 +174,7 @@ class FileCopyAction:
             )
             for source in source.rglob('*')
             if filter(source)
+            if source.is_file()
         }
 
         return actions
