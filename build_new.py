@@ -1344,7 +1344,7 @@ def write_entry_points(
             ''')
             function_def_formatted = function_def.format(
                 function_name=application.script_function_name,
-                application=fspath(application.executable_relative_path),
+                application=fspath(application.executable_relative_path.as_posix()),
             )
             f.write(function_def_formatted)
 
