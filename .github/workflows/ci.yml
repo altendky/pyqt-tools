@@ -73,7 +73,7 @@ jobs:
         shell: bash
         run: |
           python -m pip install --upgrade pip setuptools
-          pip install tox 'pytest-xvfb; sys_platform=="linux"'
+          pip install tox
       - name: Install Linux dependencies
         if: matrix.system.platform == 'linux'
         shell: bash
