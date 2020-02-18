@@ -70,9 +70,10 @@ jobs:
 #          pip wheel .
 #          choco install visualstudio2019buildtools
       - name: pip/setuptools/tox
+        shell: bash
         run: |
           python -m pip install --upgrade pip setuptools
-          pip install tox "pytest-xvfb; sys_platform=='linux'"
+          pip install tox 'pytest-xvfb; sys_platform=="linux"'
       - name: Install Linux dependencies
         if: matrix.system.platform == 'linux'
         run: |
