@@ -116,7 +116,7 @@ jobs:
         continue-on-error: true
         shell: bash
         run: |
-          tox -e ${{ matrix.system.toxenv }} --installpkg ${{ env['WHEEL_PATH'] }}
+          tox -e '${{ matrix.system.toxenv }}' --installpkg '${{ env['WHEEL_PATH'] }}'
       - name: Archive wheel
         if: always()
         uses: actions/upload-artifact@v1
