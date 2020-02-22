@@ -942,7 +942,12 @@ def main(package_path, build_base_path):
     return build(configuration=configuration)
 
 
+def checkpoint(name):
+    print('    ----<==== {} ====>----'.format(name))
+
+
 def build(configuration: Configuration):
+    checkpoint('Install Qt')
     install_qt(configuration=configuration)
 
     # application_filter = {
@@ -953,6 +958,7 @@ def build(configuration: Configuration):
     #     'darwin': lambda path: path.suffix == '',
     # }[configuration.platform]
 
+    checkpoint('Define Paths')
     qt_paths = QtPaths.build(
         base=configuration.qt_path,
         version=configuration.qt_version,
@@ -961,13 +967,17 @@ def build(configuration: Configuration):
     )
 
     destinations = Destinations.build(package_path=configuration.package_path)
+
+    checkpoint('Create Directories')
     destinations.create_directories()
 
+    checkpoint('Select Applications')
     applications = filtered_applications(
         applications=qt_paths.applications,
         filter=lambda path: 'webengine' in fspath(path).casefold(),
     )
 
+    checkpoint('Define Plugins')
     platform_plugin_names = {
         'linux': ['xcb'],
         'win32': ['minimal'],
@@ -997,6 +1007,7 @@ def build(configuration: Configuration):
         for name in platform_plugin_names
     ]
 
+    checkpoint('Build Application And Platform Plugin Copy Actions')
     copy_actions = {
         *itertools.chain.from_iterable(
             application.copy_actions
@@ -1028,6 +1039,7 @@ def build(configuration: Configuration):
     #                 destinations.qt / less_specific,
     #             )
 
+    checkpoint('Write Entry Points')
     entry_points_py = destinations.package / 'entrypoints.py'
 
     console_scripts = write_entry_points(
@@ -1035,6 +1047,7 @@ def build(configuration: Configuration):
         applications=applications,
     )
 
+    checkpoint('Download PyQt5')
     pyqt5_sdist_path = save_sdist(
         project='PyQt5',
         version=configuration.pyqt_version,
@@ -1049,8 +1062,10 @@ def build(configuration: Configuration):
                 path=configuration.pyqt_source_path,
             )
 
+    checkpoint('Build PyQt5')
     build_path = build_pyqt(configuration, qt_paths)
 
+    checkpoint('Build PyQt5 Plugin Copy Actions')
     all_copy_actions = {
         destinations.qt: copy_actions,
         destinations.package: set(),
@@ -1131,14 +1146,12 @@ def build(configuration: Configuration):
     #     #     package_plugins_designer,
     #     # )
 
-    print('about to copy stuff')
-
+    checkpoint('Execute Copy Actions')
     for reference, actions in all_copy_actions.items():
         for action in actions:
             action.copy(destination_root=reference)
 
-    print('done copying stuff')
-
+    checkpoint('Return Results')
     return Results(console_scripts=console_scripts)
 
 
