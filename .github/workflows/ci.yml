@@ -20,9 +20,24 @@ jobs:
             aqt_name: win64_msvc2017_64
             qt_compiler: msvc2017_64
             vs_path: C:/Program Files (x86)/Microsoft Visual Studio/2017/Enterprise/VC/Auxiliary/Build/vcvars64.bat
+            python_version: 3.6
+            bitness: x64
+            toxenv: py36
+          - image: windows-2016
+            platform: windows
+            aqt_name: win64_msvc2017_64
+            qt_compiler: msvc2017_64
+            vs_path: C:/Program Files (x86)/Microsoft Visual Studio/2017/Enterprise/VC/Auxiliary/Build/vcvars64.bat
             python_version: 3.8
             bitness: x64
             toxenv: py38
+          - image: ubuntu-18.04
+            platform: linux
+            aqt_name: gcc_64
+            qt_compiler: gcc_64
+            python_version: 3.6
+            bitness: x64
+            toxenv: py36
           - image: ubuntu-18.04
             platform: linux
             aqt_name: gcc_64
