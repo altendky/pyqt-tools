@@ -1306,16 +1306,17 @@ def install_qt(configuration):
 
     report_and_check_call(
         command=[
-            *(  # TODO: 517 yada seemingly doesn't get the right PATH
-                #           on windows
-                [
-                    sys.executable,
-                    '-m',
-                ]
-                if configuration.platform == 'win32'
-                else []
-            ),
-            'aqt',
+            # *(  # TODO: 517 yada seemingly doesn't get the right PATH
+            #     #           on windows
+            #     [
+            #         sys.executable,
+            #         '-m',
+            #     ]
+            #     if configuration.platform == 'win32'
+            #     else []
+            # ),
+            sys.executable,
+            '-m', 'aqt',
             'install',
             '--outputdir', configuration.qt_path.resolve(),
             configuration.qt_version,
