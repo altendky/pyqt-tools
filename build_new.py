@@ -338,7 +338,7 @@ class Win32Executable:
             reference_path: pathlib.Path,
             windeployqt: pathlib.Path,
     ) -> T:
-        relative_path = path.resolve().relative_to(reference_path)
+        relative_path = path.resolve().relative_to(reference_path.resolve())
         copy_actions = win32_executable_copy_actions(
             source_path=path,
             reference_path=reference_path,
