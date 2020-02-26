@@ -18,16 +18,24 @@ jobs:
           - name: Linux
             runs-on: ubuntu-latest
             python_platform: linux
+            aqt_architecture: gcc_64
+            qt_compiler: gcc_64
           - name: Windows
             runs-on: windows-latest
             python_platform: win32
+            aqt_architecture: win64_msvc2017_64
+            qt_compiler: msvc2017_64
+            vs_path: C:/Program Files (x86)/Microsoft Visual Studio/2017/Enterprise/VC/Auxiliary/Build/vcvars64.bat
           - name: macOS
             runs-on: macos-latest
             python_platform: darwin
+            aqt_architecture: clang_64
+            qt_compiler: clang_64
         python:
-          - name: CPython 3.5
-            tox: py35
-            action: 3.5
+# type hints in build_new.py
+#           - name: CPython 3.5
+#             tox: py35
+#             action: 3.5
           - name: CPython 3.6
             tox: py36
             action: 3.6
@@ -40,9 +48,6 @@ jobs:
         qt:
           - pyqt_version: 5.14.1
             qt_version: 5.14.1
-            aqt_architecture: win64_msvc2017_64
-            qt_compiler: msvc2017_64
-            vs_path: C:/Program Files (x86)/Microsoft Visual Studio/2017/Enterprise/VC/Auxiliary/Build/vcvars64.bat
         bitness:
           - name: x64
             action: x64
@@ -98,8 +103,8 @@ jobs:
     env:
 #      QT_COMPILER_DIRECTORY: ${{ env.QT_BASE_DIRECTORY }}/${{ matrix.qt }}/${{ matrix.arch.directory }}
       QT_VERSION: ${{ matrix.qt.qt_version }}
-      QT_COMPILER: ${{ matrix.qt.qt_compiler }}
-      QT_ARCHITECTURE: ${{ matrix.qt.aqt_architecture }}
+      QT_COMPILER: ${{ matrix.os.qt_compiler }}
+      QT_ARCHITECTURE: ${{ matrix.os.aqt_architecture }}
       PYQT_VERSION: ${{ matrix.qt.pyqt_version }}
 
     steps:
@@ -129,7 +134,7 @@ jobs:
           pip install tox
           pip install git+https://github.com/altendky/aqtinstall@ec97a68f1798589afc9a74bf0080c96106ecf6e4#egg=aqtinstall git+https://github.com/altendky/py7zr@c3def1e1d93a7a3a0b46cc157a6c9d24aeaed67c#egg=py7zr attrs aqtinstall hyperlink macholib pip psutil pylddwrap PyQt-builder requests setuptools sip vcversioner wheel
       - name: Install Linux dependencies
-        if: matrix.system.platform == 'linux'
+        if: matrix.os.python_platform == 'linux'
         run: |
           sudo apt-get update
           sudo apt-get install libgl1-mesa-dev xvfb
