@@ -14,61 +14,93 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        system:
-          - image: windows-2016
-            platform: windows
-            aqt_name: win64_msvc2017_64
+        os:
+          - name: Linux
+            runs-on: ubuntu-latest
+            python_platform: linux
+          - name: Windows
+            runs-on: windows-latest
+            python_platform: win32
+          - name: macOS
+            runs-on: macos-latest
+            python_platform: darwin
+        python:
+          - name: CPython 3.5
+            tox: py35
+            action: 3.5
+          - name: CPython 3.6
+            tox: py36
+            action: 3.6
+          - name: CPython 3.7
+            tox: py37
+            action: 3.7
+          - name: CPython 3.8
+            tox: py38
+            action: 3.8
+        qt:
+          - pyqt_version: 5.14.1
+            qt_version: 5.14.1
+            aqt_architecture: win64_msvc2017_64
             qt_compiler: msvc2017_64
             vs_path: C:/Program Files (x86)/Microsoft Visual Studio/2017/Enterprise/VC/Auxiliary/Build/vcvars64.bat
-            python_version: 3.6
-            bitness: x64
-            toxenv: py36
-          - image: windows-2016
-            platform: windows
-            aqt_name: win64_msvc2017_64
-            qt_compiler: msvc2017_64
-            vs_path: C:/Program Files (x86)/Microsoft Visual Studio/2017/Enterprise/VC/Auxiliary/Build/vcvars64.bat
-            python_version: 3.8
-            bitness: x64
-            toxenv: py38
-          - image: ubuntu-18.04
-            platform: linux
-            aqt_name: gcc_64
-            qt_compiler: gcc_64
-            python_version: 3.6
-            bitness: x64
-            toxenv: py36
-          - image: ubuntu-18.04
-            platform: linux
-            aqt_name: gcc_64
-            qt_compiler: gcc_64
-            python_version: 3.8
-            bitness: x64
-            toxenv: py38
-          - image: macos-10.15
-            platform: mac
-            aqt_name: clang_64
-            qt_compiler: clang_64
-            python_version: 3.6
-            bitness: x64
-            toxenv: py36
-          - image: macos-10.15
-            platform: mac
-            aqt_name: clang_64
-            qt_compiler: clang_64
-            python_version: 3.8
-            bitness: x64
-            toxenv: py38
-        versions:
-          - qt: 5.14.1
-            pyqt: 5.14.1
+        bitness:
+          - name: x64
+            action: x64
+#         system:
+#           - image: windows-2016
+#             platform: windows
+#             aqt_name: win64_msvc2017_64
+#             qt_compiler: msvc2017_64
+#             vs_path: C:/Program Files (x86)/Microsoft Visual Studio/2017/Enterprise/VC/Auxiliary/Build/vcvars64.bat
+#             python_version: 3.6
+#             bitness: x64
+#             toxenv: py36
+#           - image: windows-2016
+#             platform: windows
+#             aqt_name: win64_msvc2017_64
+#             qt_compiler: msvc2017_64
+#             vs_path: C:/Program Files (x86)/Microsoft Visual Studio/2017/Enterprise/VC/Auxiliary/Build/vcvars64.bat
+#             python_version: 3.8
+#             bitness: x64
+#             toxenv: py38
+#           - image: ubuntu-18.04
+#             platform: linux
+#             aqt_name: gcc_64
+#             qt_compiler: gcc_64
+#             python_version: 3.6
+#             bitness: x64
+#             toxenv: py36
+#           - image: ubuntu-18.04
+#             platform: linux
+#             aqt_name: gcc_64
+#             qt_compiler: gcc_64
+#             python_version: 3.8
+#             bitness: x64
+#             toxenv: py38
+#           - image: macos-10.15
+#             platform: mac
+#             aqt_name: clang_64
+#             qt_compiler: clang_64
+#             python_version: 3.6
+#             bitness: x64
+#             toxenv: py36
+#           - image: macos-10.15
+#             platform: mac
+#             aqt_name: clang_64
+#             qt_compiler: clang_64
+#             python_version: 3.8
+#             bitness: x64
+#             toxenv: py38
+#         versions:
+#           - qt: 5.14.1
+#             pyqt: 5.14.1
 
     env:
 #      QT_COMPILER_DIRECTORY: ${{ env.QT_BASE_DIRECTORY }}/${{ matrix.qt }}/${{ matrix.arch.directory }}
-      QT_VERSION: ${{ matrix.versions.qt }}
-      QT_COMPILER: ${{ matrix.system.qt_compiler }}
-      QT_ARCHITECTURE: ${{ matrix.system.aqt_name }}
-      PYQT_VERSION: ${{ matrix.versions.pyqt }}
+      QT_VERSION: ${{ matrix.qt.qt_version }}
+      QT_COMPILER: ${{ matrix.qt.qt_compiler }}
+      QT_ARCHITECTURE: ${{ matrix.qt.aqt_architecture }}
+      PYQT_VERSION: ${{ matrix.qt.pyqt_version }}
 
     steps:
       - name: Checkout
@@ -77,14 +109,14 @@ jobs:
 #        run: |
 #          pip install aqtinstall sip
 #          PyQt5==${{ matrix.versions.pyqt }}
-      - name: Set up Python ${{ matrix.system.python_version }}
+      - name: Set up Python ${{ matrix.python.name }}
         uses: actions/setup-python@v1
         with:
-          python-version: ${{ matrix.system.python_version }}
-          architecture: ${{ matrix.system.bitness }}
+          python-version: ${{ matrix.python.action }}
+          architecture: ${{ matrix.bitness.action }}
       - name: Set up MSVC
         uses: ilammy/msvc-dev-cmd@v1
-        if: matrix.system.platform == 'windows'
+        if: matrix.os.python_platform == 'win32'
 #      - name: Build wheel with Visual Studio
 #        if: matrix.system.platform == 'windows'
 #        run: |
@@ -136,12 +168,12 @@ jobs:
       - name: Test
         continue-on-error: true
         run: |
-          tox -e ${{ matrix.system.toxenv }} --installpkg ${{ env['WHEEL_PATH'] }}
+          tox -e ${{ matrix.python.tox }} --installpkg ${{ env['WHEEL_PATH'] }}
       - name: Archive wheel
         if: always()
         uses: actions/upload-artifact@v1
         with:
-          name: pyqt5-tools-${{ matrix.system.platform }}-${{ matrix.system.toxenv }}-${{ matrix.system.bitness }}
+          name: pyqt5-tools-${{ matrix.os.name }}-${{ matrix.python.tox }}-${{ matrix.bitness.name }}
           path: dist
 #      - name: Tree /tmp/pip-*
 #        if: always() && matrix.system.platform == 'mac'
