@@ -1296,6 +1296,16 @@ def build_pyqt(configuration, qt_paths):
 def install_qt(configuration):
     report_and_check_call(
         command=[
+            sys.executable,
+            '-m', 'pip',
+            'install',
+            '--upgrade',
+            'git+https://github.com/miurahr/aqtinstall@8b983d0a655a3a4e83cc2c35c4910b37f9b01cea#egg=aqtinstall',
+        ],
+    )
+
+    report_and_check_call(
+        command=[
             *(  # TODO: 517 yada seemingly doesn't get the right PATH
                 #           on windows
                 [
