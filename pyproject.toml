@@ -2,9 +2,9 @@
 requires = [
     "attrs",
     "aqtinstall",
+    "py7zr==0.6b5",
     "hyperlink",
     "macholib",
-    "pip",
     "psutil",
     "pylddwrap",
     "PyQt-builder",
