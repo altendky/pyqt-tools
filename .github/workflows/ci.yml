@@ -80,7 +80,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip setuptools
           pip install tox
-          pip install git+https://github.com/altendky/aqtinstall@ec97a68f1798589afc9a74bf0080c96106ecf6e4#egg=aqtinstall git+https://github.com/altendky/py7zr@c3def1e1d93a7a3a0b46cc157a6c9d24aeaed67c#egg=py7zr attrs aqtinstall hyperlink macholib pip psutil pylddwrap PyQt-builder requests setuptools sip vcversioner wheel
+          "pip install git+https://github.com/altendky/aqtinstall@ec97a68f1798589afc9a74bf0080c96106ecf6e4#egg=aqtinstall git+https://github.com/altendky/py7zr@c3def1e1d93a7a3a0b46cc157a6c9d24aeaed67c#egg=py7zr attrs aqtinstall hyperlink macholib pip psutil pylddwrap PyQt-builder requests setuptools sip vcversioner wheel"
       - name: Install Linux dependencies
         if: matrix.system.platform == 'linux'
         run: |
