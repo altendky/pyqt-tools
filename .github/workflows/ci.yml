@@ -132,7 +132,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip setuptools
           pip install tox
-#          pip install aqtinstall==0.8a1 py7zr==0.6b6 attrs aqtinstall hyperlink macholib pip psutil pylddwrap PyQt-builder requests setuptools sip vcversioner wheel
+#          pip install aqtinstall==0.7.5 py7zr==0.6b6 attrs aqtinstall hyperlink macholib pip psutil pylddwrap PyQt-builder requests setuptools sip vcversioner wheel
       - name: Install Linux dependencies
         if: matrix.os.python_platform == 'linux'
         run: |
