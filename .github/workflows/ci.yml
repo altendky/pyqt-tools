@@ -169,6 +169,7 @@ jobs:
           [wheel] = dist.glob('*.whl')
 
           print('::set-env name=WHEEL_PATH::{}'.format(fspath(wheel)))
+          print('::set-env name=WHEEL_STEM::{}'.format(wheel.stem))
       - name: Test
         continue-on-error: true
         run: |
@@ -177,7 +178,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v1
         with:
-          name: pyqt5-tools-${{ matrix.os.name }}-${{ matrix.python.tox }}-${{ matrix.bitness.name }}
+          name: env['WHEEL_STEM']
           path: dist
 #      - name: Tree /tmp/pip-*
 #        if: always() && matrix.system.platform == 'mac'
