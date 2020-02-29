@@ -555,10 +555,7 @@ AnyApplication = typing.Union[
     Win32Executable,
 ]
 
-application_types_by_platform: typing.Dict[
-    str,
-    typing.List[AnyApplication],
-] = {
+application_types_by_platform = {   # typing.Dict[str, typing.List[AnyApplication]]
     'linux': [LinuxExecutable],
     'win32': [Win32Executable],
     'darwin': [DarwinExecutable, DarwinDotApp],
@@ -738,7 +735,7 @@ def download_base(
         *args,
         chunk_size=default_chunk_size,
         resume=True,
-        **kwargs,
+        **kwargs
 ):
     if resume:
         headers = kwargs.get('headers', {})
