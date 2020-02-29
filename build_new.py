@@ -1054,7 +1054,7 @@ def build(configuration: Configuration):
         directory=configuration.download_path,
     )
 
-    with tarfile.open(pyqt5_sdist_path) as tar_file:
+    with tarfile.open(fspath(pyqt5_sdist_path)) as tar_file:
         for member in tar_file.getmembers():
             member.name = pathlib.Path(*pathlib.Path(member.name).parts[1:])
             tar_file.extract(
