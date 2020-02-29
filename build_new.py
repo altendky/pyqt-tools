@@ -681,7 +681,7 @@ def report_and_check_call(command, *args, cwd=None, shell=False, **kwargs):
             print('    {}'.format(repr(arg)))
 
     sys.stdout.flush()
-    return subprocess.run(command, *args, cwd=cwd, check=True, **kwargs)
+    return subprocess.run(command, *args, cwd=fspath(cwd), check=True, **kwargs)
 
 
 @attr.s(frozen=True)
