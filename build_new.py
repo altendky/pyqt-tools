@@ -1218,14 +1218,16 @@ def windeployqt_list_source(
                 target,
             ],
             stdout=subprocess.PIPE,
-            encoding='utf-8',
+            # ugh, 3.5
+            # encoding='utf-8',
         )
     except subprocess.CalledProcessError as e:
         raise DependencyCollectionError(target) from e
 
     paths = [
         pathlib.Path(line)
-        for line in process.stdout.splitlines()
+        # re: .decode...  ugh, 3.5
+        for line in process.stdout.decode('utf-8').splitlines()
     ]
 
     return paths
