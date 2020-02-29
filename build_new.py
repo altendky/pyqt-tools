@@ -925,7 +925,10 @@ def main(package_path, build_base_path):
     print('before ---!!!', file=sys.stderr)
     # TODO: uhhh....  i'm trying to use an existing directory i thought
     build_base_path.mkdir(parents=True, exist_ok=True)
-    build_path = tempfile.mkdtemp(prefix='pyqt5_tools-', dir=build_base_path)
+    build_path = tempfile.mkdtemp(
+        prefix='pyqt5_tools-',
+        dir=fspath(build_base_path),
+    )
     print('after ---!!!', file=sys.stderr)
     build_path = pathlib.Path(build_path)
 
