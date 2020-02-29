@@ -1059,7 +1059,7 @@ def build(configuration: Configuration):
             member.name = pathlib.Path(*pathlib.Path(member.name).parts[1:])
             tar_file.extract(
                 member=member,
-                path=configuration.pyqt_source_path,
+                path=fspath(configuration.pyqt_source_path),
             )
 
     checkpoint('Build PyQt5')
