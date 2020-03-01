@@ -178,7 +178,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v1
         with:
-          name: env['WHEEL_STEM']
+          name: ${{ env['WHEEL_STEM'] }}
           path: dist
 #      - name: Tree /tmp/pip-*
 #        if: always() && matrix.system.platform == 'mac'
