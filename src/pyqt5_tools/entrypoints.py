@@ -7,6 +7,7 @@ import sysconfig
 
 import click
 import dotenv
+# import PyQt5.QtCore
 
 import pyqt5_tools.badplugin
 import pyqt5_tools.examplebuttonplugin
@@ -172,6 +173,14 @@ def pyqt5designer(
 
     if qt_debug_plugins:
         env['QT_DEBUG_PLUGINS'] = '1'
+
+    import PyQt5.QtCore
+    env['QT_PLUGIN_PATH'] = os.pathsep.join([
+        #PyQt5.QtCore.QLibraryInfo.location(
+        #    PyQt5.QtCore.QLibraryInfo.PluginsPath,
+        #),
+        fspath(pathlib.Path(pyqt5_tools.__file__).parent / 'Qt' / 'plugins'),
+    ])
 
     print_environment_variables(env, *vars_to_print)
 
