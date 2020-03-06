@@ -59,7 +59,7 @@ def create_env(reference):
         env=env,
         name='QT_PLUGIN_PATH',
         before=[],
-        after=fspath(here / 'Qt' / 'plugins'),
+        after=[fspath(here / 'Qt' / 'plugins')],
     ))
     # TODO: maybe also
     # PyQt5.QtCore.QLibraryInfo.location(
@@ -169,6 +169,7 @@ def pyqt5designer(
         'PYTHONPATH',
         'PATH',
         'QT_DEBUG_PLUGINS',
+        'QT_PLUGIN_PATH',
     ]
 
     env.update(add_to_env_var_path_list(
@@ -274,6 +275,7 @@ def pyqt5qmlscene(
         'PYTHONPATH',
         'PATH',
         'QT_DEBUG_PLUGINS',
+        'QT_PLUGIN_PATH',
     )
 
     command = [
@@ -340,6 +342,7 @@ def pyqt5qmltestrunner(
         'PYTHONPATH',
         'PATH',
         'QT_DEBUG_PLUGINS',
+        'QT_PLUGIN_PATH',
     )
 
     command = [
