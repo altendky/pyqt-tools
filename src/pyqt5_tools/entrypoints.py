@@ -66,6 +66,8 @@ def create_env(reference):
     #    PyQt5.QtCore.QLibraryInfo.PluginsPath,
     # )
 
+    return env
+
 
 def add_to_env_var_path_list(env, name, before, after):
     return {
