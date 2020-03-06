@@ -137,7 +137,7 @@ jobs:
         if: matrix.os.python_platform == 'linux'
         run: |
           sudo apt-get update
-          sudo apt-get install libgl1-mesa-dev xvfb
+          sudo apt-get install libgl1-mesa-dev libxkbcommon-x11-0 xvfb
       - name: Report info
         run: |
           git show --quiet HEAD
