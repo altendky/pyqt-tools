@@ -19,20 +19,17 @@ jobs:
           - name: Linux
             runs-on: ubuntu-latest
             python_platform: linux
-            tox: linux
             aqt_architecture: gcc_64
             qt_compiler: gcc_64
           - name: Windows
             runs-on: windows-latest
             python_platform: win32
-            tox: windows
             aqt_architecture: win64_msvc2017_64
             qt_compiler: msvc2017_64
             vs_path: C:/Program Files (x86)/Microsoft Visual Studio/2017/Enterprise/VC/Auxiliary/Build/vcvars64.bat
           - name: macOS
             runs-on: macos-latest
             python_platform: darwin
-            tox: macos
             aqt_architecture: clang_64
             qt_compiler: clang_64
         python:
@@ -177,7 +174,7 @@ jobs:
       - name: Test
         continue-on-error: true
         run: |
-          tox -e ${{ matrix.python.tox }}-${{ matrix.os.tox }} --installpkg ${{ env['WHEEL_PATH'] }}
+          tox -e ${{ matrix.python.tox }} --installpkg ${{ env['WHEEL_PATH'] }}
       - name: Archive wheel
         if: always()
         uses: actions/upload-artifact@v1
