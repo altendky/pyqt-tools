@@ -255,8 +255,6 @@ def pyqt5qmlscene(
     if qmlscene_help:
         extras.append('--help')
 
-    env = dict(os.environ)
-
     if run_qml_example:
         qml2_import_paths = qml2_import_paths + (fspath(here),)
         extras.append(fspath(
@@ -319,8 +317,6 @@ def pyqt5qmltestrunner(
     if qmltestrunner_help:
         extras.append('--help')
 
-    env = dict(os.environ)
-
     if test_qml_example:
         qml2_import_paths = qml2_import_paths + (fspath(here),)
         extras.extend([
@@ -356,4 +352,10 @@ def pyqt5qmltestrunner(
 
 # def designer():
 #     env = create_env(os.environ)
-#     return subprocess.call([str(here/'Qt'/'bin'/'designer.exe'), *sys.argv[1:]])
+#     return subprocess.call(
+#         [
+#             str(here/'Qt'/'bin'/'designer.exe'),
+#             *sys.argv[1:],
+#         ],
+#         env=env,
+#     )
