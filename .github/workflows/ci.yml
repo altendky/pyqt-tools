@@ -10,6 +10,7 @@ on:
 
 jobs:
   ci:
+    name: ${{ matrix.os.name }} ${{ matrix.python.name }} ${{ matrix.qt.pyqt_version }}
     runs-on: ${{ matrix.os.runs-on }}
     strategy:
       fail-fast: false
@@ -32,16 +33,16 @@ jobs:
             aqt_architecture: clang_64
             qt_compiler: clang_64
         python:
-          - name: CPython 3.5
+          - name: 3.5
             tox: py35
             action: 3.5
-          - name: CPython 3.6
+          - name: 3.6
             tox: py36
             action: 3.6
-          - name: CPython 3.7
+          - name: 3.7
             tox: py37
             action: 3.7
-          - name: CPython 3.8
+          - name: 3.8
             tox: py38
             action: 3.8
         qt:
