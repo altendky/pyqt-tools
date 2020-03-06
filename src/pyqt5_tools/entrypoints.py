@@ -46,6 +46,7 @@ def load_dotenv():
     env_path = dotenv.find_dotenv(usecwd=True)
     if len(env_path) > 0:
         os.environ['DOT_ENV_DIRECTORY'] = str(pathlib.Path(env_path).parent)
+        os.environ['SITE_PACKAGES'] = sysconfig.get_path('platlib')
         dotenv.load_dotenv(dotenv_path=env_path, override=True)
 
 
