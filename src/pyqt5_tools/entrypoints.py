@@ -8,6 +8,7 @@ import sysconfig
 import click
 import dotenv
 
+import PyQt5
 import pyqt5_tools.badplugin
 import pyqt5_tools.examplebuttonplugin
 import pyqt5_tools.examples
@@ -23,6 +24,8 @@ example_path = str(
 bad_path = str(
     pathlib.Path(pyqt5_tools.badplugin.__file__).parent,
 )
+
+pyqt5_root = pathlib.Path(PyQt5.__file__).parent
 
 maybe_extension = {
     'linux': lambda name: name,
@@ -219,7 +222,7 @@ def mutate_qml_path(env, paths):
     env.update(add_to_env_var_path_list(
         env=env,
         name='QML2_IMPORT_PATH',
-        before=[*paths, str(here/'Qt'/'qml')],
+        before=[*paths, fspath(pyqt5_root/'Qt'/'qml')],
         after=[''],
     ))
 
