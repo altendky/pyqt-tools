@@ -1386,11 +1386,14 @@ def write_entry_points(
         for application in applications:
             function_def = textwrap.dedent('''\
                 def {function_name}():
-                    load_dotenv()
-                    return subprocess.call([
-                        str(here/'Qt'/'{application}'),
-                        *sys.argv[1:],
-                    ])
+                    env = create_env(os.environ)
+                    return subprocess.call(
+                        [
+                            str(here/'Qt'/'{application}'),
+                            *sys.argv[1:],
+                        ],
+                        env=env,
+                    )
     
     
             ''')

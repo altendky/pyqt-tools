@@ -7,7 +7,6 @@ import sysconfig
 
 import click
 import dotenv
-# import PyQt5.QtCore
 
 import pyqt5_tools.badplugin
 import pyqt5_tools.examplebuttonplugin
@@ -48,6 +47,24 @@ def load_dotenv():
     if len(env_path) > 0:
         os.environ['DOT_ENV_DIRECTORY'] = str(pathlib.Path(env_path).parent)
         dotenv.load_dotenv(dotenv_path=env_path, override=True)
+
+
+def create_env(reference):
+    # TODO: uck, mutating
+    load_dotenv()
+
+    env = dict(reference)
+
+    env.update(add_to_env_var_path_list(
+        env=env,
+        name='QT_PLUGIN_PATH',
+        before=[],
+        after=fspath(here / 'Qt' / 'plugins'),
+    ))
+    # TODO: maybe also
+    # PyQt5.QtCore.QLibraryInfo.location(
+    #    PyQt5.QtCore.QLibraryInfo.PluginsPath,
+    # )
 
 
 def add_to_env_var_path_list(env, name, before, after):
@@ -131,7 +148,7 @@ def pyqt5designer(
         test_exception_dialog,
         qt_debug_plugins
 ):
-    load_dotenv()
+    env = create_env(os.environ)
 
     extras = []
     widget_paths = list(widget_paths)
@@ -152,7 +169,6 @@ def pyqt5designer(
         'QT_DEBUG_PLUGINS',
     ]
 
-    env = dict(os.environ)
     env.update(add_to_env_var_path_list(
         env=env,
         name='PYQTDESIGNERPATH',
@@ -173,14 +189,6 @@ def pyqt5designer(
 
     if qt_debug_plugins:
         env['QT_DEBUG_PLUGINS'] = '1'
-
-    import PyQt5.QtCore
-    env['QT_PLUGIN_PATH'] = os.pathsep.join([
-        #PyQt5.QtCore.QLibraryInfo.location(
-        #    PyQt5.QtCore.QLibraryInfo.PluginsPath,
-        #),
-        fspath(pathlib.Path(pyqt5_tools.__file__).parent / 'Qt' / 'plugins'),
-    ])
 
     print_environment_variables(env, *vars_to_print)
 
@@ -238,7 +246,7 @@ def pyqt5qmlscene(
         qt_debug_plugins,
         run_qml_example,
 ):
-    load_dotenv()
+    env = create_env(os.environ)
     extras = []
 
     if qmlscene_help:
@@ -301,7 +309,7 @@ def pyqt5qmltestrunner(
         qt_debug_plugins,
         test_qml_example,
 ):
-    load_dotenv()
+    env = create_env(os.environ)
     extras = []
 
     if qmltestrunner_help:
@@ -342,5 +350,5 @@ def pyqt5qmltestrunner(
 
 
 # def designer():
-#     load_dotenv()
+#     env = create_env(os.environ)
 #     return subprocess.call([str(here/'Qt'/'bin'/'designer.exe'), *sys.argv[1:]])
