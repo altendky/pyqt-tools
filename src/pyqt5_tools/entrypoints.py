@@ -70,6 +70,14 @@ def create_env(reference):
     #    PyQt5.QtCore.QLibraryInfo.PluginsPath,
     # )
 
+    if sys.platform == 'linux':
+        env.update(add_to_env_var_path_list(
+            env=env,
+            name='LD_LIBRARY_PATH',
+            before=[''],
+            after=[sysconfig.get_config_var('LIBDIR')],
+        ))
+
     return env
 
 
@@ -176,21 +184,15 @@ def pyqt5designer(
         'QT_PLUGIN_PATH',
     ]
 
+    if sys.platform == 'linux':
+        vars_to_print.append('LD_LIBRARY_PATH')
+
     env.update(add_to_env_var_path_list(
         env=env,
         name='PYQTDESIGNERPATH',
         before=widget_paths,
         after=[''],
     ))
-
-    if sys.platform == 'linux':
-        vars_to_print.append('LD_LIBRARY_PATH')
-        env.update(add_to_env_var_path_list(
-            env=env,
-            name='LD_LIBRARY_PATH',
-            before=[''],
-            after=[sysconfig.get_config_var('LIBDIR')],
-        ))
 
     mutate_env_for_paths(env)
 
@@ -271,14 +273,18 @@ def pyqt5qmlscene(
     if qt_debug_plugins:
         env['QT_DEBUG_PLUGINS'] = '1'
 
-    print_environment_variables(
-        env,
+    vars_to_print = [
         'QML2_IMPORT_PATH',
         'PYTHONPATH',
         'PATH',
         'QT_DEBUG_PLUGINS',
         'QT_PLUGIN_PATH',
-    )
+    ]
+
+    if sys.platform == 'linux':
+        vars_to_print.append('LD_LIBRARY_PATH')
+
+    print_environment_variables(env, *vars_to_print)
 
     command = [
         str(bin / maybe_extension('qmlscene')),
@@ -336,14 +342,18 @@ def pyqt5qmltestrunner(
     if qt_debug_plugins:
         env['QT_DEBUG_PLUGINS'] = '1'
 
-    print_environment_variables(
-        env,
+    vars_to_print = [
         'QML2_IMPORT_PATH',
         'PYTHONPATH',
         'PATH',
         'QT_DEBUG_PLUGINS',
         'QT_PLUGIN_PATH',
-    )
+    ]
+
+    if sys.platform == 'linux':
+        vars_to_print.append('LD_LIBRARY_PATH')
+
+    print_environment_variables(env, *vars_to_print)
 
     command = [
         str(bin / maybe_extension('qmltestrunner')),
