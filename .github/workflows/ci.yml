@@ -171,16 +171,14 @@ jobs:
 
           print('::set-env name=WHEEL_PATH::{}'.format(fspath(wheel)))
           print('::set-env name=WHEEL_STEM::{}'.format(wheel.stem))
-      - name: Test
-        continue-on-error: true
-        run: |
-          tox -e ${{ matrix.python.tox }} --installpkg ${{ env['WHEEL_PATH'] }}
       - name: Archive wheel
-        if: always()
         uses: actions/upload-artifact@v1
         with:
           name: ${{ env['WHEEL_STEM'] }}
           path: dist
+      - name: Test
+        run: |
+          tox -e ${{ matrix.python.tox }} --installpkg ${{ env['WHEEL_PATH'] }}
 #      - name: Tree /tmp/pip-*
 #        if: always() && matrix.system.platform == 'mac'
 #        shell: python
