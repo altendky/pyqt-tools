@@ -1294,7 +1294,7 @@ def build_pyqt(configuration, qt_paths):
     )
     if configuration.platform == 'win32':
         command = ['nmake']
-    #     env = {**os.environ, 'CL': '/MP'}
+        env = {**os.environ}#, 'CL': '/MP'}
     else:
         if configuration.platform == 'darwin':
             available_cpus = psutil.cpu_count(logical=True)
