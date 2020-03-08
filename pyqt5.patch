@@ -1,0 +1,16 @@
+diff --git a/qmlscene/pluginloader.cpp b/qmlscene/pluginloader.cpp
+index 635d31e..5c33b1f 100644
+--- a/qmlscene/pluginloader.cpp
++++ b/qmlscene/pluginloader.cpp
+@@ -412,9 +412,9 @@ PyObject *PyQt5QmlPlugin::getModuleAttr(const char *module, const char *attr)
+ void PyQt5QmlPlugin::getSipAPI()
+ {
+ #if defined(SIP_USE_PYCAPSULE)
+-    sip = (const sipAPIDef *)PyCapsule_Import("PyQt5.sip._C_API", 0);
++    sip = (const sipAPIDef *)PyCapsule_Import("PyQt5.a_sip._C_API", 0);
+ #else
+-    PyObject *c_api = getModuleAttr("PyQt5.sip", "_C_API");
++    PyObject *c_api = getModuleAttr("PyQt5.b_sip", "_C_API");
+ 
+     if (c_api)
+     {

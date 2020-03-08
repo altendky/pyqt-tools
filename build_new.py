@@ -1065,6 +1065,9 @@ def build(configuration: Configuration):
                 path=fspath(configuration.pyqt_source_path),
             )
 
+    checkpoint('Patch PyQt5')
+    patch_pyqt(configuration, qt_paths)
+
     checkpoint('Build PyQt5')
     build_path = build_pyqt(configuration, qt_paths)
 
@@ -1245,6 +1248,20 @@ def windeployqt_list_source(
 #             windeployqt=windeployqt,
 #         ),
 #     )
+
+
+def patch_pyqt(configuration, qt_paths):
+    # TODO: gee golly get this figured out properly and configured etc
+    patch_path = pathlib.Path(__file__).parent / 'pyqt5.patch'
+
+    report_and_check_call(
+        command=[
+            'patch',
+            '-p', '1',
+            '-i', fspath(patch_path),
+        ],
+        cwd=fspath(configuration.pyqt_source_path),
+    )
 
 
 def build_pyqt(configuration, qt_paths):
