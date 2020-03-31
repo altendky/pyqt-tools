@@ -155,7 +155,7 @@ class FileCopyAction:
     ) -> T:
         action = cls(
             source=source,
-            destination=source.relative_to(root.resolve()),
+            destination=source.resolve().relative_to(root.resolve()),
         )
 
         return action
