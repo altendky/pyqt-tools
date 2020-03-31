@@ -1036,10 +1036,10 @@ def build(configuration: Configuration):
     }
 
     if configuration.platform == 'linux':
-        copy_actions = [
+        copy_actions = {
             action.linux_less_specific_so_target()
             for action in copy_actions
-        ]
+        }
 
     checkpoint('Write Entry Points')
     entry_points_py = destinations.package / 'entrypoints.py'
