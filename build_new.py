@@ -179,6 +179,20 @@ class FileCopyAction:
 
         return actions
 
+    def linux_less_specific_so_target(self):
+        destination = self.destination
+
+        if '.so.' in destination.name:
+            marker = '.so.'
+            index = destination.name.find(marker)
+            index = destination.name.find('.', index + len(marker));
+            less_specific = destination.with_name(destination.name[:index])
+
+            if destination == less_specific:
+                return self
+
+            return attr.evolve(self, destination=less_specific)
+
     def copy(self, destination_root: pathlib.Path) -> None:
         destination = destination_root / self.destination
         destination.parent.mkdir(parents=True, exist_ok=True)
@@ -1021,25 +1035,11 @@ def build(configuration: Configuration):
         ),
     }
 
-    # for path in paths_to_copy:
-    #     destination = destinations.qt / path
-    #     destination.parent.mkdir(parents=True, exist_ok=True)
-    #
-    #     src = qt_paths.compiler / path
-    #     dst = destination
-    #     print(src, '+->', dst)
-    #     shutil.copy(src=src, dst=dst)
-    #
-    #     if sys.platform == 'linux' and '.so.' in path.name:
-    #         marker = '.so.'
-    #         index = path.name.find(marker)
-    #         index = path.name.find('.', index + len(marker));
-    #         less_specific = path.with_name(path.name[:index])
-    #
-    #         if path != less_specific:
-    #             (destinations.qt / path).rename(
-    #                 destinations.qt / less_specific,
-    #             )
+    if configuration.platform == 'linux':
+        copy_actions = [
+            action.linux_less_specific_so_target()
+            for action in copy_actions
+        ]
 
     checkpoint('Write Entry Points')
     entry_points_py = destinations.package / 'entrypoints.py'
