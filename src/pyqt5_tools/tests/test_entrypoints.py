@@ -89,3 +89,23 @@ def test_qmltestrunner_paints_test_item(tmp_path):
         file_path.read_bytes()
         == pyqt5_tools.examples.exampleqmlitem.test_file_contents
     )
+
+
+def test_debug_pip_freeze():
+    subprocess.run(
+        [
+            sys.executable,
+            '-m', 'pip',
+            'freeze',
+        ],
+    )
+
+
+def test_debug_pyqt5_sip_path():
+    subprocess.run(
+        [
+            sys.executable,
+            '-c',
+            'import PyQt5.sip; print(PyQt5.sip)',
+        ],
+    )
