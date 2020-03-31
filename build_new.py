@@ -179,7 +179,7 @@ class FileCopyAction:
 
         return actions
 
-    def linux_less_specific_so_target(self):
+    def linux_less_specific_so_target(self: T) -> T:
         destination = self.destination
 
         if '.so.' in destination.name:
