@@ -1167,7 +1167,7 @@ def filtered_relative_to(
 ) -> typing.Generator[pathlib.Path, None, None]:
     for path in paths:
         try:
-            path.resolve().relative_to(base)
+            path.resolve().relative_to(base.resolve())
         except (ValueError, OSError):
             print('filtering out: {}'.format(fspath(path)))
             continue
