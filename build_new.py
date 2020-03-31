@@ -188,10 +188,10 @@ class FileCopyAction:
             index = destination.name.find('.', index + len(marker));
             less_specific = destination.with_name(destination.name[:index])
 
-            if destination == less_specific:
-                return self
+            if destination != less_specific:
+                return attr.evolve(self, destination=less_specific)
 
-            return attr.evolve(self, destination=less_specific)
+        return self
 
     def copy(self, destination_root: pathlib.Path) -> None:
         destination = destination_root / self.destination
