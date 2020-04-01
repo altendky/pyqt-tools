@@ -12,6 +12,9 @@ import PyQt5
 import pyqt5_tools.badplugin
 import pyqt5_tools.examplebuttonplugin
 import pyqt5_tools.examples
+import pyqt5_tools.examples.exampleqmlitem
+import pyqt5_tools.tests.testbutton
+
 
 fspath = getattr(os, 'fspath', str)
 
@@ -182,6 +185,7 @@ def pyqt5designer(
         'PATH',
         'QT_DEBUG_PLUGINS',
         'QT_PLUGIN_PATH',
+        pyqt5_tools.tests.testbutton.test_path_env_var,
     ]
 
     if sys.platform == 'linux':
@@ -279,6 +283,7 @@ def pyqt5qmlscene(
         'PATH',
         'QT_DEBUG_PLUGINS',
         'QT_PLUGIN_PATH',
+        pyqt5_tools.examples.exampleqmlitem.test_path_env_var,
     ]
 
     if sys.platform == 'linux':
@@ -348,6 +353,7 @@ def pyqt5qmltestrunner(
         'PATH',
         'QT_DEBUG_PLUGINS',
         'QT_PLUGIN_PATH',
+        pyqt5_tools.examples.exampleqmlitem.test_path_env_var,
     ]
 
     if sys.platform == 'linux':
