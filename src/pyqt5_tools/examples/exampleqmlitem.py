@@ -1,7 +1,6 @@
 import os
 import pathlib
 
-import lkjfakjljklagfslgfhjagfhewrfasd
 from PyQt5 import QtCore
 from PyQt5 import QtQuick
 
