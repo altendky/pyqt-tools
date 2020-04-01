@@ -122,3 +122,25 @@ def test_debug_directory_contents():
             'd' if path.is_dir() else 'f',
             path.relative_to(cwd),
         ))
+
+
+def test_debug_sys_path_contents():
+    files = set()
+    directories = set()
+
+    for string_path in sys.path:
+        maybe_directory = pathlib.Path(string_path)
+        if maybe_directory.is_dir():
+            directory = maybe_directory
+            for path in directory.iterdir():
+                if path.is_dir():
+                    directories.add(path)
+                elif path.suffix == '.py' and path.is_file():
+                    files.add(path)
+
+    for paths in [files, directories]:
+        for path in sorted(paths):
+            print('     {} {}'.format(
+                'd' if path.is_dir() else 'f',
+                path.resolve(),
+            ))
