@@ -1065,8 +1065,8 @@ def build(configuration: Configuration):
                 path=fspath(configuration.pyqt_source_path),
             )
 
-    # checkpoint('Patch PyQt5')
-    # patch_pyqt(configuration, qt_paths)
+    checkpoint('Patch PyQt5')
+    patch_pyqt(configuration, qt_paths)
 
     checkpoint('Build PyQt5')
     build_path = build_pyqt(configuration, qt_paths)
