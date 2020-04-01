@@ -109,3 +109,16 @@ def test_debug_pyqt5_sip_path():
             'import PyQt5.sip; print(PyQt5.sip)',
         ],
     )
+
+
+def test_debug_cwd():
+    print('cwd:', pathlib.Path.cwd())
+
+
+def test_debug_directory_contents():
+    cwd = pathlib.Path.cwd()
+    for path in cwd.iterdir():
+        print('     {} {}'.format(
+            'd' if path.is_dir() else 'f',
+            path.relative_to(cwd),
+        ))
