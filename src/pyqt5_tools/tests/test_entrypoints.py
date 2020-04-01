@@ -69,7 +69,7 @@ def test_qmlscene_paints_test_item(tmp_path):
 
 def test_qmltestrunner_paints_test_item(tmp_path):
     env = dict(os.environ)
-    file_path = tmp_path/'eeyore'
+    file_path = tmp_path/'piglet'
     env[pyqt5_tools.examples.exampleqmlitem.test_path_env_var] = fspath(file_path)
 
     subprocess.run(
