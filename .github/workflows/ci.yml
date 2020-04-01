@@ -138,6 +138,8 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install libgl1-mesa-dev libxkbcommon-x11-0 xvfb
+          # let's guess here...
+          sudo apt-get install mesa-utils
       - name: Report info
         run: |
           git show --quiet HEAD
