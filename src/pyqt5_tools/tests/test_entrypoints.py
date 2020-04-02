@@ -92,7 +92,7 @@ def test_qmltestrunner_paints_test_item(tmp_path):
     )
 
 
-@pytest.mark.skipif(sys.platform != 'linux', 'only linux has ldd')
+@pytest.mark.skipif(sys.platform != 'linux', reason='only linux has ldd')
 def test_debug_ldd_qmlscene():
     qmlscene = pyqt5_tools.entrypoints.bin / 'qmlscene'
 
