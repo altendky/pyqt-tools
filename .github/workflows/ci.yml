@@ -139,7 +139,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install libgl1-mesa-dev libxkbcommon-x11-0 xvfb
           # let's guess here...
-          sudo apt-get install mesa-utils
+          sudo apt-get install mesa-utils linux-generic xserver-xorg-core xserver-xorg xserver-xorg-video-all xserver-xorg-input-all libwayland-egl1-mesa
       - name: Report info
         run: |
           git show --quiet HEAD
