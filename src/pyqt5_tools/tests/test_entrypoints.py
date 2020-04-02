@@ -5,6 +5,7 @@ import sys
 
 import pytest
 
+import pyqt5_tools.entrypoints
 import pyqt5_tools.tests.testbutton
 import pyqt5_tools.tests.testbuttonplugin
 import pyqt5_tools.examples.exampleqmlitem
@@ -89,6 +90,13 @@ def test_qmltestrunner_paints_test_item(tmp_path):
         file_path.read_bytes()
         == pyqt5_tools.examples.exampleqmlitem.test_file_contents
     )
+
+
+@pytest.mark.skipif(sys.platform != 'linux')
+def test_debug_ldd_qmlscene():
+    qmlscene = pyqt5_tools.entrypoints.bin / 'qmlscene'
+
+    subprocess.run(['ldd', qmlscene])
 
 
 def test_debug_pip_freeze():
