@@ -96,7 +96,7 @@ def test_qmltestrunner_paints_test_item(tmp_path):
 def test_debug_ldd_qmlscene():
     qmlscene = pyqt5_tools.entrypoints.bin / 'qmlscene'
 
-    subprocess.run(['ldd', qmlscene])
+    subprocess.run(['ldd', qmlscene], check=True)
 
 
 def test_debug_pip_freeze():
@@ -106,6 +106,7 @@ def test_debug_pip_freeze():
             '-m', 'pip',
             'freeze',
         ],
+        check=True,
     )
 
 
@@ -116,6 +117,7 @@ def test_debug_pyqt5_sip_path():
             '-c',
             'import PyQt5.sip; print(PyQt5.sip)',
         ],
+        check=True,
     )
 
 
