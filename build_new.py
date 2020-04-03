@@ -1279,6 +1279,8 @@ def build_pyqt(configuration, qt_paths):
             '--no-make',
             '--no-tools',
             '--no-dbus-python',
+            # TODO: don't usually want this
+            '--debug',
             '--qmake', qt_paths.qmake,
             *itertools.chain.from_iterable(
                 ['--disable', module]
