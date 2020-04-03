@@ -1,5 +1,5 @@
 diff --git a/qmlscene/pluginloader.cpp b/qmlscene/pluginloader.cpp
-index 635d31e..0d959ad 100644
+index 635d31e..45e3682 100644
 --- a/qmlscene/pluginloader.cpp
 +++ b/qmlscene/pluginloader.cpp
 @@ -21,6 +21,7 @@
@@ -31,8 +31,8 @@ index 635d31e..0d959ad 100644
      if (!plugin_type)
      {
 +        const char * py_plugin_char_pointer = py_plugin.toLatin1().constData();
-+        std::cerr << "pluginloader.ccp debug: (void *) py_plugin_char_pointer " << (void *) py_plugin_char_pointer << "\n";
-+        std::cerr << "pluginloader.ccp debug: py_plugin_char_pointer bytes";
++        std::cerr << "pluginloader.cpp debug: (void *) py_plugin_char_pointer " << (void *) py_plugin_char_pointer << "\n";
++        std::cerr << "pluginloader.cpp debug: py_plugin_char_pointer bytes";
 +        int length = 0;
 +        for (int i = 0; i < 100; i++) {
 +            int b = py_plugin_char_pointer[i];
@@ -42,7 +42,7 @@ index 635d31e..0d959ad 100644
 +                break;
 +            }
 +        }
-+        std::cerr << "pluginloader.ccp debug: py_plugin_char_pointer 0 byte at index " << length;
++        std::cerr << "pluginloader.cpp debug: py_plugin_char_pointer 0 byte at index " << length;
          PyErr_Format(PyExc_AttributeError,
                  "%s does not contain an implementation of QQmlExtensionPlugin",
 -                py_plugin.toLatin1().constData());
@@ -54,7 +54,7 @@ index 635d31e..0d959ad 100644
          if (res_obj)
          {
  #if PY_MAJOR_VERSION >= 3
-+            std::cerr << "pluginloader.ccp debug: res_obj " << res_obj << "\n";
++            std::cerr << "pluginloader.cpp debug: res_obj " << res_obj << "\n";
              PyErr_Format(PyExc_TypeError,
                      "unexpected result from registerTypes(): %S", res_obj);
  #else
