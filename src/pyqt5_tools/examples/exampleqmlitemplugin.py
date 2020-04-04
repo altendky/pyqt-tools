@@ -32,6 +32,10 @@ class ExampleQmlItemPlugin(QtQml.QQmlExtensionPlugin):
             sys.stderr.flush()
             raise
 
+        sys.stderr.write('exampleqmlitemplugin.py debug: ExampleQmlItemPlugin.registerTypes(): about to return None\n')
+        sys.stderr.flush()
+        return None
+
 
 sys.stderr.write('exampleqmlitemplugin.py debug: : import complete\n')
 sys.stderr.flush()
