@@ -1,5 +1,5 @@
 diff --git a/qmlscene/pluginloader.cpp b/qmlscene/pluginloader.cpp
-index 635d31e..6ac3ffa 100644
+index 635d31e..21b082a 100644
 --- a/qmlscene/pluginloader.cpp
 +++ b/qmlscene/pluginloader.cpp
 @@ -21,6 +21,7 @@
@@ -86,10 +86,10 @@ index 635d31e..6ac3ffa 100644
          return false;
  
      // Call registerTypes().
-+    std::cerr << "pluginloader.cpp debug: PyQt5QmlPlugin::callRegisterTypes(): about to call some registerTypes\n";
++    std::cerr << "pluginloader.cpp debug: PyQt5QmlPlugin::callRegisterTypes(): about to call some registerTypes()\n";
      PyObject *res_obj = PyObject_CallMethod(plugin_obj,
              const_cast<char *>("registerTypes"), const_cast<char *>("s"), uri);
-+    std::cerr << "pluginloader.cpp debug: PyQt5QmlPlugin::callRegisterTypes(): about to call some registerTypes\n";
++    std::cerr << "pluginloader.cpp debug: PyQt5QmlPlugin::callRegisterTypes(): just called some registerTypes()\n";
  
      if (res_obj != Py_None)
      {
