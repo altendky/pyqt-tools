@@ -121,6 +121,7 @@ jobs:
 #          pip install aqtinstall sip
 #          PyQt5==${{ matrix.versions.pyqt }}
       - name: Set up Python ${{ matrix.python.name }}
+        if: matrix.os.python_platform != 'linux'
         uses: actions/setup-python@v1
         with:
           python-version: ${{ matrix.python.action }}
