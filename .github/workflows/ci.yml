@@ -23,12 +23,12 @@ jobs:
             aqt_architecture: gcc_64
             qt_compiler: gcc_64
             container: docker://python:3.8-buster
-#          - name: Windows
-#            runs-on: windows-latest
-#            python_platform: win32
-#            aqt_architecture: win64_msvc2017_64
-#            qt_compiler: msvc2017_64
-#            vs_path: C:/Program Files (x86)/Microsoft Visual Studio/2017/Enterprise/VC/Auxiliary/Build/vcvars64.bat
+          - name: Windows
+            runs-on: windows-latest
+            python_platform: win32
+            aqt_architecture: win64_msvc2017_64
+            qt_compiler: msvc2017_64
+            vs_path: C:/Program Files (x86)/Microsoft Visual Studio/2017/Enterprise/VC/Auxiliary/Build/vcvars64.bat
 #          - name: macOS
 #            runs-on: macos-latest
 #            python_platform: darwin
