@@ -1,3 +1,13 @@
+diff --git a/designer/designer.pro-in b/designer/designer.pro-in
+index 3a154ad..f298726 100644
+--- a/designer/designer.pro-in
++++ b/designer/designer.pro-in
+@@ -1,4 +1,4 @@
+-CONFIG      += plugin @QTCONFIG@ warn_on
++CONFIG      += plugin @QTCONFIG@ warn_on debug
+ QT          += designer
+ 
+ # Work around QTBUG-39300.
 diff --git a/qmlscene/pluginloader.cpp b/qmlscene/pluginloader.cpp
 index 635d31e..21b082a 100644
 --- a/qmlscene/pluginloader.cpp
@@ -118,3 +128,13 @@ index 635d31e..21b082a 100644
      sip = (const sipAPIDef *)PyCapsule_Import("PyQt5.sip._C_API", 0);
  #else
      PyObject *c_api = getModuleAttr("PyQt5.sip", "_C_API");
+diff --git a/qmlscene/qmlscene.pro-in b/qmlscene/qmlscene.pro-in
+index 1f6e9cb..e280b44 100644
+--- a/qmlscene/qmlscene.pro-in
++++ b/qmlscene/qmlscene.pro-in
+@@ -1,4 +1,4 @@
+-CONFIG      += plugin @QTCONFIG@ warn_on
++CONFIG      += plugin @QTCONFIG@ warn_on debug
+ QT          += qml
+ 
+ # Work around QTBUG-39300.
