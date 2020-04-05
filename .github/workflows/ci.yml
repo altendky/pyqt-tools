@@ -22,7 +22,7 @@ jobs:
             python_platform: linux
             aqt_architecture: gcc_64
             qt_compiler: gcc_64
-            container: docker://python/3.8-buster
+            container: docker://python:3.8-buster
 #          - name: Windows
 #            runs-on: windows-latest
 #            python_platform: win32
