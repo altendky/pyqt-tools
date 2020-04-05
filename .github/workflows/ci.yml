@@ -29,21 +29,21 @@ jobs:
             aqt_architecture: win64_msvc2017_64
             qt_compiler: msvc2017_64
             vs_path: C:/Program Files (x86)/Microsoft Visual Studio/2017/Enterprise/VC/Auxiliary/Build/vcvars64.bat
-#          - name: macOS
-#            runs-on: macos-latest
-#            python_platform: darwin
-#            aqt_architecture: clang_64
-#            qt_compiler: clang_64
+          - name: macOS
+            runs-on: macos-latest
+            python_platform: darwin
+            aqt_architecture: clang_64
+            qt_compiler: clang_64
         python:
-#          - name: 3.5
-#            tox: py35
-#            action: 3.5
-#          - name: 3.6
-#            tox: py36
-#            action: 3.6
-#          - name: 3.7
-#            tox: py37
-#            action: 3.7
+          - name: 3.5
+            tox: py35
+            action: 3.5
+          - name: 3.6
+            tox: py36
+            action: 3.6
+          - name: 3.7
+            tox: py37
+            action: 3.7
           - name: 3.8
             tox: py38
             action: 3.8
