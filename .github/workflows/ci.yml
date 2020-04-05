@@ -12,7 +12,7 @@ jobs:
   ci:
     name: ${{ matrix.os.name }} ${{ matrix.python.name }} ${{ matrix.qt.pyqt_version }}
     runs-on: ${{ matrix.os.runs-on }}
-    container: $[ format(${{ matrix.os.container }}, ${{ matrix.python.docker }}) ]
+    container: ${{ format(${{ matrix.os.container }}, ${{ matrix.python.docker }}) }}
     strategy:
         fail-fast: false
       matrix:
