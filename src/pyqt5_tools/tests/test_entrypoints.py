@@ -92,65 +92,65 @@ def test_qmltestrunner_paints_test_item(tmp_path):
     )
 
 
-@pytest.mark.skipif(sys.platform != 'linux', reason='only linux has ldd')
-def test_debug_ldd_qmlscene():
-    qmlscene = pyqt5_tools.entrypoints.bin / 'qmlscene'
-
-    subprocess.run(['ldd', qmlscene], check=True)
-
-
-def test_debug_pip_freeze():
-    subprocess.run(
-        [
-            sys.executable,
-            '-m', 'pip',
-            'freeze',
-        ],
-        check=True,
-    )
-
-
-def test_debug_pyqt5_sip_path():
-    subprocess.run(
-        [
-            sys.executable,
-            '-c',
-            'import PyQt5.sip; print(PyQt5.sip)',
-        ],
-        check=True,
-    )
-
-
-def test_debug_cwd():
-    print('cwd:', pathlib.Path.cwd())
-
-
-def test_debug_directory_contents():
-    cwd = pathlib.Path.cwd()
-    for path in cwd.iterdir():
-        print('     {} {}'.format(
-            'd' if path.is_dir() else 'f',
-            path.relative_to(cwd),
-        ))
-
-
-def test_debug_sys_path_contents():
-    files = set()
-    directories = set()
-
-    for string_path in sys.path:
-        maybe_directory = pathlib.Path(string_path)
-        if maybe_directory.is_dir():
-            directory = maybe_directory
-            for path in directory.iterdir():
-                if path.is_dir():
-                    directories.add(path)
-                elif path.suffix == '.py' and path.is_file():
-                    files.add(path)
-
-    for paths in [files, directories]:
-        for path in sorted(paths):
-            print('     {} {}'.format(
-                'd' if path.is_dir() else 'f',
-                path.resolve(),
-            ))
+# @pytest.mark.skipif(sys.platform != 'linux', reason='only linux has ldd')
+# def test_debug_ldd_qmlscene():
+#     qmlscene = pyqt5_tools.entrypoints.bin / 'qmlscene'
+#
+#     subprocess.run(['ldd', qmlscene], check=True)
+#
+#
+# def test_debug_pip_freeze():
+#     subprocess.run(
+#         [
+#             sys.executable,
+#             '-m', 'pip',
+#             'freeze',
+#         ],
+#         check=True,
+#     )
+#
+#
+# def test_debug_pyqt5_sip_path():
+#     subprocess.run(
+#         [
+#             sys.executable,
+#             '-c',
+#             'import PyQt5.sip; print(PyQt5.sip)',
+#         ],
+#         check=True,
+#     )
+#
+#
+# def test_debug_cwd():
+#     print('cwd:', pathlib.Path.cwd())
+#
+#
+# def test_debug_directory_contents():
+#     cwd = pathlib.Path.cwd()
+#     for path in cwd.iterdir():
+#         print('     {} {}'.format(
+#             'd' if path.is_dir() else 'f',
+#             path.relative_to(cwd),
+#         ))
+#
+#
+# def test_debug_sys_path_contents():
+#     files = set()
+#     directories = set()
+#
+#     for string_path in sys.path:
+#         maybe_directory = pathlib.Path(string_path)
+#         if maybe_directory.is_dir():
+#             directory = maybe_directory
+#             for path in directory.iterdir():
+#                 if path.is_dir():
+#                     directories.add(path)
+#                 elif path.suffix == '.py' and path.is_file():
+#                     files.add(path)
+#
+#     for paths in [files, directories]:
+#         for path in sorted(paths):
+#             print('     {} {}'.format(
+#                 'd' if path.is_dir() else 'f',
+#                 path.resolve(),
+#             ))
