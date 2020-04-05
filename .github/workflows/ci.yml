@@ -141,7 +141,7 @@ jobs:
           apt-get update --yes
           apt-get install --yes libgl1-mesa-dev libxkbcommon-x11-0 xvfb
           # let's guess here...
-          apt-get install --yes mesa-utils linux-generic xserver-xorg-core xserver-xorg xserver-xorg-video-all xserver-xorg-input-all libwayland-egl1-mesa
+          # apt-get install --yes mesa-utils linux-generic xserver-xorg-core xserver-xorg xserver-xorg-video-all xserver-xorg-input-all libwayland-egl1-mesa
       - name: Report info
         run: |
           git show --quiet HEAD
