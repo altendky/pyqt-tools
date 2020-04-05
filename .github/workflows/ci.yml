@@ -12,6 +12,7 @@ jobs:
   ci:
     name: ${{ matrix.os.name }} ${{ matrix.python.name }} ${{ matrix.qt.pyqt_version }}
     runs-on: ${{ matrix.os.runs-on }}
+    container: ${{ matrix.os.container }}
     strategy:
       fail-fast: false
       matrix:
@@ -21,6 +22,7 @@ jobs:
             python_platform: linux
             aqt_architecture: gcc_64
             qt_compiler: gcc_64
+            container: docker://python/3.8-buster
 #          - name: Windows
 #            runs-on: windows-latest
 #            python_platform: win32
