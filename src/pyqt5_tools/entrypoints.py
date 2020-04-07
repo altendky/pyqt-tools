@@ -30,10 +30,18 @@ bad_path = str(
 
 pyqt5_root = pathlib.Path(PyQt5.__file__).parent
 
+
+def darwin_maybe_extension(name):
+    if name not in ['designer']:
+        return name
+
+    return name[0].upper() + name[1:] + '.app'
+
+
 maybe_extension = {
     'linux': lambda name: name,
     'win32': lambda name: '{}.exe'.format(name),
-    'darwin': lambda name: name,
+    'darwin': darwin_maybe_extension,
 }[sys.platform]
 
 
