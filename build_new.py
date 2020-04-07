@@ -990,7 +990,8 @@ def build(configuration: Configuration):
     checkpoint('Select Applications')
     applications = filtered_applications(
         applications=qt_paths.applications,
-        filter=lambda path: 'webengine' in fspath(path).casefold(),
+        # TODO: just debugging macos
+        filter=lambda path: False,#lambda path: 'webengine' in fspath(path).casefold(),
     )
 
     checkpoint('Define Plugins')
