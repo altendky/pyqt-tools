@@ -546,7 +546,7 @@ class DarwinDotApp:
         applications = []
 
         for path in directory.iterdir():
-            if not path.is_file() or path.suffix != '.app':
+            if path.is_file() or path.suffix != '.app':
                 continue
 
             try:
