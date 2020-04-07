@@ -489,7 +489,7 @@ def darwin_dot_app_copy_actions(
         lib_path: pathlib.Path,
 ) -> typing.Set[FileCopyAction]:
     actions = {
-        FileCopyAction.from_tree_path(
+        *FileCopyAction.from_tree_path(
             source=source_path,
             root=reference_path,
         ),
