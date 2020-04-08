@@ -214,13 +214,7 @@ def pyqt5designer(
 
     print_environment_variables(env, *vars_to_print)
 
-    command = [
-        str(bin / maybe_extension('designer')),
-        *extras,
-        *ctx.args,
-    ]
-
-    return subprocess.call(command, env=env)
+    return designer(args=[*extras, *ctx.args], env=env)
 
 
 qml2_import_path_option = click.option(
@@ -301,13 +295,7 @@ def pyqt5qmlscene(
 
     print_environment_variables(env, *vars_to_print)
 
-    command = [
-        str(bin / maybe_extension('qmlscene')),
-        *extras,
-        *ctx.args,
-    ]
-
-    return subprocess.call(command, env=env)
+    return qmlscene(args=[*extras, *ctx.args], env=env)
 
 
 @click.command(
@@ -372,21 +360,20 @@ def pyqt5qmltestrunner(
 
     print_environment_variables(env, *vars_to_print)
 
-    command = [
-        str(bin / maybe_extension('qmltestrunner')),
-        *extras,
-        *ctx.args,
-    ]
-
-    return subprocess.call(command, env=env)
+    return qmltestrunner(args=[*extras, *ctx.args], env=env)
 
 
-# def designer():
-#     env = create_env(os.environ)
+# def designer(args=None, env=None):
+#     if args is None:
+#         args = sys.argv[1:]
+#
+#     if env is None:
+#         env = create_env(os.environ)
+#
 #     return subprocess.call(
 #         [
-#             str(here/'Qt'/'bin'/'designer.exe'),
-#             *sys.argv[1:],
+#             *[fspath(here / 'Qt' / 'bin/designer')],
+#             *args,
 #         ],
 #         env=env,
 #     )

@@ -217,7 +217,7 @@ class FileCopyAction:
 
 
 def create_script_function_name(path: pathlib.Path):
-    return path.stem.replace('-', '_')
+    return path.stem.replace('-', '_').casefold()
 
 
 def linux_executable_copy_actions(
@@ -1429,12 +1429,17 @@ def write_entry_points(
 
         for application in applications:
             function_def = textwrap.dedent('''\
-                def {function_name}():
-                    env = create_env(os.environ)
+                def {function_name}(args=None, env=None):
+                    if args is None:
+                        args = sys.argv[1:]
+
+                    if env is None:
+                        env = create_env(os.environ)
+
                     return subprocess.call(
                         [
                             *{elements},
-                            *sys.argv[1:],
+                            *args,
                         ],
                         env=env,
                     )
