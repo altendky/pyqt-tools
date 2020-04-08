@@ -307,6 +307,12 @@ class LinuxExecutable:
 
         return applications
 
+    def subprocess_elements(self, qt_path_string):
+        return "[{qt_path_string} / {relative}]".format(
+            qt_path_string=qt_path_string,
+            relative=fspath(self.executable_relative_path.as_posix()),
+        )
+
 
 def win32_executable_copy_actions(
         source_path: pathlib.Path,
@@ -397,6 +403,12 @@ class Win32Executable:
 
         return applications
 
+    def subprocess_elements(self, qt_path_string):
+        return "[{qt_path_string} / {relative}]".format(
+            qt_path_string=qt_path_string,
+            relative=fspath(self.executable_relative_path.as_posix()),
+        )
+
 
 def darwin_executable_copy_actions(
         source_path: pathlib.Path,
@@ -481,6 +493,12 @@ class DarwinExecutable:
 
         return applications
 
+    def subprocess_elements(self, qt_path_string):
+        return "[{qt_path_string} / {relative}]".format(
+            qt_path_string=qt_path_string,
+            relative=fspath(self.executable_relative_path.as_posix()),
+        )
+
 
 def darwin_dot_app_copy_actions(
         source_path: pathlib.Path,
@@ -561,6 +579,12 @@ class DarwinDotApp:
             applications.append(application)
 
         return applications
+
+    def subprocess_elements(self, qt_path_string):
+        return "['open', '-a', {qt_path_string} / {relative}]".format(
+            qt_path_string=qt_path_string,
+            relative=fspath(self.executable_relative_path.as_posix()),
+        )
 
 
 AnyApplication = typing.Union[
@@ -1409,7 +1433,7 @@ def write_entry_points(
                     env = create_env(os.environ)
                     return subprocess.call(
                         [
-                            str(here/'Qt'/'{application}'),
+                            *{elements},
                             *sys.argv[1:],
                         ],
                         env=env,
@@ -1419,7 +1443,9 @@ def write_entry_points(
             ''')
             function_def_formatted = function_def.format(
                 function_name=application.script_function_name,
-                application=fspath(application.executable_relative_path.as_posix()),
+                elements=application.subprocess_elements(
+                    qt_path_string="here / 'Qt'",
+                ),
             )
             f.write(function_def_formatted)
 
