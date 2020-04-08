@@ -308,7 +308,7 @@ class LinuxExecutable:
         return applications
 
     def subprocess_elements(self, qt_path_string):
-        return "[{qt_path_string} / {relative}]".format(
+        return "[fspath({qt_path_string} / {relative!r})]".format(
             qt_path_string=qt_path_string,
             relative=fspath(self.executable_relative_path.as_posix()),
         )
@@ -404,7 +404,7 @@ class Win32Executable:
         return applications
 
     def subprocess_elements(self, qt_path_string):
-        return "[{qt_path_string} / {relative}]".format(
+        return "[fspath({qt_path_string} / {relative!r})]".format(
             qt_path_string=qt_path_string,
             relative=fspath(self.executable_relative_path.as_posix()),
         )
@@ -494,7 +494,7 @@ class DarwinExecutable:
         return applications
 
     def subprocess_elements(self, qt_path_string):
-        return "[{qt_path_string} / {relative}]".format(
+        return "[fspath({qt_path_string} / {relative!r})]".format(
             qt_path_string=qt_path_string,
             relative=fspath(self.executable_relative_path.as_posix()),
         )
@@ -581,7 +581,7 @@ class DarwinDotApp:
         return applications
 
     def subprocess_elements(self, qt_path_string):
-        return "['open', '-a', {qt_path_string} / {relative}]".format(
+        return "['open', '-a', fspath({qt_path_string} / {relative!r})]".format(
             qt_path_string=qt_path_string,
             relative=fspath(self.executable_relative_path.as_posix()),
         )
