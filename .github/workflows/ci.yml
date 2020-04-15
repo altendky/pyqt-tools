@@ -163,6 +163,11 @@ jobs:
 #          CIBW_BUILD: ${{ matrix.python.cibuildwheel }}
 #          CIBW_MANYLINUX_X86_64_IMAGE: manylinux2014
 #          CIBW_MANYLINUX_I686_IMAGE: manylinux2014
+      - name: Install Linux build dependencies
+        if: matrix.os.python_platform == 'linux'
+        run: |
+          apt-get update --yes
+          apt-get install --yes libgl1-mesa-dev
       - name: Build wheel
 #        if: matrix.system.platform != 'windows'
         # native shell for nmake...  keep commands here simple i guess
@@ -199,7 +204,7 @@ jobs:
         with:
           name: pyqt5_tools-all_wheels
           path: dist
-      - name: Install Linux dependencies
+      - name: Install Linux test dependencies
         if: matrix.os.python_platform == 'linux'
         run: |
           apt-get update --yes
