@@ -239,6 +239,9 @@ jobs:
         with:
           name: pyqt5_tools-all_wheels
           path: dist
+      - name: Install Python packages
+        run: |
+          pip install --upgrade twine
       - name: Maybe publish
         run: |
           python twineontag.py
