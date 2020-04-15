@@ -232,12 +232,14 @@ jobs:
     needs:
       - ci
     steps:
+      - name: Checkout
+        uses: actions/checkout@v1
       - name: Download all wheels
         uses: actions/download-artifact@v1
         with:
           name: pyqt5_tools-all_wheels
           path: dist
-      - name: This
+      - name: Maybe publish
         run: |
           python twineontag.py
         env:
