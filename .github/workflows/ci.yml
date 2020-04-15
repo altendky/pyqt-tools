@@ -187,6 +187,11 @@ jobs:
         with:
           name: ${{ env['WHEEL_STEM'] }}
           path: dist
+      - name: Archive wheel
+        uses: actions/upload-artifact@v1
+        with:
+          name: pyqt5_tools-all_wheels
+          path: dist
       - name: Test
         run: |
           tox -e ${{ matrix.python.tox }} --installpkg ${{ env['WHEEL_PATH'] }}
