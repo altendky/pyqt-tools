@@ -56,10 +56,10 @@ jobs:
             docker: 3.8
             cibuildwheel: cp38-*
         qt:
-          - pyqt_version: 5.14.0
-            qt_version: 5.14.0
-          - pyqt_version: 5.14.1
-            qt_version: 5.14.1
+#          - pyqt_version: 5.14.0
+#            qt_version: 5.14.0
+#          - pyqt_version: 5.14.1
+#            qt_version: 5.14.1
           - pyqt_version: 5.14.2
             qt_version: 5.14.2
         bitness:
@@ -164,20 +164,20 @@ jobs:
           pip list
           pip freeze --all
           python -c "import sysconfig; print('Py_ENABLE_SHARED -> {}'.format(sysconfig.get_config_var('Py_ENABLE_SHARED')))"
-      - name: Build wheel
-        run: |
-          cibuildwheel --output-dir dist/
-        env:
-          CIBW_BUILD: ${{ matrix.python.cibuildwheel }}
-          CIBW_MANYLINUX_X86_64_IMAGE: manylinux2014
-          CIBW_MANYLINUX_I686_IMAGE: manylinux2014
 #      - name: Build wheel
-##        if: matrix.system.platform != 'windows'
-#        # native shell for nmake...  keep commands here simple i guess
 #        run: |
-#          mkdir -p dist/
-#          pip wheel -vvv --no-deps --wheel-dir dist/ --no-clean .
-##          pip wheel -vvv --no-build-isolation --no-deps --wheel-dir dist/ --no-clean .
+#          cibuildwheel --output-dir dist/
+#        env:
+#          CIBW_BUILD: ${{ matrix.python.cibuildwheel }}
+#          CIBW_MANYLINUX_X86_64_IMAGE: manylinux2014
+#          CIBW_MANYLINUX_I686_IMAGE: manylinux2014
+      - name: Build wheel
+#        if: matrix.system.platform != 'windows'
+        # native shell for nmake...  keep commands here simple i guess
+        run: |
+          mkdir -p dist/
+          pip wheel -vvv --no-deps --wheel-dir dist/ --no-clean .
+#          pip wheel -vvv --no-build-isolation --no-deps --wheel-dir dist/ --no-clean .
 #      - name: Download
 #        run: |
 #          venv/bin/pip download --no-deps --no-binary :all: --dest download PyQt5
