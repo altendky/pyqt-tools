@@ -67,57 +67,7 @@ jobs:
           - name: x64
             action: x64
             cibuildwheel: '*64*'
-#         system:
-#           - image: windows-2016
-#             platform: windows
-#             aqt_name: win64_msvc2017_64
-#             qt_compiler: msvc2017_64
-#             vs_path: C:/Program Files (x86)/Microsoft Visual Studio/2017/Enterprise/VC/Auxiliary/Build/vcvars64.bat
-#             python_version: 3.6
-#             bitness: x64
-#             toxenv: py36
-#           - image: windows-2016
-#             platform: windows
-#             aqt_name: win64_msvc2017_64
-#             qt_compiler: msvc2017_64
-#             vs_path: C:/Program Files (x86)/Microsoft Visual Studio/2017/Enterprise/VC/Auxiliary/Build/vcvars64.bat
-#             python_version: 3.8
-#             bitness: x64
-#             toxenv: py38
-#           - image: ubuntu-18.04
-#             platform: linux
-#             aqt_name: gcc_64
-#             qt_compiler: gcc_64
-#             python_version: 3.6
-#             bitness: x64
-#             toxenv: py36
-#           - image: ubuntu-18.04
-#             platform: linux
-#             aqt_name: gcc_64
-#             qt_compiler: gcc_64
-#             python_version: 3.8
-#             bitness: x64
-#             toxenv: py38
-#           - image: macos-10.15
-#             platform: mac
-#             aqt_name: clang_64
-#             qt_compiler: clang_64
-#             python_version: 3.6
-#             bitness: x64
-#             toxenv: py36
-#           - image: macos-10.15
-#             platform: mac
-#             aqt_name: clang_64
-#             qt_compiler: clang_64
-#             python_version: 3.8
-#             bitness: x64
-#             toxenv: py38
-#         versions:
-#           - qt: 5.14.1
-#             pyqt: 5.14.1
-
     env:
-#      QT_COMPILER_DIRECTORY: ${{ env.QT_BASE_DIRECTORY }}/${{ matrix.qt }}/${{ matrix.arch.directory }}
       QT_VERSION: ${{ matrix.qt.qt_version }}
       QT_COMPILER: ${{ matrix.os.qt_compiler }}
       QT_ARCHITECTURE: ${{ matrix.os.aqt_architecture }}
@@ -126,10 +76,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v1
-#      - name: Install
-#        run: |
-#          pip install aqtinstall sip
-#          PyQt5==${{ matrix.versions.pyqt }}
       - name: Set up Python ${{ matrix.python.name }}
         if: matrix.os.python_platform != 'linux'
         uses: actions/setup-python@v1
@@ -139,17 +85,10 @@ jobs:
       - name: Set up MSVC
         uses: ilammy/msvc-dev-cmd@v1
         if: matrix.os.python_platform == 'win32'
-#      - name: Build wheel with Visual Studio
-#        if: matrix.system.platform == 'windows'
-#        run: |
-#          "${{ matrix.system.vs_path }}"
-#          pip wheel .
-#          choco install visualstudio2019buildtools
       - name: pip/setuptools/tox/cibuildwheel
         run: |
           python -m pip install --upgrade pip setuptools
           pip install tox cibuildwheel
-#          pip install aqtinstall==0.7.5 py7zr==0.6b6 attrs aqtinstall hyperlink macholib pip psutil pylddwrap PyQt-builder requests setuptools sip vcversioner wheel
       - name: Report info
         run: |
           git show --quiet HEAD
@@ -172,18 +111,10 @@ jobs:
 #          apt-get update --yes
 #          apt-get install --yes libgl1-mesa-dev
 #      - name: Build wheel
-##        if: matrix.system.platform != 'windows'
 #        # native shell for nmake...  keep commands here simple i guess
 #        run: |
 #          mkdir -p dist/
 #          pip wheel -vvv --no-deps --wheel-dir dist/ --no-clean .
-##          pip wheel -vvv --no-build-isolation --no-deps --wheel-dir dist/ --no-clean .
-#      - name: Download
-#        run: |
-#          venv/bin/pip download --no-deps --no-binary :all: --dest download PyQt5
-#      - name: Test
-#        run: |
-#          tox -v -e "${{ matrix.toxenv }}"
       - name: Set WHEEL_PATH
         shell: python
         run: |
@@ -218,28 +149,6 @@ jobs:
       - name: Test
         run: |
           tox -e ${{ matrix.python.tox }} --installpkg ${{ env['WHEEL_PATH'] }}
-#      - name: Tree /tmp/pip-*
-#        if: always() && matrix.system.platform == 'mac'
-#        shell: python
-#        run: |
-#          import os
-#          import pathlib
-#          import subprocess
-#          import tempfile
-#
-#          fspath = getattr(os, 'fspath', str)
-#
-#          temp = pathlib.Path(os.environ['BUILD_PATH'])
-#
-#          subprocess.run(['pip', 'install', 'py-tree'])
-#          for path in temp.glob('pip-*'):
-#            subprocess.run(['py-tree', fspath(path)])
-#      - name: Archive temp
-#        if: always() && matrix.system.platform == 'mac'
-#        uses: actions/upload-artifact@v1
-#        with:
-#          name: temp-${{ matrix.system.platform }}
-#          path: ${{ env['BUILD_PATH'] }}
 #      - name: prep
 #        if: always()
 #        run: |
