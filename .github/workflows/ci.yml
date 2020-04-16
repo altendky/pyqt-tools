@@ -98,6 +98,7 @@ jobs:
           pip freeze --all
           python -c "import sysconfig; print('Py_ENABLE_SHARED -> {}'.format(sysconfig.get_config_var('Py_ENABLE_SHARED')))"
       - name: Build wheel
+        container:
         run: |
           cibuildwheel --output-dir dist/
         env:
