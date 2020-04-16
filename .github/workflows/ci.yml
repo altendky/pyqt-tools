@@ -97,8 +97,12 @@ jobs:
           pip list
           pip freeze --all
           python -c "import sysconfig; print('Py_ENABLE_SHARED -> {}'.format(sysconfig.get_config_var('Py_ENABLE_SHARED')))"
+      - name: Install Linux Docker dependencies
+        if: matrix.os.python_platform == 'linux'
+        run: |
+          apt-get update --yes
+          apt-get install --yes docker.io
       - name: Build wheel
-        container:
         run: |
           cibuildwheel --output-dir dist/
         env:
