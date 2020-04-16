@@ -121,6 +121,18 @@ jobs:
         run: |
           mkdir -p dist/
           pip wheel -vvv --no-deps --wheel-dir dist/ --no-clean .
+      - name: Rename to manylinux2014 tag
+        if: matrix.os.python_platform == 'linux'
+        shell: python
+        run: |
+          import pathlib
+
+          dist = pathlib.Path.cwd() / 'dist'
+          [wheel] = dist.glob('*.whl')
+
+          # this is cheap...
+          retagged = wheel.parent / wheel.name.replace('linux', 'manylinux2014')
+          wheel.rename(retagged)
       - name: Set WHEEL_PATH
         shell: python
         run: |
