@@ -97,30 +97,30 @@ jobs:
           pip list
           pip freeze --all
           python -c "import sysconfig; print('Py_ENABLE_SHARED -> {}'.format(sysconfig.get_config_var('Py_ENABLE_SHARED')))"
-      - name: Install Linux Docker dependencies
-        if: matrix.os.python_platform == 'linux'
-        run: |
-          apt-get update --yes
-          apt-get install --yes docker.io
-      - name: Build wheel
-        run: |
-          cibuildwheel --output-dir dist/
-        env:
-          CIBW_BUILD: ${{ matrix.python.cibuildwheel }}-${{ matrix.bitness.cibuildwheel }}
-          CIBW_MANYLINUX_X86_64_IMAGE: manylinux2014
-          CIBW_MANYLINUX_I686_IMAGE: manylinux2014
-          CIBW_BEFORE_BUILD: ${{ matrix.os.cibuildwheel_before }}
-          CIBW_ENVIRONMENT: QT_VERSION=${{ matrix.qt.qt_version }} QT_COMPILER=${{ matrix.os.qt_compiler }} QT_ARCHITECTURE=${{ matrix.os.aqt_architecture }} PYQT_VERSION=${{ matrix.qt.pyqt_version }}
-#      - name: Install Linux build dependencies
+#      - name: Install Linux Docker dependencies
 #        if: matrix.os.python_platform == 'linux'
 #        run: |
 #          apt-get update --yes
-#          apt-get install --yes libgl1-mesa-dev
+#          apt-get install --yes docker.io
 #      - name: Build wheel
-#        # native shell for nmake...  keep commands here simple i guess
 #        run: |
-#          mkdir -p dist/
-#          pip wheel -vvv --no-deps --wheel-dir dist/ --no-clean .
+#          cibuildwheel --output-dir dist/
+#        env:
+#          CIBW_BUILD: ${{ matrix.python.cibuildwheel }}-${{ matrix.bitness.cibuildwheel }}
+#          CIBW_MANYLINUX_X86_64_IMAGE: manylinux2014
+#          CIBW_MANYLINUX_I686_IMAGE: manylinux2014
+#          CIBW_BEFORE_BUILD: ${{ matrix.os.cibuildwheel_before }}
+#          CIBW_ENVIRONMENT: QT_VERSION=${{ matrix.qt.qt_version }} QT_COMPILER=${{ matrix.os.qt_compiler }} QT_ARCHITECTURE=${{ matrix.os.aqt_architecture }} PYQT_VERSION=${{ matrix.qt.pyqt_version }}
+      - name: Install Linux build dependencies
+        if: matrix.os.python_platform == 'linux'
+        run: |
+          apt-get update --yes
+          apt-get install --yes libgl1-mesa-dev
+      - name: Build wheel
+        # native shell for nmake...  keep commands here simple i guess
+        run: |
+          mkdir -p dist/
+          pip wheel -vvv --no-deps --wheel-dir dist/ --no-clean .
       - name: Set WHEEL_PATH
         shell: python
         run: |
