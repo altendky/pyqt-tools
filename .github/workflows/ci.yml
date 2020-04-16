@@ -23,6 +23,7 @@ jobs:
             aqt_architecture: gcc_64
             qt_compiler: gcc_64
             container: docker://python:{0}-buster
+            cibuildwheel_before: yum install mesa-libGL-devel
           - name: Windows
             runs-on: windows-latest
             python_platform: win32
@@ -39,22 +40,22 @@ jobs:
             tox: py35
             action: 3.5
             docker: 3.5
-            cibuildwheel: cp35-*
+            cibuildwheel: cp38
           - name: 3.6
             tox: py36
             action: 3.6
             docker: 3.6
-            cibuildwheel: cp36-*
+            cibuildwheel: cp36
           - name: 3.7
             tox: py37
             action: 3.7
             docker: 3.7
-            cibuildwheel: cp37-*
+            cibuildwheel: cp37
           - name: 3.8
             tox: py38
             action: 3.8
             docker: 3.8
-            cibuildwheel: cp38-*
+            cibuildwheel: cp38
         qt:
 #          - pyqt_version: 5.14.0
 #            qt_version: 5.14.0
@@ -65,6 +66,7 @@ jobs:
         bitness:
           - name: x64
             action: x64
+            cibuildwheel: *64*
 #         system:
 #           - image: windows-2016
 #             platform: windows
@@ -156,25 +158,26 @@ jobs:
           pip list
           pip freeze --all
           python -c "import sysconfig; print('Py_ENABLE_SHARED -> {}'.format(sysconfig.get_config_var('Py_ENABLE_SHARED')))"
-#      - name: Build wheel
-#        run: |
-#          cibuildwheel --output-dir dist/
-#        env:
-#          CIBW_BUILD: ${{ matrix.python.cibuildwheel }}
-#          CIBW_MANYLINUX_X86_64_IMAGE: manylinux2014
-#          CIBW_MANYLINUX_I686_IMAGE: manylinux2014
-      - name: Install Linux build dependencies
-        if: matrix.os.python_platform == 'linux'
-        run: |
-          apt-get update --yes
-          apt-get install --yes libgl1-mesa-dev
       - name: Build wheel
-#        if: matrix.system.platform != 'windows'
-        # native shell for nmake...  keep commands here simple i guess
         run: |
-          mkdir -p dist/
-          pip wheel -vvv --no-deps --wheel-dir dist/ --no-clean .
-#          pip wheel -vvv --no-build-isolation --no-deps --wheel-dir dist/ --no-clean .
+          cibuildwheel --output-dir dist/
+        env:
+          CIBW_BUILD: ${{ matrix.python.cibuildwheel }}-${{ matrix.bitness.cibuildwheel }}
+          CIBW_MANYLINUX_X86_64_IMAGE: manylinux2014
+          CIBW_MANYLINUX_I686_IMAGE: manylinux2014
+          CIBW_BEFORE_BUILD: ${{ matrix.os.cibuildwheel_before }}
+#      - name: Install Linux build dependencies
+#        if: matrix.os.python_platform == 'linux'
+#        run: |
+#          apt-get update --yes
+#          apt-get install --yes libgl1-mesa-dev
+#      - name: Build wheel
+##        if: matrix.system.platform != 'windows'
+#        # native shell for nmake...  keep commands here simple i guess
+#        run: |
+#          mkdir -p dist/
+#          pip wheel -vvv --no-deps --wheel-dir dist/ --no-clean .
+##          pip wheel -vvv --no-build-isolation --no-deps --wheel-dir dist/ --no-clean .
 #      - name: Download
 #        run: |
 #          venv/bin/pip download --no-deps --no-binary :all: --dest download PyQt5
