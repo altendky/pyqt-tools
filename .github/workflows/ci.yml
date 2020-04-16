@@ -57,10 +57,10 @@ jobs:
             docker: 3.8
             cibuildwheel: cp38
         qt:
-#          - pyqt_version: 5.14.0
-#            qt_version: 5.14.0
-#          - pyqt_version: 5.14.1
-#            qt_version: 5.14.1
+          - pyqt_version: 5.14.0
+            qt_version: 5.14.0
+          - pyqt_version: 5.14.1
+            qt_version: 5.14.1
           - pyqt_version: 5.14.2
             qt_version: 5.14.2
         bitness:
