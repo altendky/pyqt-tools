@@ -1252,7 +1252,10 @@ def windeployqt_list_source(
 
 def patch_pyqt(configuration, qt_paths):
     # TODO: gee golly get this figured out properly and configured etc
-    patch_path = pathlib.Path(__file__).parent / 'pluginloader.5.14.2.patch'
+    patch_path = (
+        pathlib.Path(__file__).parent
+        / 'pluginloader.{}.patch'.format(configuration.pyqt_version)
+    )
 
     report_and_check_call(
         command=[
