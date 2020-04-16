@@ -110,6 +110,7 @@ jobs:
           CIBW_MANYLINUX_X86_64_IMAGE: manylinux2014
           CIBW_MANYLINUX_I686_IMAGE: manylinux2014
           CIBW_BEFORE_BUILD: ${{ matrix.os.cibuildwheel_before }}
+          CIBW_ENVIRONMENT: QT_VERSION=${{ matrix.qt.qt_version }} QT_COMPILER=${{ matrix.os.qt_compiler }} QT_ARCHITECTURE=${{ matrix.os.aqt_architecture }} PYQT_VERSION=${{ matrix.qt.pyqt_version }}
 #      - name: Install Linux build dependencies
 #        if: matrix.os.python_platform == 'linux'
 #        run: |
