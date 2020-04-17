@@ -206,6 +206,8 @@ def pyqt5designer(
     if sys.platform == 'linux':
         vars_to_print.append('LD_LIBRARY_PATH')
         vars_to_print.append('DISPLAY')
+    elif sys.platform == 'darwin':
+        vars_to_print.append('DYLD_LIBRARY_PATH')
 
     env.update(add_to_env_var_path_list(
         env=env,
@@ -299,6 +301,8 @@ def pyqt5qmlscene(
     if sys.platform == 'linux':
         vars_to_print.append('LD_LIBRARY_PATH')
         vars_to_print.append('DISPLAY')
+    elif sys.platform == 'darwin':
+        vars_to_print.append('DYLD_LIBRARY_PATH')
 
     print_environment_variables(env, *vars_to_print)
 
@@ -364,6 +368,8 @@ def pyqt5qmltestrunner(
     if sys.platform == 'linux':
         vars_to_print.append('LD_LIBRARY_PATH')
         vars_to_print.append('DISPLAY')
+    elif sys.platform == 'darwin':
+        vars_to_print.append('DYLD_LIBRARY_PATH')
 
     print_environment_variables(env, *vars_to_print)
 
