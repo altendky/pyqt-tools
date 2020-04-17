@@ -23,6 +23,7 @@ jobs:
 #            aqt_architecture: gcc_64
 #            qt_compiler: gcc_64
 #            container: docker://python:{0}-buster
+#            cibuildwheel_before: yum install mesa-libGL-devel
 #          - name: Windows
 #            runs-on: windows-latest
 #            python_platform: win32
@@ -39,75 +40,34 @@ jobs:
 #            tox: py35
 #            action: 3.5
 #            docker: 3.5
+#            cibuildwheel: cp38
 #          - name: 3.6
 #            tox: py36
 #            action: 3.6
 #            docker: 3.6
+#            cibuildwheel: cp36
 #          - name: 3.7
 #            tox: py37
 #            action: 3.7
 #            docker: 3.7
+#            cibuildwheel: cp37
           - name: 3.8
             tox: py38
             action: 3.8
             docker: 3.8
+            cibuildwheel: cp38
         qt:
+          - pyqt_version: 5.14.0
+            qt_version: 5.14.0
           - pyqt_version: 5.14.1
             qt_version: 5.14.1
+          - pyqt_version: 5.14.2
+            qt_version: 5.14.2
         bitness:
           - name: x64
             action: x64
-#         system:
-#           - image: windows-2016
-#             platform: windows
-#             aqt_name: win64_msvc2017_64
-#             qt_compiler: msvc2017_64
-#             vs_path: C:/Program Files (x86)/Microsoft Visual Studio/2017/Enterprise/VC/Auxiliary/Build/vcvars64.bat
-#             python_version: 3.6
-#             bitness: x64
-#             toxenv: py36
-#           - image: windows-2016
-#             platform: windows
-#             aqt_name: win64_msvc2017_64
-#             qt_compiler: msvc2017_64
-#             vs_path: C:/Program Files (x86)/Microsoft Visual Studio/2017/Enterprise/VC/Auxiliary/Build/vcvars64.bat
-#             python_version: 3.8
-#             bitness: x64
-#             toxenv: py38
-#           - image: ubuntu-18.04
-#             platform: linux
-#             aqt_name: gcc_64
-#             qt_compiler: gcc_64
-#             python_version: 3.6
-#             bitness: x64
-#             toxenv: py36
-#           - image: ubuntu-18.04
-#             platform: linux
-#             aqt_name: gcc_64
-#             qt_compiler: gcc_64
-#             python_version: 3.8
-#             bitness: x64
-#             toxenv: py38
-#           - image: macos-10.15
-#             platform: mac
-#             aqt_name: clang_64
-#             qt_compiler: clang_64
-#             python_version: 3.6
-#             bitness: x64
-#             toxenv: py36
-#           - image: macos-10.15
-#             platform: mac
-#             aqt_name: clang_64
-#             qt_compiler: clang_64
-#             python_version: 3.8
-#             bitness: x64
-#             toxenv: py38
-#         versions:
-#           - qt: 5.14.1
-#             pyqt: 5.14.1
-
+            cibuildwheel: '*64*'
     env:
-#      QT_COMPILER_DIRECTORY: ${{ env.QT_BASE_DIRECTORY }}/${{ matrix.qt }}/${{ matrix.arch.directory }}
       QT_VERSION: ${{ matrix.qt.qt_version }}
       QT_COMPILER: ${{ matrix.os.qt_compiler }}
       QT_ARCHITECTURE: ${{ matrix.os.aqt_architecture }}
@@ -116,10 +76,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v1
-#      - name: Install
-#        run: |
-#          pip install aqtinstall sip
-#          PyQt5==${{ matrix.versions.pyqt }}
       - name: Set up Python ${{ matrix.python.name }}
         if: matrix.os.python_platform != 'linux'
         uses: actions/setup-python@v1
@@ -129,25 +85,10 @@ jobs:
       - name: Set up MSVC
         uses: ilammy/msvc-dev-cmd@v1
         if: matrix.os.python_platform == 'win32'
-#      - name: Build wheel with Visual Studio
-#        if: matrix.system.platform == 'windows'
-#        run: |
-#          "${{ matrix.system.vs_path }}"
-#          pip wheel .
-#          choco install visualstudio2019buildtools
-      - name: pip/setuptools/tox
+      - name: pip/setuptools/tox/cibuildwheel
         run: |
           python -m pip install --upgrade pip setuptools
-          pip install tox
-#          pip install aqtinstall==0.7.5 py7zr==0.6b6 attrs aqtinstall hyperlink macholib pip psutil pylddwrap PyQt-builder requests setuptools sip vcversioner wheel
-      - name: Install Linux dependencies
-        if: matrix.os.python_platform == 'linux'
-        run: |
-          apt-get update --yes
-          apt-get install --yes libgl1-mesa-dev libxkbcommon-x11-0 xvfb
-          apt-get install --yes x11-utils libdbus-1-3
-          # let's guess here...
-          # apt-get install --yes mesa-utils linux-generic xserver-xorg-core xserver-xorg xserver-xorg-video-all xserver-xorg-input-all libwayland-egl1-mesa
+          pip install tox cibuildwheel
       - name: Report info
         run: |
           git show --quiet HEAD
@@ -156,19 +97,42 @@ jobs:
           pip list
           pip freeze --all
           python -c "import sysconfig; print('Py_ENABLE_SHARED -> {}'.format(sysconfig.get_config_var('Py_ENABLE_SHARED')))"
+#      - name: Install Linux Docker dependencies
+#        if: matrix.os.python_platform == 'linux'
+#        run: |
+#          apt-get update --yes
+#          apt-get install --yes docker.io
+#      - name: Build wheel
+#        run: |
+#          cibuildwheel --output-dir dist/
+#        env:
+#          CIBW_BUILD: ${{ matrix.python.cibuildwheel }}-${{ matrix.bitness.cibuildwheel }}
+#          CIBW_MANYLINUX_X86_64_IMAGE: manylinux2014
+#          CIBW_MANYLINUX_I686_IMAGE: manylinux2014
+#          CIBW_BEFORE_BUILD: ${{ matrix.os.cibuildwheel_before }}
+#          CIBW_ENVIRONMENT: QT_VERSION=${{ matrix.qt.qt_version }} QT_COMPILER=${{ matrix.os.qt_compiler }} QT_ARCHITECTURE=${{ matrix.os.aqt_architecture }} PYQT_VERSION=${{ matrix.qt.pyqt_version }}
+      - name: Install Linux build dependencies
+        if: matrix.os.python_platform == 'linux'
+        run: |
+          apt-get update --yes
+          apt-get install --yes libgl1-mesa-dev
       - name: Build wheel
-#        if: matrix.system.platform != 'windows'
         # native shell for nmake...  keep commands here simple i guess
         run: |
           mkdir -p dist/
           pip wheel -vvv --no-deps --wheel-dir dist/ --no-clean .
-#          pip wheel -vvv --no-build-isolation --no-deps --wheel-dir dist/ --no-clean .
-#      - name: Download
-#        run: |
-#          venv/bin/pip download --no-deps --no-binary :all: --dest download PyQt5
-#      - name: Test
-#        run: |
-#          tox -v -e "${{ matrix.toxenv }}"
+      - name: Rename to manylinux2014 tag
+        if: matrix.os.python_platform == 'linux'
+        shell: python
+        run: |
+          import pathlib
+
+          dist = pathlib.Path.cwd() / 'dist'
+          [wheel] = dist.glob('*.whl')
+
+          # this is cheap...
+          retagged = wheel.parent / wheel.name.replace('linux', 'manylinux2014')
+          wheel.rename(retagged)
       - name: Set WHEEL_PATH
         shell: python
         run: |
@@ -182,41 +146,27 @@ jobs:
 
           print('::set-env name=WHEEL_PATH::{}'.format(fspath(wheel)))
           print('::set-env name=WHEEL_STEM::{}'.format(wheel.stem))
-      - name: Archive wheel
+      - name: Archive individual wheel
         uses: actions/upload-artifact@v1
         with:
           name: ${{ env['WHEEL_STEM'] }}
           path: dist
-      - name: Archive wheel
+      - name: Archive all wheels
         uses: actions/upload-artifact@v1
         with:
           name: pyqt5_tools-all_wheels
           path: dist
+      - name: Install Linux test dependencies
+        if: matrix.os.python_platform == 'linux'
+        run: |
+          apt-get update --yes
+          apt-get install --yes libgl1-mesa-dev libxkbcommon-x11-0 xvfb
+          apt-get install --yes x11-utils libdbus-1-3
+          # let's guess here...
+          # apt-get install --yes mesa-utils linux-generic xserver-xorg-core xserver-xorg xserver-xorg-video-all xserver-xorg-input-all libwayland-egl1-mesa
       - name: Test
         run: |
           tox -e ${{ matrix.python.tox }} --installpkg ${{ env['WHEEL_PATH'] }}
-#      - name: Tree /tmp/pip-*
-#        if: always() && matrix.system.platform == 'mac'
-#        shell: python
-#        run: |
-#          import os
-#          import pathlib
-#          import subprocess
-#          import tempfile
-#
-#          fspath = getattr(os, 'fspath', str)
-#
-#          temp = pathlib.Path(os.environ['BUILD_PATH'])
-#
-#          subprocess.run(['pip', 'install', 'py-tree'])
-#          for path in temp.glob('pip-*'):
-#            subprocess.run(['py-tree', fspath(path)])
-#      - name: Archive temp
-#        if: always() && matrix.system.platform == 'mac'
-#        uses: actions/upload-artifact@v1
-#        with:
-#          name: temp-${{ matrix.system.platform }}
-#          path: ${{ env['BUILD_PATH'] }}
 #      - name: prep
 #        if: always()
 #        run: |
@@ -225,3 +175,37 @@ jobs:
       - name: Setup tmate session
         if: always()
         uses: mxschmitt/action-tmate@v2
+  maybe_publish:
+    name: Maybe Publish
+    runs-on: ubuntu-latest
+    container: docker://python:3.8-buster
+    needs:
+      - ci
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v1
+      - name: Download all wheels
+        uses: actions/download-artifact@v1
+        with:
+          name: pyqt5_tools-all_wheels
+          path: dist
+      - name: Install Python packages
+        run: |
+          pip install --upgrade twine
+      - name: Maybe publish
+        run: |
+          python twineontag.py
+        env:
+          TWINE_USERNAME: ${{ secrets.TWINE_USERNAME }}
+          TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD }}
+  all:
+    name: All
+    runs-on: ubuntu-latest
+    needs:
+      - ci
+      - maybe_publish
+    steps:
+      - name: This
+        shell: python
+        run: |
+          import this
