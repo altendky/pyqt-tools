@@ -88,6 +88,13 @@ def create_env(reference):
             before=[''],
             after=[sysconfig.get_config_var('LIBDIR')],
         ))
+    elif sys.platform == 'darwin':
+        env.update(add_to_env_var_path_list(
+            env=env,
+            name='DYLD_LIBRARY_PATH',
+            before=[''],
+            after=[sysconfig.get_config_var('LIBDIR')],
+        ))
 
     return env
 
