@@ -581,7 +581,7 @@ class DarwinDotApp:
         return applications
 
     def subprocess_elements(self, qt_path_string):
-        return "[fspath({qt_path_string} / {relative!r} / 'Contents' / 'MacOS' / {Identifier.stem})]".format(
+        return "[fspath({qt_path_string} / {relative!r} / 'Contents' / 'MacOS' / {relative.stem})]".format(
             qt_path_string=qt_path_string,
             relative=fspath(self.executable_relative_path.as_posix()),
         )
