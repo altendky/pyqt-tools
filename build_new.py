@@ -4,12 +4,14 @@ faulthandler.enable()
 import inspect
 import itertools
 import os
+import os.path
 import pathlib
 import platform
 import shlex
 import shutil
 import subprocess
 import sys
+import sysconfig
 import tarfile
 import tempfile
 import textwrap
@@ -1172,10 +1174,6 @@ def build(configuration: Configuration):
         ))
     elif configuration.platform == 'darwin':
         # install_name_tool -change /Users/runner/hostedtoolcache/Python/3.8.2/x64/lib/libpython3.8.dylib @executable_path/../lib/libpython3.8.dylib .tox/py38/lib/python3.8/site-packages/pyqt5_tools/Qt/plugins/designer/libpyqt5.dylib
-        import os.path
-        import pathlib
-        import sys
-        import sysconfig
         libdest = pathlib.Path(sysconfig.get_config_var("LIBDEST"))
         ldlibrary = pathlib.Path(sysconfig.get_config_var("LDLIBRARY"))
         dylib_absolute = libdest / ldlibrary
