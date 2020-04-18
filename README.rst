@@ -145,3 +145,16 @@ QML Test Runner
                                       Set QT_DEBUG_PLUGINS=1
       --test-qml-example              Test the pyqt5-tools QML example
       --help                          Show this message and exit.
+
+
+--------------
+Special Thanks
+--------------
+
+|MacStadium|
+
+.. |MacStadium| image:: https://uploads-ssl.webflow.com/5ac3c046c82724970fc60918/5c019d917bba312af7553b49_MacStadium-developerlogo.png
+   :alt: MacStadium
+   :target: https://www.macstadium.com/
+
+Thanks to MacStadium for providing me with a macOS system to develop and test out the final pyqt5-tools platform.
