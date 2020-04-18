@@ -1171,7 +1171,34 @@ def build(configuration: Configuration):
             ) / qml_plugin.name,
         ))
     elif configuration.platform == 'darwin':
+        # install_name_tool -change /Users/runner/hostedtoolcache/Python/3.8.2/x64/lib/libpython3.8.dylib @executable_path/../lib/libpython3.8.dylib .tox/py38/lib/python3.8/site-packages/pyqt5_tools/Qt/plugins/designer/libpyqt5.dylib
+        import os.path
+        import pathlib
+        import sys
+        import sysconfig
+        libdest = pathlib.Path(sysconfig.get_config_var("LIBDEST"))
+        ldlibrary = pathlib.Path(sysconfig.get_config_var("LDLIBRARY"))
+        dylib_absolute = libdest / ldlibrary
+        dylib_executable_relative = os.path.relpath(
+            dylib_absolute,
+            start=pathlib.Path(sys.executable).resolve().parent,
+        )
+
         designer_plugin_path = build_path / 'designer' / 'libpyqt5.dylib'
+        qml_plugin = build_path / 'qmlscene' / 'libpyqt5qmlplugin.dylib'
+
+        for path in [designer_plugin_path, qml_plugin]:
+            report_and_check_call(
+                [
+                    'install_name_tool',
+                    '-change',
+                    dylib_absolute,
+                    pathlib.Path('@executable_path') / dylib_executable_relative,
+                    path,
+                ],
+            )
+
+            # install_name_tool -change /Users/runner/hostedtoolcache/Python/3.8.2/x64/lib/libpython3.8.dylib @executable_path/../lib/libpython3.8.dylib venv/lib/python3.8/site-packages/pyqt5_tools/Qt/plugins/designer/libpyqt5.dylib
 
         package_plugins = destinations.qt / 'plugins'
         package_plugins_designer = (
@@ -1182,8 +1209,6 @@ def build(configuration: Configuration):
             source=designer_plugin_path,
             destination=package_plugins_designer.relative_to(destinations.qt),
         ))
-
-        qml_plugin = build_path / 'qmlscene' / 'libpyqt5qmlplugin.dylib'
 
         copy_actions.add(FileCopyAction(
             source=qml_plugin,
