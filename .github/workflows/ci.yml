@@ -172,9 +172,9 @@ jobs:
 #        run: |
 #          apt install --yes xvfb
 #          Xvfb :1 -screen 0 1600x1200x24&
-      - name: Setup tmate session
-        if: always()
-        uses: mxschmitt/action-tmate@v2
+#      - name: Setup tmate session
+#        if: always()
+#        uses: mxschmitt/action-tmate@v2
   maybe_publish:
     name: Maybe Publish
     runs-on: ubuntu-latest
