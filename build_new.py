@@ -669,11 +669,19 @@ def filtered_applications(
     for application in applications:
         print('\n\nChecking: {}'.format(application.path_name))
 
-        if any(
-                filter(copy_action.destination)
-                for copy_action in application.copy_actions
-        ):
-            print('    skipped')
+        skip = False
+
+        for copy_action in application.copy_actions:
+            if filter(copy_action.destination):
+                print('    skipped {!r} because of {!r}'.format(
+                    application.path_name,
+                    copy_action.destination,
+                ))
+
+                skip = True
+                break
+
+        if skip:
             continue
 
         results.append(application)
