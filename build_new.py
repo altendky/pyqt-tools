@@ -567,6 +567,7 @@ class DarwinDotApp:
 
         for path in directory.iterdir():
             if path.is_file() or path.suffix != '.app':
+                print('skipping: {}'.format(path))
                 continue
 
             try:
