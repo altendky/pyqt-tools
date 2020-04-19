@@ -1019,8 +1019,7 @@ def build(configuration: Configuration):
     checkpoint('Select Applications')
     applications = filtered_applications(
         applications=qt_paths.applications,
-        # TODO: just debugging macos
-        filter=lambda path: False,#lambda path: 'webengine' in fspath(path).casefold(),
+        filter=lambda path: 'webengine' in fspath(path).casefold(),
     )
 
     checkpoint('Define Plugins')
@@ -1173,7 +1172,6 @@ def build(configuration: Configuration):
             ) / qml_plugin.name,
         ))
     elif configuration.platform == 'darwin':
-        # install_name_tool -change /Users/runner/hostedtoolcache/Python/3.8.2/x64/lib/libpython3.8.dylib @executable_path/../lib/libpython3.8.dylib .tox/py38/lib/python3.8/site-packages/pyqt5_tools/Qt/plugins/designer/libpyqt5.dylib
         libdest = pathlib.Path(sysconfig.get_config_var("LIBDEST"))
         ldlibrary = pathlib.Path(sysconfig.get_config_var("LDLIBRARY"))
         dylib_absolute = libdest / ldlibrary
