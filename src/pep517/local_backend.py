@@ -1,3 +1,5 @@
+import os
+
 import setuptools.build_meta
 
 
