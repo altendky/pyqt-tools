@@ -34,7 +34,6 @@ requirements = {
 overrides = dict(sorted({
     (5, 14): {
         'PyQt-builder': '==1.3.1',
-        'setuptools': '==46.1.3.',
         'sip': '==5.2.0',
     },
 }.items()))
