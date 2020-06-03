@@ -5,6 +5,12 @@ import setuptools.build_meta
 
 build_wheel = setuptools.build_meta.build_wheel
 build_sdist = setuptools.build_meta.build_sdist
+prepare_metadata_for_build_wheel = (
+    setuptools.build_meta.prepare_metadata_for_build_wheel
+)
+get_requires_for_build_sdist = (
+    setuptools.build_meta.get_requires_for_build_sdist
+)
 
 
 requirements = {
