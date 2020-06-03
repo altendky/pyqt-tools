@@ -44,7 +44,7 @@ def pick_overrides(version, overrides):
     dicts = []
 
     for v, d in overrides.items():
-        if v == version[:len(d)]:
+        if v == version[:len(v)]:
             dicts.append(d)
 
     return dicts
