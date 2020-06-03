@@ -9,18 +9,18 @@ requirements = {
    'attrs': '',
    'aqtinstall': '==0.8a3',
    'py7zr': '==0.6b6',
-   'importlib-metadata',
-   'hyperlink',
-   'macholib',
-   'psutil',
-   'pylddwrap',
-   'PyQt-builder',
-   'requests',
-   'setuptools',
-   'sip',
-   'vcversioner',
-   'wheel',
-]
+   'importlib-metadata': '',
+   'hyperlink': '',
+   'macholib': '',
+   'psutil': '',
+   'pylddwrap': '',
+   'PyQt-builder': '',
+   'requests': '',
+   'setuptools': '',
+   'sip': '',
+   'vcversioner': '',
+   'wheel': '',
+}
 
 
 overrides = dict(sorted({
