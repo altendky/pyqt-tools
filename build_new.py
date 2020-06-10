@@ -727,7 +727,7 @@ class Configuration:
             qt_architecture = 'clang_64'
         elif platform == 'win32':
             # TODO: change the actual storage
-            if qt_version.split('.') >= (5, 15):
+            if tuple(qt_version.split('.')) >= (5, 15):
                 qt_compiler = 'msvc2019_64'
                 qt_architecture = 'win64_msvc2019_64'
             else:
