@@ -20,21 +20,15 @@ jobs:
           - name: Linux
             runs-on: ubuntu-latest
             python_platform: linux
-            aqt_architecture: gcc_64
-            qt_compiler: gcc_64
             container: docker://python:{0}-buster
             cibuildwheel_before: yum install mesa-libGL-devel
           - name: Windows
             runs-on: windows-latest
             python_platform: win32
-            aqt_architecture: win64_msvc2019_64
-            qt_compiler: msvc2019_64
             vs_path: C:/Program Files (x86)/Microsoft Visual Studio/2019/Enterprise/VC/Auxiliary/Build/vcvars64.bat
 #          - name: macOS
 #            runs-on: macos-latest
 #            python_platform: darwin
-#            aqt_architecture: clang_64
-#            qt_compiler: clang_64
         python:
           - name: 3.5
             tox: py35
@@ -71,8 +65,6 @@ jobs:
             cibuildwheel: '*64*'
     env:
       QT_VERSION: ${{ matrix.qt.qt_version }}
-      QT_COMPILER: ${{ matrix.os.qt_compiler }}
-      QT_ARCHITECTURE: ${{ matrix.os.aqt_architecture }}
       PYQT_VERSION: ${{ matrix.qt.pyqt_version }}
 
     steps:
