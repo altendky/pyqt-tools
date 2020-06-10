@@ -717,6 +717,7 @@ class Configuration:
     @classmethod
     def build(cls, environment, build_path, package_path):
         platform = sys.platform
+        qt_version = environment['QT_VERSION']
 
         if platform == 'linux':
             qt_compiler = 'gcc_64'
@@ -726,7 +727,7 @@ class Configuration:
             qt_architecture = 'clang_64'
         elif platform == 'win32':
             # TODO: change the actual storage
-            if configuration.qt_version.split('.') >= (5, 15):
+            if qt_version.split('.') >= (5, 15):
                 qt_compiler = 'msvc2019_64'
                 qt_architecture = 'win64_msvc2019_64'
             else:
@@ -734,7 +735,7 @@ class Configuration:
                 qt_architecture = 'win64_msvc2017_64'
 
         return cls(
-            qt_version=environment['QT_VERSION'],
+            qt_version=qt_version,
             qt_path=build_path / 'qt',
             qt_architecture=qt_architecture,
             qt_compiler=qt_compiler,
