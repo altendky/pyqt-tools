@@ -741,7 +741,7 @@ class Configuration:
             pyqt_version=environment['PYQT_VERSION'],
             pyqt_source_path=build_path / 'pyqt5',
             platform=platform,
-            architecture=environment['QT_ARCHITECTURE'],
+            architecture=qt_architecture,
             build_path=build_path,
             download_path=build_path / 'downloads',
             package_path=package_path,
