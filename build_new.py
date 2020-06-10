@@ -716,13 +716,15 @@ class Configuration:
 
     @classmethod
     def build(cls, environment, build_path, package_path):
-        if configuration.platform == 'linux':
+        platform = sys.platform
+
+        if platform == 'linux':
             qt_compiler = 'gcc_64'
             qt_architecture = 'gcc_64'
-        elif configuration.platform == 'macos':
+        elif platform == 'macos':
             qt_compiler = 'clang_64'
             qt_architecture = 'clang_64'
-        elif configuration.platform == 'win32':
+        elif platform == 'win32':
             # TODO: change the actual storage
             if configuration.qt_version.split('.') >= (5, 15):
                 qt_compiler = 'msvc2019_64'
@@ -738,7 +740,7 @@ class Configuration:
             qt_compiler=qt_compiler,
             pyqt_version=environment['PYQT_VERSION'],
             pyqt_source_path=build_path / 'pyqt5',
-            platform=sys.platform,
+            platform=platform,
             architecture=environment['QT_ARCHITECTURE'],
             build_path=build_path,
             download_path=build_path / 'downloads',
