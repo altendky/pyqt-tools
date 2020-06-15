@@ -20,21 +20,15 @@ jobs:
 #          - name: Linux
 #            runs-on: ubuntu-latest
 #            python_platform: linux
-#            aqt_architecture: gcc_64
-#            qt_compiler: gcc_64
 #            container: docker://python:{0}-buster
 #            cibuildwheel_before: yum install mesa-libGL-devel
 #          - name: Windows
 #            runs-on: windows-latest
 #            python_platform: win32
-#            aqt_architecture: win64_msvc2017_64
-#            qt_compiler: msvc2017_64
-#            vs_path: C:/Program Files (x86)/Microsoft Visual Studio/2017/Enterprise/VC/Auxiliary/Build/vcvars64.bat
+#            vs_path: C:/Program Files (x86)/Microsoft Visual Studio/2019/Enterprise/VC/Auxiliary/Build/vcvars64.bat
           - name: macOS
             runs-on: macos-latest
             python_platform: darwin
-            aqt_architecture: clang_64
-            qt_compiler: clang_64
         python:
 #          - name: 3.5
 #            tox: py35
@@ -63,14 +57,14 @@ jobs:
 #            qt_version: 5.14.1
           - pyqt_version: 5.14.2
             qt_version: 5.14.2
+          - pyqt_version: 5.15.0
+            qt_version: 5.15.0
         bitness:
           - name: x64
             action: x64
             cibuildwheel: '*64*'
     env:
       QT_VERSION: ${{ matrix.qt.qt_version }}
-      QT_COMPILER: ${{ matrix.os.qt_compiler }}
-      QT_ARCHITECTURE: ${{ matrix.os.aqt_architecture }}
       PYQT_VERSION: ${{ matrix.qt.pyqt_version }}
 
     steps:
@@ -116,6 +110,7 @@ jobs:
         run: |
           apt-get update --yes
           apt-get install --yes libgl1-mesa-dev
+          apt-get install --yes libdbus-1-3 libxkbcommon-x11-0 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-randr0 libxcb-render-util0 libxcb-xinerama0 libxcb-xfixes0
       - name: Build wheel
         # native shell for nmake...  keep commands here simple i guess
         run: |

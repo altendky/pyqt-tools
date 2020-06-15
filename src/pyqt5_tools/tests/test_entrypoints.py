@@ -34,7 +34,7 @@ def test_designer_creates_test_widget(tmp_path):
             ],
             check=True,
             env=env,
-            timeout=10,
+            timeout=90,
         )
 
     assert (

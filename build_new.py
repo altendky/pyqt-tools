@@ -754,15 +754,33 @@ class Configuration:
 
     @classmethod
     def build(cls, environment, build_path, package_path):
+        platform = sys.platform
+        qt_version = environment['QT_VERSION']
+
+        if platform == 'linux':
+            qt_compiler = 'gcc_64'
+            qt_architecture = 'gcc_64'
+        elif platform == 'macos':
+            qt_compiler = 'clang_64'
+            qt_architecture = 'clang_64'
+        elif platform == 'win32':
+            # TODO: change the actual storage
+            if tuple(int(s) for s in qt_version.split('.')) >= (5, 15):
+                qt_compiler = 'msvc2019_64'
+                qt_architecture = 'win64_msvc2019_64'
+            else:
+                qt_compiler = 'msvc2017_64'
+                qt_architecture = 'win64_msvc2017_64'
+
         return cls(
-            qt_version=environment['QT_VERSION'],
+            qt_version=qt_version,
             qt_path=build_path / 'qt',
-            qt_architecture=environment['QT_ARCHITECTURE'],
-            qt_compiler=environment['QT_COMPILER'],
+            qt_architecture=qt_architecture,
+            qt_compiler=qt_compiler,
             pyqt_version=environment['PYQT_VERSION'],
             pyqt_source_path=build_path / 'pyqt5',
-            platform=sys.platform,
-            architecture=environment['QT_ARCHITECTURE'],
+            platform=platform,
+            architecture=qt_architecture,
             build_path=build_path,
             download_path=build_path / 'downloads',
             package_path=package_path,
