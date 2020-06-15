@@ -1,0 +1,120 @@
+diff --git a/qmlscene/pluginloader.cpp b/qmlscene/pluginloader.cpp
+index 635d31e..21b082a 100644
+--- a/qmlscene/pluginloader.cpp
++++ b/qmlscene/pluginloader.cpp
+@@ -21,6 +21,7 @@
+  */
+ 
+ 
++#include <iostream>
+ #include <stdlib.h>
+ 
+ #include <Python.h>
+@@ -218,6 +219,7 @@ void PyQt5QmlPlugin::registerTypes(const char *uri)
+         return;
+ 
+ #ifdef WITH_THREAD
++    std::cerr << "pluginloader.cpp debug: PyQt5QmlPlugin::registerTypes(): PyGILState_Ensure()\n";
+     PyGILState_STATE gil = PyGILState_Ensure();
+ #endif
+ 
+@@ -225,6 +227,7 @@ void PyQt5QmlPlugin::registerTypes(const char *uri)
+         PyErr_Print();
+ 
+ #ifdef WITH_THREAD
++    std::cerr << "pluginloader.cpp debug: PyQt5QmlPlugin::registerTypes(): PyGILState_Release()\n";
+     PyGILState_Release(gil);
+ #endif
+ }
+@@ -234,9 +237,15 @@ void PyQt5QmlPlugin::registerTypes(const char *uri)
+ bool PyQt5QmlPlugin::callRegisterTypes(const QString &py_plugin,
+         const char *uri)
+ {
++    std::cerr << "pluginloader.cpp debug: PyQt5QmlPlugin::callRegisterTypes(): py_plugin.toLatin1().constData() - " << py_plugin.toLatin1().constData() << "\n";
++    std::cerr << "pluginloader.cpp debug: PyQt5QmlPlugin::callRegisterTypes(): (void *) uri - " << (void *) uri << "\n";
++    if (uri) {
++        std::cerr << "pluginloader.cpp debug: PyQt5QmlPlugin::callRegisterTypes(): uri - " << uri << "\n";
++    }
+     // Import the plugin.
+     PyObject *plugin_mod = PyImport_ImportModule(py_plugin.toLatin1().data());
+ 
++    std::cerr << "pluginloader.cpp debug: PyQt5QmlPlugin::callRegisterTypes(): plugin_mod - " << plugin_mod << "\n";
+     if (!plugin_mod)
+         return false;
+ 
+@@ -244,6 +253,7 @@ bool PyQt5QmlPlugin::callRegisterTypes(const QString &py_plugin,
+     // allow it to fiddle with the context.
+     PyObject *extension_plugin = getModuleAttr("PyQt5.QtQml",
+             "QQmlExtensionPlugin");
++    std::cerr << "pluginloader.cpp debug: PyQt5QmlPlugin::callRegisterTypes(): extension_plugin - " << extension_plugin << "\n";
+ 
+     if (!extension_plugin)
+     {
+@@ -268,9 +278,22 @@ bool PyQt5QmlPlugin::callRegisterTypes(const QString &py_plugin,
+ 
+     if (!plugin_type)
+     {
++        const char * py_plugin_char_pointer = py_plugin.toLatin1().constData();
++        std::cerr << "pluginloader.cpp debug: PyQt5QmlPlugin::callRegisterTypes(): (void *) py_plugin_char_pointer - " << (void *) py_plugin_char_pointer << "\n";
++        std::cerr << "pluginloader.cpp debug: PyQt5QmlPlugin::callRegisterTypes(): py_plugin_char_pointer bytes -";
++        int length = 0;
++        for (int i = 0; i < 100; i++) {
++            int b = py_plugin_char_pointer[i];
++            std::cerr << " " << b;
++            if (b == 0) {
++                length = i;
++                break;
++            }
++        }
++        std::cerr << "pluginloader.cpp debug: PyQt5QmlPlugin::callRegisterTypes(): py_plugin_char_pointer 0 byte at index - " << length;
+         PyErr_Format(PyExc_AttributeError,
+                 "%s does not contain an implementation of QQmlExtensionPlugin",
+-                py_plugin.toLatin1().constData());
++                py_plugin_char_pointer);
+ 
+         Py_DECREF(plugin_mod);
+         return false;
+@@ -278,6 +301,7 @@ bool PyQt5QmlPlugin::callRegisterTypes(const QString &py_plugin,
+ 
+     // Create the plugin instance.
+     PyObject *plugin_obj = PyObject_CallObject(plugin_type, NULL);
++    std::cerr << "pluginloader.cpp debug: PyQt5QmlPlugin::callRegisterTypes(): plugin_obj - " << plugin_obj << "\n";
+ 
+     Py_DECREF(plugin_mod);
+ 
+@@ -285,8 +309,10 @@ bool PyQt5QmlPlugin::callRegisterTypes(const QString &py_plugin,
+         return false;
+ 
+     // Call registerTypes().
++    std::cerr << "pluginloader.cpp debug: PyQt5QmlPlugin::callRegisterTypes(): about to call some registerTypes()\n";
+     PyObject *res_obj = PyObject_CallMethod(plugin_obj,
+             const_cast<char *>("registerTypes"), const_cast<char *>("s"), uri);
++    std::cerr << "pluginloader.cpp debug: PyQt5QmlPlugin::callRegisterTypes(): just called some registerTypes()\n";
+ 
+     if (res_obj != Py_None)
+     {
+@@ -295,6 +321,7 @@ bool PyQt5QmlPlugin::callRegisterTypes(const QString &py_plugin,
+         if (res_obj)
+         {
+ #if PY_MAJOR_VERSION >= 3
++            std::cerr << "pluginloader.cpp debug: PyQt5QmlPlugin::callRegisterTypes(): res_obj - " << res_obj << "\n";
+             PyErr_Format(PyExc_TypeError,
+                     "unexpected result from registerTypes(): %S", res_obj);
+ #else
+@@ -412,6 +439,16 @@ PyObject *PyQt5QmlPlugin::getModuleAttr(const char *module, const char *attr)
+ void PyQt5QmlPlugin::getSipAPI()
+ {
+ #if defined(SIP_USE_PYCAPSULE)
++    PyObject *mod = PyImport_ImportModule("PyQt5.sip");
++    if (!mod)
++    {
++        PyErr_Print();
++        return;
++    }
++    else
++    {
++        Py_DECREF(mod);
++    }
+     sip = (const sipAPIDef *)PyCapsule_Import("PyQt5.sip._C_API", 0);
+ #else
+     PyObject *c_api = getModuleAttr("PyQt5.sip", "_C_API");

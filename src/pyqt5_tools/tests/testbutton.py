@@ -21,5 +21,6 @@ class TestButton(QtWidgets.QPushButton):
             write_for_test = False
 
             path = pathlib.Path(os.environ[test_path_env_var])
-            with path.open('xb') as f:
+            path.parent.mkdir(parents=True, exist_ok=True)
+            with path.open('ab') as f:
                 f.write(test_file_contents)

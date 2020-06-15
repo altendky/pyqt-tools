@@ -3,13 +3,18 @@ import pathlib
 import shutil
 import subprocess
 import sys
+import sysconfig
 
 import click
 import dotenv
 
+import PyQt5
 import pyqt5_tools.badplugin
 import pyqt5_tools.examplebuttonplugin
 import pyqt5_tools.examples
+import pyqt5_tools.examples.exampleqmlitem
+import pyqt5_tools.tests.testbutton
+
 
 fspath = getattr(os, 'fspath', str)
 
@@ -23,19 +28,60 @@ bad_path = str(
     pathlib.Path(pyqt5_tools.badplugin.__file__).parent,
 )
 
+pyqt5_root = pathlib.Path(PyQt5.__file__).parent
+
+maybe_extension = {
+    'linux': lambda name: name,
+    'win32': lambda name: '{}.exe'.format(name),
+    'darwin': lambda name: name,
+}[sys.platform]
+
+
 def pyqt5toolsinstalluic():
     destination = bin/'bin'
     destination.mkdir(parents=True, exist_ok=True)
     there = pathlib.Path(sys.executable).parent
 
-    shutil.copy(str(there/'pyuic5.exe'), str(destination/'uic.exe'))
+    shutil.copy(
+        src=str(there / maybe_extension('pyuic5')),
+        dst=str(destination/maybe_extension('uic')),
+    )
 
 
 def load_dotenv():
     env_path = dotenv.find_dotenv(usecwd=True)
     if len(env_path) > 0:
         os.environ['DOT_ENV_DIRECTORY'] = str(pathlib.Path(env_path).parent)
+        os.environ['SITE_PACKAGES'] = sysconfig.get_path('platlib')
         dotenv.load_dotenv(dotenv_path=env_path, override=True)
+
+
+def create_env(reference):
+    # TODO: uck, mutating
+    load_dotenv()
+
+    env = dict(reference)
+
+    env.update(add_to_env_var_path_list(
+        env=env,
+        name='QT_PLUGIN_PATH',
+        before=[],
+        after=[fspath(here / 'Qt' / 'plugins')],
+    ))
+    # TODO: maybe also
+    # PyQt5.QtCore.QLibraryInfo.location(
+    #    PyQt5.QtCore.QLibraryInfo.PluginsPath,
+    # )
+
+    if sys.platform == 'linux':
+        env.update(add_to_env_var_path_list(
+            env=env,
+            name='LD_LIBRARY_PATH',
+            before=[''],
+            after=[sysconfig.get_config_var('LIBDIR')],
+        ))
+
+    return env
 
 
 def add_to_env_var_path_list(env, name, before, after):
@@ -119,7 +165,7 @@ def pyqt5designer(
         test_exception_dialog,
         qt_debug_plugins
 ):
-    load_dotenv()
+    env = create_env(os.environ)
 
     extras = []
     widget_paths = list(widget_paths)
@@ -133,7 +179,19 @@ def pyqt5designer(
     if test_exception_dialog:
         widget_paths.append(bad_path)
 
-    env = dict(os.environ)
+    vars_to_print = [
+        'PYQTDESIGNERPATH',
+        'PYTHONPATH',
+        'PATH',
+        'QT_DEBUG_PLUGINS',
+        'QT_PLUGIN_PATH',
+        pyqt5_tools.tests.testbutton.test_path_env_var,
+    ]
+
+    if sys.platform == 'linux':
+        vars_to_print.append('LD_LIBRARY_PATH')
+        vars_to_print.append('DISPLAY')
+
     env.update(add_to_env_var_path_list(
         env=env,
         name='PYQTDESIGNERPATH',
@@ -146,16 +204,10 @@ def pyqt5designer(
     if qt_debug_plugins:
         env['QT_DEBUG_PLUGINS'] = '1'
 
-    print_environment_variables(
-        env,
-        'PYQTDESIGNERPATH',
-        'PYTHONPATH',
-        'PATH',
-        'QT_DEBUG_PLUGINS',
-    )
+    print_environment_variables(env, *vars_to_print)
 
     command = [
-        str(bin / 'designer.exe'),
+        str(bin / maybe_extension('designer')),
         *extras,
         *ctx.args,
     ]
@@ -177,7 +229,7 @@ def mutate_qml_path(env, paths):
     env.update(add_to_env_var_path_list(
         env=env,
         name='QML2_IMPORT_PATH',
-        before=[*paths, str(here/'Qt'/'qml')],
+        before=[*paths, fspath(pyqt5_root/'Qt'/'qml')],
         after=[''],
     ))
 
@@ -208,13 +260,11 @@ def pyqt5qmlscene(
         qt_debug_plugins,
         run_qml_example,
 ):
-    load_dotenv()
+    env = create_env(os.environ)
     extras = []
 
     if qmlscene_help:
         extras.append('--help')
-
-    env = dict(os.environ)
 
     if run_qml_example:
         qml2_import_paths = qml2_import_paths + (fspath(here),)
@@ -228,16 +278,23 @@ def pyqt5qmlscene(
     if qt_debug_plugins:
         env['QT_DEBUG_PLUGINS'] = '1'
 
-    print_environment_variables(
-        env,
+    vars_to_print = [
         'QML2_IMPORT_PATH',
         'PYTHONPATH',
         'PATH',
         'QT_DEBUG_PLUGINS',
-    )
+        'QT_PLUGIN_PATH',
+        pyqt5_tools.examples.exampleqmlitem.test_path_env_var,
+    ]
+
+    if sys.platform == 'linux':
+        vars_to_print.append('LD_LIBRARY_PATH')
+        vars_to_print.append('DISPLAY')
+
+    print_environment_variables(env, *vars_to_print)
 
     command = [
-        str(bin / 'qmlscene.exe'),
+        str(bin / maybe_extension('qmlscene')),
         *extras,
         *ctx.args,
     ]
@@ -271,13 +328,11 @@ def pyqt5qmltestrunner(
         qt_debug_plugins,
         test_qml_example,
 ):
-    load_dotenv()
+    env = create_env(os.environ)
     extras = []
 
     if qmltestrunner_help:
         extras.append('--help')
-
-    env = dict(os.environ)
 
     if test_qml_example:
         qml2_import_paths = qml2_import_paths + (fspath(here),)
@@ -294,16 +349,23 @@ def pyqt5qmltestrunner(
     if qt_debug_plugins:
         env['QT_DEBUG_PLUGINS'] = '1'
 
-    print_environment_variables(
-        env,
+    vars_to_print = [
         'QML2_IMPORT_PATH',
         'PYTHONPATH',
         'PATH',
         'QT_DEBUG_PLUGINS',
-    )
+        'QT_PLUGIN_PATH',
+        pyqt5_tools.examples.exampleqmlitem.test_path_env_var,
+    ]
+
+    if sys.platform == 'linux':
+        vars_to_print.append('LD_LIBRARY_PATH')
+        vars_to_print.append('DISPLAY')
+
+    print_environment_variables(env, *vars_to_print)
 
     command = [
-        str(bin / 'qmltestrunner.exe'),
+        str(bin / maybe_extension('qmltestrunner')),
         *extras,
         *ctx.args,
     ]
@@ -312,5 +374,11 @@ def pyqt5qmltestrunner(
 
 
 # def designer():
-#     load_dotenv()
-#     return subprocess.call([str(here/'Qt'/'bin'/'designer.exe'), *sys.argv[1:]])
+#     env = create_env(os.environ)
+#     return subprocess.call(
+#         [
+#             str(here/'Qt'/'bin'/'designer.exe'),
+#             *sys.argv[1:],
+#         ],
+#         env=env,
+#     )

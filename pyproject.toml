@@ -1,0 +1,4 @@
+[build-system]
+requires = ["setuptools"]
+backend-path = ["src/pep517", "."]
+build-backend = "local_backend"

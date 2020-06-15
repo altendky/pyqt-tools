@@ -1,7 +1,15 @@
 import os
+import pathlib
 import sys
 
-import build
+here = pathlib.Path(__file__).parent
+
+sys.path.insert(0, here)
+# TODO: yuck, put the build command in a separate project and
+#       build-requires it?
+import build_new
+sys.path.pop(0)
+
 import setuptools
 import vcversioner
 
@@ -15,14 +23,16 @@ def pad_version(v):
     split = v.split('.')
     return '.'.join(split + ['0'] * (3 - len(split)))
 
+# TODO: really doesn't seem quite proper here and probably should come
+#       in some other way?
+os.environ.setdefault('PYQT_VERSION', '5.14.1')
+
 version = '.'.join((
-    pad_version(os.environ['PYQT5_VERSION']),
+    pad_version(os.environ['PYQT_VERSION']),
     version.version,
 ))
 
-sys.stderr.write('another stderr test from {}\n'.format(__file__))
-
-results = build.main()
+# sys.stderr.write('another stderr test from {}\n'.format(__file__))
 
 with open('README.rst') as f:
     readme = f.read()
@@ -32,12 +42,25 @@ console_scripts = [
     'pyqt5designer = pyqt5_tools.entrypoints:pyqt5designer',
     'pyqt5qmlscene = pyqt5_tools.entrypoints:pyqt5qmlscene',
     'pyqt5qmltestrunner = pyqt5_tools.entrypoints:pyqt5qmltestrunner',
-    *results.console_scripts,
 ]
 
-print('--- console_scripts')
-for console_script in console_scripts:
-    print('    ' + repr(console_script))
+# print('--- console_scripts')
+# for console_script in console_scripts:
+#     print('    ' + repr(console_script))
+
+# # TODO: do i really need this?  seems like it could be specified to be
+# #       specific to whatever is running it without saying what that is
+# #       or that it would default to that
+# build_new.write_setup_cfg(here)
+
+
+class Dist(setuptools.Distribution):
+    def has_ext_modules(self):
+        # Event if we don't have extension modules (e.g. on PyPy) we want to
+        # claim that we do so that wheels get properly tagged as Python
+        # specific.  (thanks dstufft!)
+        return True
+
 
 setuptools.setup(
     name="pyqt5-tools",
@@ -59,17 +82,21 @@ setuptools.setup(
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
         'Topic :: Software Development',
         'Topic :: Utilities',
     ],
+    cmdclass={'build_py': build_new.BuildPy},
+    distclass=Dist,
     packages=setuptools.find_packages('src'),
     package_dir={'': 'src'},
     version=version,
     include_package_data=True,
+    python_requires=">=3.5",
     install_requires=[
         'click',
         'python-dotenv',
-        'pyqt5=={}'.format(os.environ['PYQT5_VERSION']),
+        'pyqt5=={}'.format(os.environ['PYQT_VERSION']),
     ],
     entry_points={
         'console_scripts': console_scripts,
