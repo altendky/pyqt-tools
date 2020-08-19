@@ -50,6 +50,8 @@ class BuildPy(setuptools.command.build_py.build_py):
                 build_base_path=cwd / build_command.build_base,
             )
 
+            if getattr(self.distribution, 'entry_points', None) is None:
+                self.distribution.entry_points = {}
             console_scripts = self.distribution.entry_points.setdefault('console_scripts', [])
             console_scripts.extend(results.console_scripts)
         except:
