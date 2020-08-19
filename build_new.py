@@ -50,7 +50,7 @@ class BuildPy(setuptools.command.build_py.build_py):
                 build_base_path=cwd / build_command.build_base,
             )
 
-            console_scripts = self.distribution.entry_points.get('console_scripts', [])
+            console_scripts = self.distribution.entry_points.setdefault('console_scripts', [])
             console_scripts.extend(results.console_scripts)
         except:
             # something apparently consumes tracebacks (not exception messages)
