@@ -1454,7 +1454,7 @@ def write_entry_points(
         console_scripts = [
             '{application} = pyqt5_tools.entrypoints:{function_name}'.format(
                 function_name=application.script_function_name,
-                application=application.path_name,
+                application=application.original_path.stem,
             )
             for application in applications
         ]
