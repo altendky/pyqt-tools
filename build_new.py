@@ -28,7 +28,9 @@ fspath = getattr(os, 'fspath', str)
 
 
 class BuildPy(setuptools.command.build_py.build_py):
-    def run(self):
+    def build_packages(self):
+        super().build_packages()
+
         try:
             [package_name] = (
                 package
@@ -57,8 +59,6 @@ class BuildPy(setuptools.command.build_py.build_py):
             # for OSError at least.  let's avoid that silliness.
             traceback.print_exc()
             raise
-
-        super().run()
 
 
 Collector = typing.Callable[
