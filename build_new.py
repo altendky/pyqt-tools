@@ -28,8 +28,8 @@ fspath = getattr(os, 'fspath', str)
 
 
 class BuildPy(setuptools.command.build_py.build_py):
-    def run(self):
-        super().run()
+    def build_packages(self):
+        super().build_packages()
 
         try:
             [package_name] = (
@@ -50,7 +50,9 @@ class BuildPy(setuptools.command.build_py.build_py):
                 build_base_path=cwd / build_command.build_base,
             )
 
-            console_scripts = self.distribution.entry_points['console_scripts']
+            if getattr(self.distribution, 'entry_points', None) is None:
+                self.distribution.entry_points = {}
+            console_scripts = self.distribution.entry_points.setdefault('console_scripts', [])
             console_scripts.extend(results.console_scripts)
         except:
             # something apparently consumes tracebacks (not exception messages)
@@ -1452,7 +1454,7 @@ def write_entry_points(
         console_scripts = [
             '{application} = pyqt5_tools.entrypoints:{function_name}'.format(
                 function_name=application.script_function_name,
-                application=application.path_name,
+                application=application.original_path.stem,
             )
             for application in applications
         ]
