@@ -59,6 +59,8 @@ jobs:
             qt_version: 5.14.2
           - pyqt_version: 5.15.0
             qt_version: 5.15.0
+          - pyqt_version: 5.15.1
+            qt_version: 5.15.1
         bitness:
           - name: x64
             action: x64
