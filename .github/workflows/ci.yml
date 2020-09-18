@@ -86,6 +86,7 @@ jobs:
           python -m pip install --upgrade pip setuptools
           pip install tox cibuildwheel
       - name: Report info
+        shell: bash
         run: |
           git show --quiet HEAD
           python --version --version
