@@ -8,6 +8,9 @@ on:
       - v*
   pull_request:
 
+env:
+  PIP_NO_PYTHON_VERSION_WARNING: 1
+
 jobs:
   ci:
     name: ${{ matrix.os.name }} ${{ matrix.python.name }} ${{ matrix.qt.pyqt_version }}
