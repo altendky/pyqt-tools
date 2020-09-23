@@ -739,7 +739,7 @@ class Configuration:
             if bitness == 'x32':
                 bitness_string = '32'
             elif bitness == 'x64':
-                bitness_string = '32'
+                bitness_string = '64'
 
             qt_compiler = 'msvc{year}_{bitness}'.format(
                 year=year,
