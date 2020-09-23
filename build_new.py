@@ -732,21 +732,21 @@ class Configuration:
             # TODO: change the actual storage
             
             if tuple(int(s) for s in qt_version.split('.')) >= (5, 15):
-                msvc = '2019'
+                year = '2019'
             else:
-                msvc = '2017'
+                year = '2017'
 
             if bitness == 'x32':
                 bitness_string = '32'
             elif bitness == 'x64':
                 bitness_string = '32'
 
-            qt_compiler = '{msvc}_{bitness}'.format(
-                msvc=msvc,
+            qt_compiler = 'msvc{year}_{bitness}'.format(
+                year=year,
                 bitness=bitness_string,
             )
-            qt_architecture = 'win{bitness}_{msvc}_{bitness}'.format(
-                msvc=msvc,
+            qt_architecture = 'win{bitness}_msvc{year}_{bitness}'.format(
+                year=year,
                 bitness=bitness_string,
             )
 
