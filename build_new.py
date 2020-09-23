@@ -720,6 +720,7 @@ class Configuration:
     def build(cls, environment, build_path, package_path):
         platform = sys.platform
         qt_version = environment['QT_VERSION']
+        bitness = environment['BITNESS']
 
         if platform == 'linux':
             qt_compiler = 'gcc_64'
@@ -729,12 +730,25 @@ class Configuration:
             qt_architecture = 'clang_64'
         elif platform == 'win32':
             # TODO: change the actual storage
+            
             if tuple(int(s) for s in qt_version.split('.')) >= (5, 15):
-                qt_compiler = 'msvc2019_64'
-                qt_architecture = 'win64_msvc2019_64'
+                msvc = '2019'
             else:
-                qt_compiler = 'msvc2017_64'
-                qt_architecture = 'win64_msvc2017_64'
+                msvc = '2017'
+
+            if bitness == 'x32':
+                bitness_string = '32'
+            elif bitness == 'x64':
+                bitness_string = '32'
+
+            qt_compiler = '{msvc}_{bitness}'.format(
+                msvc=msvc,
+                bitness=bitness_string,
+            )
+            qt_architecture = 'win{bitness}_{msvc}_{bitness}'.format(
+                msvc=msvc,
+                bitness=bitness_string,
+            )
 
         return cls(
             qt_version=qt_version,
