@@ -13,7 +13,7 @@ env:
 
 jobs:
   ci:
-    name: ${{ matrix.os.name }} ${{ matrix.python.name }} ${{ matrix.qt.pyqt_version }}
+    name: ${{ matrix.os.name }} ${{ matrix.python.name }}-${{ matrix.bitness.name }} ${{ matrix.qt.pyqt_version }}
     runs-on: ${{ matrix.os.runs-on }}
     container: ${{ format(matrix.os.container, matrix.python.docker) }}
     strategy:
@@ -87,7 +87,7 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v1
-      - name: Set up Python ${{ matrix.python.name }}
+      - name: Set up Python ${{ matrix.python.name }}-${{ matrix.bitness.name }}
         if: matrix.os.python_platform != 'linux'
         uses: actions/setup-python@v1
         with:
