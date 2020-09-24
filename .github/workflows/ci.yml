@@ -85,7 +85,7 @@ jobs:
     env:
       QT_VERSION: ${{ matrix.qt.qt_version }}
       PYQT_VERSION: ${{ matrix.qt.pyqt_version }}
-      VSCMD_ARG_TGT_ARCH: ${{ matrix.bitness.vx }}
+      VSCMD_ARG_TGT_ARCH: ${{ matrix.bitness.vs }}
 
     steps:
       - name: Checkout
