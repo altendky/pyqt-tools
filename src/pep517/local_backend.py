@@ -20,7 +20,6 @@ requirements = {
    'importlib-metadata': '',
    'hyperlink': '',
    'macholib': '',
-   'psutil': '',
    'pylddwrap': '',
    'PyQt-builder': '',
    'requests': '',

@@ -22,12 +22,6 @@ import lddwrap
 import requests
 import setuptools.command.build_py
 
-# TODO: https://github.com/giampaolo/psutil/issues/1820
-try:
-    import psutil
-except ImportError:
-    psutil = None
-
 
 fspath = getattr(os, 'fspath', str)
 
@@ -1335,13 +1329,7 @@ def build_pyqt(configuration, qt_paths):
         command = ['nmake']
         env = {**os.environ, 'CL': '/MP'}
     else:
-        if psutil is None:
-            # TODO: https://github.com/giampaolo/psutil/issues/1820
-            available_cpus = 4
-        elif configuration.platform == 'darwin':
-            available_cpus = psutil.cpu_count(logical=True)
-        else:
-            available_cpus = len(psutil.Process().cpu_affinity())
+        available_cpus = os.cpu_count()
 
         command = ['make', '-j{}'.format(available_cpus)]
         env = {**os.environ}
