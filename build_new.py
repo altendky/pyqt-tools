@@ -720,7 +720,6 @@ class Configuration:
     def build(cls, environment, build_path, package_path):
         platform = sys.platform
         qt_version = environment['QT_VERSION']
-        bitness = environment['BITNESS']
 
         if platform == 'linux':
             qt_compiler = 'gcc_64'
@@ -736,19 +735,15 @@ class Configuration:
             else:
                 year = '2017'
 
-            if bitness == 'x32':
-                bitness_string = '32'
-            elif bitness == 'x64':
-                bitness_string = '64'
+            qt_compiler = 'msvc{year}'.format(year=year)
+            qt_architecture = 'win{bits}_msvc{year}'.format(
+                year=year,
+                bits=bits,
+            )
 
-            qt_compiler = 'msvc{year}_{bitness}'.format(
-                year=year,
-                bitness=bitness_string,
-            )
-            qt_architecture = 'win{bitness}_msvc{year}_{bitness}'.format(
-                year=year,
-                bitness=bitness_string,
-            )
+            if bits == 64:
+                qt_compiler += '_64'
+                qt_architecture += '_64'
 
         return cls(
             qt_version=qt_version,

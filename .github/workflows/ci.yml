@@ -68,11 +68,9 @@ jobs:
           - name: x32
             action: x86
             cibuildwheel: '*32*'
-            env: x32
           - name: x64
             action: x64
             cibuildwheel: '*64*'
-            env: x64
         exclude:
           - bitness:
               name: x32
@@ -85,7 +83,6 @@ jobs:
     env:
       QT_VERSION: ${{ matrix.qt.qt_version }}
       PYQT_VERSION: ${{ matrix.qt.pyqt_version }}
-      BITNESS: ${{ matrix.bitness.env }}
 
     steps:
       - name: Checkout
