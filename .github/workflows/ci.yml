@@ -68,9 +68,11 @@ jobs:
           - name: x32
             action: x86
             cibuildwheel: '*32*'
+            vs: x86
           - name: x64
             action: x64
             cibuildwheel: '*64*'
+            vs: x64
         exclude:
           - bitness:
               name: x32
@@ -83,6 +85,7 @@ jobs:
     env:
       QT_VERSION: ${{ matrix.qt.qt_version }}
       PYQT_VERSION: ${{ matrix.qt.pyqt_version }}
+      VSCMD_ARG_TGT_ARCH: ${{ matrix.bitness.vx }}
 
     steps:
       - name: Checkout
@@ -98,7 +101,6 @@ jobs:
         if: matrix.os.python_platform == 'win32'
       - name: pip/setuptools/tox/cibuildwheel
         run: |
-          unset VSCMD_ARG_TGT_ARCH
           python -m pip install --upgrade pip setuptools
           pip install tox cibuildwheel
       - name: Report info
@@ -134,7 +136,6 @@ jobs:
         # native shell for nmake...  keep commands here simple i guess
         run: |
           mkdir -p dist/
-          unset VSCMD_ARG_TGT_ARCH
           pip wheel -vvv --no-deps --wheel-dir dist/ --no-clean .
       - name: Rename to manylinux2014 tag
         if: matrix.os.python_platform == 'linux'
