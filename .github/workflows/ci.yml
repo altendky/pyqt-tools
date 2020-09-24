@@ -20,11 +20,11 @@ jobs:
       fail-fast: false
       matrix:
         os:
-#           - name: Linux
-#             runs-on: ubuntu-latest
-#             python_platform: linux
-#             container: docker://python:{0}-buster
-#             cibuildwheel_before: yum install mesa-libGL-devel
+          - name: Linux
+            runs-on: ubuntu-latest
+            python_platform: linux
+            container: docker://python:{0}-buster
+            cibuildwheel_before: yum install mesa-libGL-devel
           - name: Windows
             runs-on: windows-latest
             python_platform: win32
@@ -33,35 +33,35 @@ jobs:
 #            runs-on: macos-latest
 #            python_platform: darwin
         python:
-#           - name: 3.5
-#             tox: py35
-#             action: 3.5
-#             docker: 3.5
-#             cibuildwheel: cp38
-#           - name: 3.6
-#             tox: py36
-#             action: 3.6
-#             docker: 3.6
-#             cibuildwheel: cp36
-#           - name: 3.7
-#             tox: py37
-#             action: 3.7
-#             docker: 3.7
-#             cibuildwheel: cp37
+          - name: 3.5
+            tox: py35
+            action: 3.5
+            docker: 3.5
+            cibuildwheel: cp38
+          - name: 3.6
+            tox: py36
+            action: 3.6
+            docker: 3.6
+            cibuildwheel: cp36
+          - name: 3.7
+            tox: py37
+            action: 3.7
+            docker: 3.7
+            cibuildwheel: cp37
           - name: 3.8
             tox: py38
             action: 3.8
             docker: 3.8
             cibuildwheel: cp38
         qt:
-#           - pyqt_version: 5.14.0
-#             qt_version: 5.14.0
-#           - pyqt_version: 5.14.1
-#             qt_version: 5.14.1
+          - pyqt_version: 5.14.0
+            qt_version: 5.14.0
+          - pyqt_version: 5.14.1
+            qt_version: 5.14.1
           - pyqt_version: 5.14.2
             qt_version: 5.14.2
-#           - pyqt_version: 5.15.0
-#             qt_version: 5.15.0
+          - pyqt_version: 5.15.0
+            qt_version: 5.15.0
           - pyqt_version: 5.15.1
             qt_version: 5.15.1
         bitness:
