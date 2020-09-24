@@ -137,6 +137,7 @@ jobs:
           pip debug --verbose
           python -m pip --version
           pip --version
+          python -c "import distutils.util; print(distutils.util.get_platform())"
           pip wheel -vvv --no-deps --wheel-dir dist/ --no-clean .
       - name: Rename to manylinux2014 tag
         if: matrix.os.python_platform == 'linux'
