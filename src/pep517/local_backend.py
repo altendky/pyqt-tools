@@ -16,11 +16,10 @@ get_requires_for_build_sdist = (
 requirements = {
    'attrs': '',
    'aqtinstall': '',
-   'py7zr': '==0.6b6',
+   'py7zr': '',
    'importlib-metadata': '',
    'hyperlink': '',
    'macholib': '',
-   'psutil': '',
    'pylddwrap': '',
    'PyQt-builder': '',
    'requests': '',

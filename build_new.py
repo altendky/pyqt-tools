@@ -19,7 +19,6 @@ import typing
 import attr
 import hyperlink
 import lddwrap
-import psutil
 import requests
 import setuptools.command.build_py
 
@@ -729,12 +728,21 @@ class Configuration:
             qt_architecture = 'clang_64'
         elif platform == 'win32':
             # TODO: change the actual storage
+            
             if tuple(int(s) for s in qt_version.split('.')) >= (5, 15):
-                qt_compiler = 'msvc2019_64'
-                qt_architecture = 'win64_msvc2019_64'
+                year = '2019'
             else:
-                qt_compiler = 'msvc2017_64'
-                qt_architecture = 'win64_msvc2017_64'
+                year = '2017'
+
+            qt_compiler = 'msvc{year}'.format(year=year)
+            qt_architecture = 'win{bits}_msvc{year}'.format(
+                year=year,
+                bits=bits,
+            )
+
+            if bits == 64:
+                qt_compiler += '_64'
+                qt_architecture += '_64'
 
         return cls(
             qt_version=qt_version,
@@ -1321,10 +1329,7 @@ def build_pyqt(configuration, qt_paths):
         command = ['nmake']
         env = {**os.environ, 'CL': '/MP'}
     else:
-        if configuration.platform == 'darwin':
-            available_cpus = psutil.cpu_count(logical=True)
-        else:
-            available_cpus = len(psutil.Process().cpu_affinity())
+        available_cpus = os.cpu_count()
 
         command = ['make', '-j{}'.format(available_cpus)]
         env = {**os.environ}
