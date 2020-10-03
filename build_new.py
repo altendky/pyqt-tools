@@ -1023,7 +1023,7 @@ def build(configuration: Configuration):
 
     checkpoint('Define Plugins')
     platform_plugin_names = {
-        'linux': ['xcb'],
+        'linux': ['xcb', 'minimal'],
         'win32': ['minimal'],
         'darwin': ['cocoa'],
     }[configuration.platform]
