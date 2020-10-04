@@ -15,7 +15,7 @@ get_requires_for_build_sdist = (
 
 requirements = {
    'attrs': '',
-   'aqtinstall': '',
+   'aqtinstall': '!= 0.9.7',
    'py7zr': '',
    'importlib-metadata': '',
    'hyperlink': '',
