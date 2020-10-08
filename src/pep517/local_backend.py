@@ -16,7 +16,8 @@ get_requires_for_build_sdist = (
 requirements = {
    'attrs': '',
    'aqtinstall': '',
-   'py7zr': '',
+   # != 0.10.0 for https://github.com/miurahr/py7zr/issues/252
+   'py7zr': '!= 0.10.0',
    'importlib-metadata': '',
    'hyperlink': '',
    'macholib': '',

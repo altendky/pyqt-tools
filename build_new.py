@@ -221,9 +221,28 @@ def create_script_function_name(path: pathlib.Path):
     return path.stem.replace('-', '_')
 
 
+def linuxdeployqt_substitute_list_source(
+        target,
+        translation_path,
+) -> typing.List[pathlib.Path]:
+    paths = [
+        dependency.path
+        for dependency in lddwrap.list_dependencies(
+            path=target,
+        )
+        if dependency.path is not None
+    ]
+
+    if any('libicu' in path.name for path in paths):
+        paths.extend(translation_path.glob('*.qm'))
+
+    return paths
+
+
 def linux_executable_copy_actions(
         source_path: pathlib.Path,
         reference_path: pathlib.Path,
+        translation_path: pathlib.Path,
 ) -> typing.Set[FileCopyAction]:
     actions = {
         FileCopyAction.from_path(
@@ -237,12 +256,9 @@ def linux_executable_copy_actions(
             )
             for path in filtered_relative_to(
                 base=reference_path,
-                paths=(
-                    dependency.path
-                    for dependency in lddwrap.list_dependencies(
-                        path=source_path,
-                    )
-                    if dependency.path is not None
+                paths=linuxdeployqt_substitute_list_source(
+                    target=source_path,
+                    translation_path=translation_path,
                 ),
             )
         ),
@@ -265,11 +281,13 @@ class LinuxExecutable:
             cls: typing.Type[T],
             path: pathlib.Path,
             reference_path: pathlib.Path,
+            translation_path: pathlib.Path,
     ) -> T:
         relative_path = path.resolve().relative_to(reference_path)
         copy_actions = linux_executable_copy_actions(
             source_path=path,
             reference_path=reference_path,
+            translation_path=translation_path,
         )
 
         return cls(
@@ -286,6 +304,7 @@ class LinuxExecutable:
             cls: typing.Type[T],
             directory: pathlib.Path,
             reference_path: pathlib.Path,
+            translation_path: pathlib.Path,
     ) -> typing.List[T]:
         applications = []
 
@@ -298,6 +317,7 @@ class LinuxExecutable:
                 application = cls.from_path(
                     path=path,
                     reference_path=reference_path,
+                    translation_path=translation_path,
                 )
             except DependencyCollectionError:
                 print('failed: {}'.format(path))
@@ -582,6 +602,7 @@ class QtPaths:
     compiler = attr.ib()
     bin = attr.ib()
     lib = attr.ib()
+    translation = attr.ib()
     qmake = attr.ib()
     windeployqt = attr.ib()
     applications = attr.ib()
@@ -598,13 +619,16 @@ class QtPaths:
         compiler_path = base / version / compiler
         bin_path = compiler_path / 'bin'
         lib_path = compiler_path / 'lib'
+        translation_path = compiler_path / 'translations'
 
         windeployqt = bin_path / 'windeployqt.exe'
 
         # TODO: CAMPid 05470781340806731460631
         qmake_suffix = ''
         extras = {}
-        if platform_ == 'win32':
+        if platform_ == 'linux':
+            extras['translation_path'] = translation_path
+        elif platform_ == 'win32':
             qmake_suffix = '.exe'
             extras['windeployqt'] = windeployqt
         elif platform_ == 'darwin':
@@ -624,6 +648,7 @@ class QtPaths:
             compiler=compiler_path,
             bin=bin_path,
             lib=lib_path,
+            translation=translation_path,
             qmake=(bin_path / 'qmake').with_suffix(qmake_suffix),
             windeployqt=windeployqt,
             applications=applications,
@@ -889,6 +914,7 @@ class LinuxPlugin:
             name: str,
             reference_path: pathlib.Path,
             plugin_path: pathlib.Path,
+            translation_path: pathlib.Path,
     ) -> T:
         file_name = 'libq{}.so'.format(name)
         path = plugin_path / file_name
@@ -896,6 +922,7 @@ class LinuxPlugin:
         copy_actions = linux_executable_copy_actions(
             source_path=path,
             reference_path=reference_path,
+            translation_path=translation_path,
         )
 
         return cls(
@@ -1018,7 +1045,10 @@ def build(configuration: Configuration):
     checkpoint('Select Applications')
     applications = filtered_applications(
         applications=qt_paths.applications,
-        filter=lambda path: 'webengine' in fspath(path).casefold(),
+        filter=lambda path: (
+            'webengine' in fspath(path).casefold()
+            and path.suffix != '.qm'
+        ),
     )
 
     checkpoint('Define Plugins')
@@ -1036,7 +1066,9 @@ def build(configuration: Configuration):
 
     # TODO: CAMPid 05470781340806731460631
     extras = {}
-    if configuration.platform == 'win32':
+    if configuration.platform == 'linux':
+        extras['translation_path'] = qt_paths.translation
+    elif configuration.platform == 'win32':
         extras['windeployqt'] = qt_paths.windeployqt
     elif configuration.platform == 'darwin':
         extras['lib_path'] = qt_paths.lib
