@@ -53,6 +53,11 @@ jobs:
             action: 3.8
             docker: 3.8
             cibuildwheel: cp38
+          - name: 3.9
+            tox: py39
+            action: 3.9
+            docker: 3.9
+            cibuildwheel: cp39
         qt:
           - pyqt_version: 5.14.0
             qt_version: 5.14.0
@@ -82,6 +87,22 @@ jobs:
 #               name: x32
 #             os:
 #               name: macOS
+          - python:
+              name: 3.9
+            qt:
+              pyqt_version: 5.14.0
+          - python:
+              name: 3.9
+            qt:
+              pyqt_version: 5.14.1
+          - python:
+              name: 3.9
+            qt:
+              pyqt_version: 5.14.2
+          - python:
+              name: 3.9
+            qt:
+              pyqt_version: 5.15.0
     env:
       QT_VERSION: ${{ matrix.qt.qt_version }}
       PYQT_VERSION: ${{ matrix.qt.pyqt_version }}
