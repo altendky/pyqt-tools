@@ -123,8 +123,8 @@ jobs:
           [wheel] = dist.glob('*.whl')
 
           with open(os.environ['GITHUB_ENV'], 'a') as github_env:
-              github_env.write(f'WHEEL_PATH="{fspath(wheel)}"')
-              github_env.write(f'WHEEL_STEM="{wheel.stem}"')
+              github_env.write(f'WHEEL_PATH="{fspath(wheel)}"\n')
+              github_env.write(f'WHEEL_STEM="{wheel.stem}"\n')
       - name: Archive individual wheel
         uses: actions/upload-artifact@v2
         with:
@@ -252,8 +252,8 @@ jobs:
           [wheel] = dist.glob('*.whl')
 
           with open(os.environ['GITHUB_ENV'], 'a') as github_env:
-              github_env.write(f'WHEEL_PATH="{fspath(wheel)}"')
-              github_env.write(f'WHEEL_STEM="{wheel.stem}"')
+              github_env.write(f'WHEEL_PATH="{fspath(wheel)}"\n')
+              github_env.write(f'WHEEL_STEM="{wheel.stem}"\n')
       - name: Install Linux test dependencies
         if: matrix.os.python_platform == 'linux'
         run: |
