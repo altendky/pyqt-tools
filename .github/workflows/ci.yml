@@ -13,7 +13,7 @@ env:
 
 jobs:
   build:
-    name: ${{ matrix.os.name }} ${{ matrix.qt.qt_version }}-${{ matrix.bitness.name }}
+    name: Build ${{ matrix.os.name }} ${{ matrix.qt.qt_version }}-${{ matrix.bitness.name }}
     runs-on: ${{ matrix.os.runs-on }}
     container: ${{ format(matrix.os.container, matrix.python.docker) }}
     strategy:
@@ -135,7 +135,7 @@ jobs:
           name: pyqt5_tools-all_wheels
           path: dist
   test:
-    name: ${{ matrix.os.name }} ${{ matrix.python.name }}-${{ matrix.bitness.name }} ${{ matrix.qt.qt_version }}
+    name: Test ${{ matrix.os.name }} ${{ matrix.python.name }}-${{ matrix.bitness.name }} ${{ matrix.qt.qt_version }}
     runs-on: ${{ matrix.os.runs-on }}
     container: ${{ format(matrix.os.container, matrix.python.docker) }}
     needs:
