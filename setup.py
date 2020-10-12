@@ -2,9 +2,14 @@ import os
 import pathlib
 import sys
 
-here = pathlib.Path(__file__).parent
+here = pathlib.Path(__file__).resolve().parent
 
-sys.path.insert(0, here)
+sys.path.insert(0, os.fspath(here))
+print('---++++---')
+print(sys.path)
+print(pathlib.Path().resolve())
+for path in here.iterdir():
+    print('    ', os.fspath(path))
 # TODO: yuck, put the build command in a separate project and
 #       build-requires it?
 import build_new
