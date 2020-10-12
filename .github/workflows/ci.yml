@@ -211,11 +211,11 @@ jobs:
           name: dist
           path: dist
       - name: Set up Python ${{ matrix.python.name }}-${{ matrix.bitness.name }}
-          if: matrix.os.python_platform != 'linux'
-          uses: actions/setup-python@v2
-          with:
-            python-version: ${{ matrix.python.action }}
-            architecture: ${{ matrix.bitness.action }}
+        if: matrix.os.python_platform != 'linux'
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python.action }}
+          architecture: ${{ matrix.bitness.action }}
       - name: pip/setuptools/tox
         run: |
           python -m pip install --upgrade pip setuptools
