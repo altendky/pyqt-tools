@@ -29,7 +29,7 @@ else:
             self.root_is_pure = False
 
         def get_tag(self):
-            python, abi, plat = wheel.bdist_wheel.bdist_wheel.get_tag(self)
+            python, abi, plat = super().get_tag()
             python = 'py3'
             abi = 'none'
             return python, abi, plat
