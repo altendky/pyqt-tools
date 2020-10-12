@@ -111,30 +111,16 @@ jobs:
           # this is cheap...
           retagged = wheel.parent / wheel.name.replace('linux', 'manylinux2014')
           wheel.rename(retagged)
-      - name: Set WHEEL_PATH
-        shell: python
-        run: |
-          import os
-          import pathlib
-
-          fspath = getattr(os, 'fspath', str)
-
-          dist = pathlib.Path.cwd() / 'dist'
-          [wheel] = dist.glob('*.whl')
-
-          with open(os.environ['GITHUB_ENV'], 'a') as github_env:
-              github_env.write(f'WHEEL_PATH={fspath(wheel)}\n')
-              github_env.write(f'WHEEL_STEM={wheel.stem}\n')
 #      - name: Archive individual wheel
 #        uses: actions/upload-artifact@v1
 #        with:
 #          name: ${{ env['WHEEL_STEM'] }}
 #          path: dist/
       - name: Archive all wheels
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v1
         with:
           name: pyqt5_tools-all_wheels
-          path: dist/
+          path: dist
   test:
     name: Test ${{ matrix.os.name }} ${{ matrix.python.name }}-${{ matrix.bitness.name }} ${{ matrix.qt.qt_version }}
     runs-on: ${{ matrix.os.runs-on }}
