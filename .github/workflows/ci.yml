@@ -126,7 +126,7 @@ jobs:
               github_env.write(f'WHEEL_PATH={fspath(wheel)}\n')
               github_env.write(f'WHEEL_STEM={wheel.stem}\n')
       - name: Archive individual wheel
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v1
         with:
           name: ${{ env['WHEEL_STEM'] }}
           path: dist/
