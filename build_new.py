@@ -10,7 +10,6 @@ import shlex
 import shutil
 import subprocess
 import sys
-import tarfile
 import tempfile
 import textwrap
 import traceback
@@ -732,8 +731,6 @@ class Configuration:
     qt_path = attr.ib()
     qt_architecture = attr.ib()
     qt_compiler = attr.ib()
-    pyqt_version = attr.ib()
-    pyqt_source_path = attr.ib()
     platform = attr.ib()
     architecture = attr.ib()
     build_path = attr.ib()
@@ -774,8 +771,6 @@ class Configuration:
             qt_path=build_path / 'qt',
             qt_architecture=qt_architecture,
             qt_compiler=qt_compiler,
-            pyqt_version=environment['PYQT_VERSION'],
-            pyqt_source_path=build_path / 'pyqt5',
             platform=platform,
             architecture=qt_architecture,
             build_path=build_path,
@@ -786,7 +781,6 @@ class Configuration:
     def create_directories(self):
         for path in [
             self.qt_path,
-            self.pyqt_source_path,
             self.build_path,
             self.download_path,
         ]:
@@ -1109,108 +1103,10 @@ def build(configuration: Configuration):
         applications=applications,
     )
 
-    checkpoint('Download PyQt5')
-    pyqt5_sdist_path = save_sdist(
-        project='PyQt5',
-        version=configuration.pyqt_version,
-        directory=configuration.download_path,
-    )
-
-    with tarfile.open(fspath(pyqt5_sdist_path)) as tar_file:
-        for member in tar_file.getmembers():
-            member.name = pathlib.Path(*pathlib.Path(member.name).parts[1:])
-            member.name = fspath(member.name)
-            tar_file.extract(
-                member=member,
-                path=fspath(configuration.pyqt_source_path),
-            )
-
-    checkpoint('Patch PyQt5')
-    patch_pyqt(configuration, qt_paths)
-
-    checkpoint('Build PyQt5')
-    build_path = build_pyqt(configuration, qt_paths)
-
-    checkpoint('Build PyQt5 Plugin Copy Actions')
     all_copy_actions = {
         destinations.qt: copy_actions,
         destinations.package: set(),
     }
-
-    if configuration.platform == 'win32':
-        designer_plugin_path = (
-            build_path / 'designer' / 'release' / 'pyqt5.dll'
-        )
-
-        relative_bin = destinations.qt_bin.relative_to(destinations.qt)
-        package_plugins = relative_bin / 'plugins'
-        package_plugins_designer = (
-            package_plugins / 'designer' / designer_plugin_path.name
-        )
-
-        copy_actions.add(FileCopyAction(
-            source=designer_plugin_path,
-            destination=package_plugins_designer,
-        ))
-
-        # huh?  we need two copies at:
-        #   bin/platforms/qwindows.dll
-        #   plugins/platforms/qwindows.dll (or maybe this isn't required?)
-        qwindows_dll = qt_paths.compiler / 'plugins' / 'platforms' / 'qwindows.dll'
-        copy_actions.add(FileCopyAction(
-            source=designer_plugin_path,
-            destination=(destinations.qt_bin / 'platforms' / qwindows_dll.name).relative_to(destinations.qt),
-        ))
-
-        qml_plugin = build_path / 'qmlscene' / 'release' / 'pyqt5qmlplugin.dll'
-
-        copy_actions.add(FileCopyAction(
-            source=qml_plugin,
-            destination=package_plugins,
-        ))
-
-        all_copy_actions[destinations.package].add(FileCopyAction(
-            source=qml_plugin,
-            destination=destinations.examples.relative_to(
-                destinations.package,
-            ),
-        ))
-    elif configuration.platform == 'linux':
-        designer_plugin_path = build_path / 'designer' / 'libpyqt5.so'
-
-        package_plugins = destinations.qt / 'plugins'
-        package_plugins_designer = (
-            package_plugins / 'designer' / designer_plugin_path.name
-        )
-
-        copy_actions.add(FileCopyAction(
-            source=designer_plugin_path,
-            destination=package_plugins_designer.relative_to(destinations.qt),
-        ))
-
-        qml_plugin = (
-            build_path / 'qmlscene' / 'libpyqt5qmlplugin.so'
-        )
-
-        copy_actions.add(FileCopyAction(
-            source=qml_plugin,
-            destination=package_plugins / qml_plugin.name,
-        ))
-        all_copy_actions[destinations.package].add(FileCopyAction(
-            source=qml_plugin,
-            destination=destinations.examples.relative_to(
-                destinations.package,
-            ) / qml_plugin.name,
-        ))
-    # elif configuration.platform == 'darwin':
-    #     package_plugins = destinations.qt / 'plugins'
-    #     package_plugins_designer = package_plugins / 'designer'
-    #
-    #     # designer_plugin_path = build_path / 'designer' / 'libpyqt5.so'
-    #     # shutil.copy(
-    #     #     designer_plugin_path,
-    #     #     package_plugins_designer,
-    #     # )
 
     checkpoint('Execute Copy Actions')
     for reference, actions in all_copy_actions.items():
@@ -1277,7 +1173,6 @@ def windeployqt_list_source(
                 windeployqt,
                 '--dry-run',
                 '--list', 'source',
-                # '--compiler-runtime',
                 target,
             ],
             stdout=subprocess.PIPE,
@@ -1296,109 +1191,9 @@ def windeployqt_list_source(
     return paths
 
 
-# def win32_collect_dependencies(
-#         source_base: pathlib.Path,
-#         target: pathlib.Path,
-#         windeployqt: pathlib.Path,
-# ) -> typing.Generator[pathlib.Path, None, None]:
-#     yield from filtered_relative_to(
-#         base=source_base,
-#         paths=windeployqt_list_source(
-#             target=target,
-#             windeployqt=windeployqt,
-#         ),
-#     )
-
-
-def patch_pyqt(configuration, qt_paths):
-    # TODO: gee golly get this figured out properly and configured etc
-    patch_path = (
-        pathlib.Path(__file__).parent
-        / 'pluginloader.{}.patch'.format(configuration.pyqt_version)
-    )
-
-    report_and_check_call(
-        command=[
-            'patch',
-            '-p', '1',
-            '-i', fspath(patch_path),
-        ],
-        cwd=fspath(configuration.pyqt_source_path),
-    )
-
-
-def build_pyqt(configuration, qt_paths):
-    sip_module_path = (configuration.pyqt_source_path / 'sip')
-    module_names = [
-        path.name
-        for path in sip_module_path.iterdir()
-        if path.is_dir()
-    ]
-    report_and_check_call(
-        command=[
-            'sip-build',
-            '--confirm-license',
-            '--verbose',
-            '--no-make',
-            '--no-tools',
-            '--no-dbus-python',
-            # TODO: don't usually want this
-            # '--debug',
-            '--qmake', qt_paths.qmake,
-            *itertools.chain.from_iterable(
-                ['--disable', module]
-                for module in module_names
-                if module not in (
-                        {'QtCore'}                  # sip-build raises
-                        | {'QtDesigner', 'QtQml'}   # what we want...  ?
-                        | {'QtGui', 'QtQuick'}      # indirect dependencies
-                )
-            ),
-        ],
-        cwd=configuration.pyqt_source_path,
-    )
-    if configuration.platform == 'win32':
-        command = ['nmake']
-        env = {**os.environ, 'CL': '/MP'}
-    else:
-        available_cpus = os.cpu_count()
-
-        command = ['make', '-j{}'.format(available_cpus)]
-        env = {**os.environ}
-
-    build_path = configuration.pyqt_source_path / 'build'
-
-    report_and_check_call(
-        command=command,
-        env=env,
-        cwd=fspath(build_path),
-    )
-
-    return build_path
-
-
 def install_qt(configuration):
-    # report_and_check_call(
-    #     command=[
-    #         sys.executable,
-    #         '-m', 'pip',
-    #         'install',
-    #         '--upgrade',
-    #         'git+https://github.com/miurahr/aqtinstall@8b983d0a655a3a4e83cc2c35c4910b37f9b01cea#egg=aqtinstall',
-    #     ],
-    # )
-
     report_and_check_call(
         command=[
-            # *(  # TODO: 517 yada seemingly doesn't get the right PATH
-            #     #           on windows
-            #     [
-            #         sys.executable,
-            #         '-m',
-            #     ]
-            #     if configuration.platform == 'win32'
-            #     else []
-            # ),
             sys.executable,
             '-m', 'aqt',
             'install',
@@ -1413,39 +1208,6 @@ def install_qt(configuration):
             configuration.architecture,
         ],
     )
-    # if configuration.platform == 'linux':
-    #     deployqt = save_linuxdeployqt(6, configuration.download_path)
-    #     deployqt = deployqt.resolve()
-    # elif configuration.platform == 'win32':
-    #     deployqt = pathlib.Path('windeployqt.exe')
-    # elif configuration.platform == 'darwin':
-    #     deployqt = pathlib.Path('macdeployqt')
-    # else:
-    #     raise Exception(
-    #         'Unsupported platform: {}'.format(configuration.platform),
-    #     )
-    # return deployqt
-
-
-# def collect_dependencies(
-#         base,
-#         target,
-#         collector,
-# ):
-#     yield from
-#     for application in targets:
-#         yield from collector
-#         shutil.copy(application.original_path, destinations.qt_bin)
-#
-#         report_and_check_call(
-#             command=[
-#                 qt_paths.deployqt,
-#                 '--compiler-runtime',
-#                 application.file_name,
-#             ],
-#             cwd=destinations.qt_bin,
-#         )
-#     return filtered_applications
 
 
 def write_entry_points(

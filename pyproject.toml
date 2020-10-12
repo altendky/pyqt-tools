@@ -1,4 +1,16 @@
 [build-system]
-requires = ["setuptools"]
-backend-path = ["src/pep517", "."]
-build-backend = "local_backend"
+requires = [
+   "attrs",
+   "aqtinstall",
+   # != 0.10.0 for https://github.com/miurahr/py7zr/issues/252
+   "py7zr != 0.10.0",
+   "importlib-metadata",
+   "hyperlink",
+   "macholib",
+   "pylddwrap",
+   "requests",
+   "setuptools",
+   "vcversioner",
+   "wheel",
+]
+build-backend = "setuptools.build_meta"

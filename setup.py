@@ -13,6 +13,28 @@ sys.path.pop(0)
 import setuptools
 import vcversioner
 
+try:
+    import wheel.bdist_wheel
+except ImportError:
+    wheel = None
+
+
+if wheel is None:
+    BdistWheel = None
+else:
+    class BdistWheel(wheel.bdist_wheel.bdist_wheel):
+        def finalize_options(self):
+            super().finalize_options()
+            # Mark us as not a pure python package
+            self.root_is_pure = False
+
+        def get_tag(self):
+            python, abi, plat = wheel.bdist_wheel.bdist_wheel.get_tag(self)
+            python = 'py3'
+            abi = 'none'
+            return python, abi, plat
+
+
 version = vcversioner.find_version(
         version_module_paths=['_version.py'],
         vcs_args=['git', '--git-dir', '%(root)s/.git', 'describe',
@@ -86,7 +108,10 @@ setuptools.setup(
         'Topic :: Software Development',
         'Topic :: Utilities',
     ],
-    cmdclass={'build_py': build_new.BuildPy},
+    cmdclass={
+        'bdist_wheel': BdistWheel,
+        'build_py': build_new.BuildPy,
+    },
     distclass=Dist,
     packages=setuptools.find_packages('src'),
     package_dir={'': 'src'},
