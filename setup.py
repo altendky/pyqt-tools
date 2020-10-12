@@ -4,7 +4,7 @@ import sys
 
 here = pathlib.Path(__file__).parent
 
-sys.path.insert(0, here)
+sys.path.insert(0, os.fspath(here))
 # TODO: yuck, put the build command in a separate project and
 #       build-requires it?
 import build_new
