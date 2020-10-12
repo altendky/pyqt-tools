@@ -125,11 +125,11 @@ jobs:
           with open(os.environ['GITHUB_ENV'], 'a') as github_env:
               github_env.write(f'WHEEL_PATH={fspath(wheel)}\n')
               github_env.write(f'WHEEL_STEM={wheel.stem}\n')
-      - name: Archive individual wheel
-        uses: actions/upload-artifact@v1
-        with:
-          name: ${{ env['WHEEL_STEM'] }}
-          path: dist/
+#      - name: Archive individual wheel
+#        uses: actions/upload-artifact@v1
+#        with:
+#          name: ${{ env['WHEEL_STEM'] }}
+#          path: dist/
       - name: Archive all wheels
         uses: actions/upload-artifact@v1
         with:
@@ -208,7 +208,7 @@ jobs:
       - name: Download
         uses: actions/download-artifact@v2
         with:
-          name: dist
+          name: pyqt5_tools-all_wheels
           path: dist
       - name: Set up Python ${{ matrix.python.name }}-${{ matrix.bitness.name }}
         if: matrix.os.python_platform != 'linux'
