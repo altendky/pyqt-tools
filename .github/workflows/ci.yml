@@ -112,12 +112,12 @@ jobs:
           retagged = wheel.parent / wheel.name.replace('linux', 'manylinux2014')
           wheel.rename(retagged)
 #      - name: Archive individual wheel
-#        uses: actions/upload-artifact@v1
+#        uses: actions/upload-artifact@v2
 #        with:
 #          name: ${{ env['WHEEL_STEM'] }}
 #          path: dist/
       - name: Archive all wheels
-        uses: actions/upload-artifact@v1
+        uses: actions/upload-artifact@v2
         with:
           name: pyqt5_tools-all_wheels
           path: dist
