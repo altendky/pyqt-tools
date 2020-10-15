@@ -229,6 +229,7 @@ jobs:
       - name: Set WHEEL_PATH
         shell: python
         run: |
+          import sys; print(sys.version)
           import os
           import pathlib
           
