@@ -229,7 +229,6 @@ jobs:
       - name: Set WHEEL_PATH
         shell: python
         run: |
-          import sys; print(sys.version)
           import os
           import pathlib
           
@@ -239,8 +238,8 @@ jobs:
           [wheel] = dist.glob('*.whl')
 
           with open(os.environ['GITHUB_ENV'], 'a') as github_env:
-              github_env.write(f'WHEEL_PATH={fspath(wheel)}\n')
-              github_env.write(f'WHEEL_STEM={wheel.stem}\n')
+              github_env.write('WHEEL_PATH={}\n'.format(fspath(wheel)))
+              github_env.write('WHEEL_STEM={}\n'.format(wheel.stem))
       - name: Install Linux test dependencies
         if: matrix.os.python_platform == 'linux'
         run: |
