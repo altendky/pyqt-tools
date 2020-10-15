@@ -116,11 +116,12 @@ jobs:
         with:
           name: ${{ matrix.os.name }} Qt ${{ matrix.qt.qt_version }}-${{ matrix.bitness.name }}
           path: dist/
-      - name: Archive all wheels
-        uses: actions/upload-artifact@v1
-        with:
-          name: pyqt5_tools-all_wheels
-          path: dist
+# uploads are corrupted so whatever
+#      - name: Archive all wheels
+#        uses: actions/upload-artifact@v1
+#        with:
+#          name: pyqt5_tools-all_wheels
+#          path: dist
   test:
     name: Test ${{ matrix.os.name }} ${{ matrix.python.name }}-${{ matrix.bitness.name }} ${{ matrix.qt.qt_version }}
     runs-on: ${{ matrix.os.runs-on }}
@@ -260,20 +261,20 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v1
-      - name: Download all wheels
-        uses: actions/download-artifact@v2
-        with:
-          name: pyqt5_tools-all_wheels
-          path: dist
-      - name: Install Python packages
-        run: |
-          pip install --upgrade twine
-      - name: Maybe publish
-        run: |
-          python twineontag.py
-        env:
-          TWINE_USERNAME: ${{ secrets.TWINE_USERNAME }}
-          TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD }}
+#      - name: Download all wheels
+#        uses: actions/download-artifact@v2
+#        with:
+#          name: pyqt5_tools-all_wheels
+#          path: dist
+#      - name: Install Python packages
+#        run: |
+#          pip install --upgrade twine
+#      - name: Maybe publish
+#        run: |
+#          python twineontag.py
+#        env:
+#          TWINE_USERNAME: ${{ secrets.TWINE_USERNAME }}
+#          TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD }}
   all:
     name: All
     runs-on: ubuntu-latest
