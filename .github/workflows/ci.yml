@@ -116,12 +116,11 @@ jobs:
         with:
           name: ${{ matrix.os.name }} Qt ${{ matrix.qt.qt_version }}-${{ matrix.bitness.name }}
           path: dist/
-# uploads are corrupted so whatever
-#      - name: Archive all wheels
-#        uses: actions/upload-artifact@v1
-#        with:
-#          name: pyqt5_tools-all_wheels
-#          path: dist
+      - name: Archive all wheels
+        uses: actions/upload-artifact@v1
+        with:
+          name: pyqt5_tools-all_wheels
+          path: dist/
   test:
     name: Test ${{ matrix.os.name }} ${{ matrix.python.name }}-${{ matrix.bitness.name }} ${{ matrix.qt.qt_version }}
     runs-on: ${{ matrix.os.runs-on }}
