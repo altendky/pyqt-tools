@@ -13,7 +13,7 @@ env:
 
 jobs:
   build:
-    name: Build ${{ matrix.os.name }} ${{ matrix.qt.qt_version }}-${{ matrix.bitness.name }}
+    name: Build ${{ matrix.os.name }} Qt ${{ matrix.qt.qt_version }}-${{ matrix.bitness.name }}
     runs-on: ${{ matrix.os.runs-on }}
     container: ${{ format(matrix.os.container, matrix.python.docker) }}
     strategy:
@@ -111,11 +111,11 @@ jobs:
           # this is cheap...
           retagged = wheel.parent / wheel.name.replace('linux', 'manylinux2014')
           wheel.rename(retagged)
-#      - name: Archive individual wheel
-#        uses: actions/upload-artifact@v2
-#        with:
-#          name: ${{ env['WHEEL_STEM'] }}
-#          path: dist/
+      - name: Archive individual wheel
+        uses: actions/upload-artifact@v1
+        with:
+          name: ${{ matrix.os.name }} Qt ${{ matrix.qt.qt_version }}-${{ matrix.bitness.name }}
+          path: dist/
       - name: Archive all wheels
         uses: actions/upload-artifact@v1
         with:
@@ -194,7 +194,7 @@ jobs:
       - name: Download
         uses: actions/download-artifact@v1
         with:
-          name: pyqt5_tools-all_wheels
+          name: ${{ matrix.os.name }} Qt ${{ matrix.qt.qt_version }}-${{ matrix.bitness.name }}
           path: dist
       - name: Set up Python ${{ matrix.python.name }}-${{ matrix.bitness.name }}
         if: matrix.os.python_platform != 'linux'
