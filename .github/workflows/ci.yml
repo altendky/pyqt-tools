@@ -37,15 +37,15 @@ jobs:
             action: 3.8
             docker: 3.8
         qt:
-          - qt_version: 5.14.0
-          - qt_version: 5.14.1
+#           - qt_version: 5.14.0
+#           - qt_version: 5.14.1
           - qt_version: 5.14.2
-          - qt_version: 5.15.0
+#           - qt_version: 5.15.0
           - qt_version: 5.15.1
         bitness:
-          - name: x32
-            action: x86
-            ilammy: x86
+#           - name: x32
+#             action: x86
+#             ilammy: x86
           - name: x64
             action: x64
             ilammy: x64
@@ -147,32 +147,32 @@ jobs:
             tox: py35
             action: 3.5
             docker: 3.5
-          - name: 3.6
-            tox: py36
-            action: 3.6
-            docker: 3.6
-          - name: 3.7
-            tox: py37
-            action: 3.7
-            docker: 3.7
+#           - name: 3.6
+#             tox: py36
+#             action: 3.6
+#             docker: 3.6
+#           - name: 3.7
+#             tox: py37
+#             action: 3.7
+#             docker: 3.7
           - name: 3.8
             tox: py38
             action: 3.8
             docker: 3.8
-          - name: 3.9
-            tox: py39
-            action: 3.9
-            docker: 3.9
+#           - name: 3.9
+#             tox: py39
+#             action: 3.9
+#             docker: 3.9
         qt:
-          - qt_version: 5.14.0
-          - qt_version: 5.14.1
+#           - qt_version: 5.14.0
+#           - qt_version: 5.14.1
           - qt_version: 5.14.2
-          - qt_version: 5.15.0
+#           - qt_version: 5.15.0
           - qt_version: 5.15.1
         bitness:
-          - name: x32
-            action: x86
-            ilammy: x86
+#           - name: x32
+#             action: x86
+#             ilammy: x86
           - name: x64
             action: x64
             ilammy: x64
