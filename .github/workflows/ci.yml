@@ -37,11 +37,16 @@ jobs:
             action: 3.8
             docker: 3.8
         qt:
-#           - qt_version: 5.14.0
-#           - qt_version: 5.14.1
-          - qt_version: 5.14.2
-#           - qt_version: 5.15.0
-          - qt_version: 5.15.1
+#           - pyqt_version: 5.14.0
+#             qt_version: 5.14.0
+#           - pyqt_version: 5.14.1
+#             qt_version: 5.14.1
+          - pyqt_version: 5.14.2
+            qt_version: 5.14.2
+#           - pyqt_version: 5.15.0
+#             qt_version: 5.15.0
+          - pyqt_version: 5.15.1
+            qt_version: 5.15.1
         bitness:
 #           - name: x32
 #             action: x86
@@ -60,6 +65,7 @@ jobs:
 #               name: macOS
     env:
       QT_VERSION: ${{ matrix.qt.qt_version }}
+      PYQT_VERSION: ${{ matrix.qt.pyqt_version }}
 
     steps:
       - name: Checkout
