@@ -9,42 +9,29 @@ import pytest
 fspath = getattr(os, 'fspath', str)
 
 
-def test_designer_creates_test_widget():
+def test_designer():
     with pytest.raises(subprocess.TimeoutExpired):
         subprocess.run(
             [
                 fspath(
-                    pathlib.Path(sys.executable).with_name('pyqt5designer'),
+                    pathlib.Path(sys.executable).with_name('designer'),
                 ),
-                '--qt-debug-plugins',
             ],
             check=True,
+            env={**os.environ, 'QT_DEBUG_PLUGINS': '1'},
             timeout=10,
         )
 
 
-def test_qmlscene_paints_test_item():
+def test_qmlscene():
     with pytest.raises(subprocess.TimeoutExpired):
         subprocess.run(
             [
                 fspath(
-                    pathlib.Path(sys.executable).with_name('pyqt5qmlscene'),
+                    pathlib.Path(sys.executable).with_name('qmlscene'),
                 ),
-                '--qt-debug-plugins',
             ],
             check=True,
+            env={**os.environ, 'QT_DEBUG_PLUGINS': '1'},
             timeout=10,
         )
-
-
-def test_qmltestrunner_paints_test_item():
-    subprocess.run(
-        [
-            fspath(
-                pathlib.Path(sys.executable).with_name('pyqt5qmltestrunner'),
-            ),
-            '--qt-debug-plugins',
-        ],
-        check=True,
-        timeout=10,
-    )
