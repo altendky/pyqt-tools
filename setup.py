@@ -7,7 +7,7 @@ here = pathlib.Path(__file__).parent
 sys.path.insert(0, os.fspath(here))
 # TODO: yuck, put the build command in a separate project and
 #       build-requires it?
-import build_new
+import build
 sys.path.pop(0)
 
 import setuptools
@@ -47,33 +47,16 @@ def pad_version(v):
 
 # TODO: really doesn't seem quite proper here and probably should come
 #       in some other way?
-os.environ.setdefault('PYQT_VERSION', '5.14.1')
+os.environ.setdefault('QT_VERSION', '5.15.1')
 
 version = '.'.join((
-    pad_version(os.environ['PYQT_VERSION']),
+    pad_version(os.environ['QT_VERSION']),
     version.version,
 ))
 
-# sys.stderr.write('another stderr test from {}\n'.format(__file__))
 
 with open('README.rst') as f:
     readme = f.read()
-
-console_scripts = [
-    'pyqt5toolsinstalluic = pyqt5_tools.entrypoints:pyqt5toolsinstalluic',
-    'pyqt5designer = pyqt5_tools.entrypoints:pyqt5designer',
-    'pyqt5qmlscene = pyqt5_tools.entrypoints:pyqt5qmlscene',
-    'pyqt5qmltestrunner = pyqt5_tools.entrypoints:pyqt5qmltestrunner',
-]
-
-# print('--- console_scripts')
-# for console_script in console_scripts:
-#     print('    ' + repr(console_script))
-
-# # TODO: do i really need this?  seems like it could be specified to be
-# #       specific to whatever is running it without saying what that is
-# #       or that it would default to that
-# build_new.write_setup_cfg(here)
 
 
 class Dist(setuptools.Distribution):
@@ -85,32 +68,33 @@ class Dist(setuptools.Distribution):
 
 
 setuptools.setup(
-    name="pyqt5-tools",
-    description="Tools to supplement the official PyQt5 wheels",
+    name="qt-tools",
+    description="The collection of Qt tools easily installable in Python",
     long_description=readme,
     long_description_content_type='text/x-rst',
-    url='https://github.com/altendky/pyqt5-tools',
+    url='https://github.com/altendky/qt-tools',
     author="Kyle Altendorf",
     author_email='sda@fstab.net',
-    license='GPLv3',
+    license='LGPLv3',
     classifiers=[
         # complete classifier list: https://pypi.org/pypi?%3Aaction=list_classifiers
         'Development Status :: 4 - Beta',
         'Environment :: Win32 (MS Windows)',
         'Intended Audience :: Developers',
-        "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+        "License :: OSI Approved :: GNU Lesser General Public License v3 (LGPLv3)",
         'Operating System :: Microsoft :: Windows',
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.9',
         'Topic :: Software Development',
         'Topic :: Utilities',
     ],
     cmdclass={
         'bdist_wheel': BdistWheel,
-        'build_py': build_new.BuildPy,
+        'build_py': build.BuildPy,
     },
     distclass=Dist,
     packages=setuptools.find_packages('src'),
@@ -121,14 +105,5 @@ setuptools.setup(
     install_requires=[
         'click',
         'python-dotenv',
-        'pyqt5=={}'.format(os.environ['PYQT_VERSION']),
     ],
-    entry_points={
-        'console_scripts': console_scripts,
-    },
-#    data_files=buildinfo.data_files()
-#    scripts=[
-#        {scripts}
-#        'pyqt5-tools/designer.exe'
-#    ]
 )
