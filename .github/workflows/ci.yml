@@ -126,7 +126,7 @@ jobs:
         uses: actions/upload-artifact@v1
         with:
           name: all_wheels
-          path: dist
+          path: dist/
   test:
     name: Test ${{ matrix.os.name }} ${{ matrix.python.name }}-${{ matrix.bitness.name }} ${{ matrix.qt.qt_version }}
     runs-on: ${{ matrix.os.runs-on }}
@@ -201,7 +201,7 @@ jobs:
         uses: actions/download-artifact@v1
         with:
           name: ${{ matrix.os.name }} Qt ${{ matrix.qt.qt_version }}-${{ matrix.bitness.name }}
-          path: dist
+          path: dist/
       - name: Set up Python ${{ matrix.python.name }}-${{ matrix.bitness.name }}
         if: matrix.os.python_platform != 'linux'
         uses: actions/setup-python@v2
@@ -264,7 +264,7 @@ jobs:
         uses: actions/download-artifact@v1
         with:
           name: all_wheels
-          path: dist
+          path: dist/
       - name: Install Python packages
         run: |
           pip install --upgrade twine
