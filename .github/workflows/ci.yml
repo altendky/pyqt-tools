@@ -220,11 +220,6 @@ jobs:
           pip list
           pip freeze --all
           python -c "import sysconfig; print('Py_ENABLE_SHARED -> {}'.format(sysconfig.get_config_var('Py_ENABLE_SHARED')))"
-      - name: Set up MSVC
-        uses: ilammy/msvc-dev-cmd@v1
-        if: matrix.os.python_platform == 'win32'
-        with:
-          arch: ${{ matrix.bitness.ilammy }}
       - name: Set WHEEL_PATH
         shell: python
         run: |
