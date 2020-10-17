@@ -37,13 +37,6 @@ version = '.'.join((
 with open('README.rst') as f:
     readme = f.read()
 
-console_scripts = [
-    'pyqt5toolsinstalluic = pyqt5_tools.entrypoints:pyqt5toolsinstalluic',
-    'pyqt5designer = pyqt5_tools.entrypoints:pyqt5designer',
-    'pyqt5qmlscene = pyqt5_tools.entrypoints:pyqt5qmlscene',
-    'pyqt5qmltestrunner = pyqt5_tools.entrypoints:pyqt5qmltestrunner',
-]
-
 # print('--- console_scripts')
 # for console_script in console_scripts:
 #     print('    ' + repr(console_script))
@@ -99,12 +92,4 @@ setuptools.setup(
         'python-dotenv',
         'pyqt5=={}'.format(os.environ['PYQT_VERSION']),
     ],
-    entry_points={
-        'console_scripts': console_scripts,
-    },
-#    data_files=buildinfo.data_files()
-#    scripts=[
-#        {scripts}
-#        'pyqt5-tools/designer.exe'
-#    ]
 )
