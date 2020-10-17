@@ -7,7 +7,7 @@ here = pathlib.Path(__file__).parent
 sys.path.insert(0, here)
 # TODO: yuck, put the build command in a separate project and
 #       build-requires it?
-import build_new
+import build
 sys.path.pop(0)
 
 import setuptools
@@ -51,7 +51,7 @@ console_scripts = [
 # # TODO: do i really need this?  seems like it could be specified to be
 # #       specific to whatever is running it without saying what that is
 # #       or that it would default to that
-# build_new.write_setup_cfg(here)
+# build.write_setup_cfg(here)
 
 
 class Dist(setuptools.Distribution):
@@ -87,7 +87,7 @@ setuptools.setup(
         'Topic :: Software Development',
         'Topic :: Utilities',
     ],
-    cmdclass={'build_py': build_new.BuildPy},
+    cmdclass={'build_py': build.BuildPy},
     distclass=Dist,
     packages=setuptools.find_packages('src'),
     package_dir={'': 'src'},

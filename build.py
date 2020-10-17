@@ -1,138 +1,686 @@
-#!/usr/bin/env python3
+import faulthandler
+faulthandler.enable()
 
-import decimal
-import glob
 import inspect
-import io
 import itertools
 import os
 import pathlib
-import pip
 import platform
 import shlex
 import shutil
-import stat
 import subprocess
 import sys
+import tarfile
+import tempfile
 import textwrap
-import time
-import zipfile
+import traceback
+import typing
 
+import attr
+import hyperlink
+import lddwrap
 import requests
-
-
-class Results:
-    def __init__(self, console_scripts):
-        self.console_scripts = console_scripts
-
-
-# http://stackoverflow.com/a/9728478/228539
-def list_files(startpath):
-    for root, dirs, files in os.walk(startpath):
-        level = root.replace(startpath, '').count(os.sep)
-        indent = ' ' * 4 * (level)
-        print('{}{}/'.format(indent, os.path.basename(root)))
-        subindent = ' ' * 4 * (level + 1)
-        for f in files:
-            print('{}{}'.format(subindent, f))
-
-
-def validate_pair(ob):
-    try:
-        if not (len(ob) == 2):
-            print("Unexpected result:", ob, file=sys.stderr)
-            raise ValueError
-    except:
-        return False
-    return True
-
-
-def consume(iter):
-    try:
-        while True: next(iter)
-    except StopIteration:
-        pass
+import setuptools.command.build_py
 
 
 fspath = getattr(os, 'fspath', str)
 
 
-def download(*args, **kwargs):
-    print('Downloading: {} {}'.format(args, kwargs))
+class BuildPy(setuptools.command.build_py.build_py):
+    def build_packages(self):
+        super().build_packages()
 
-    hold_off = 30
-
-    for remaining_tries in reversed(range(5)):
-        result = requests.get(*args, **kwargs)
         try:
-            result.raise_for_status()
-        except requests.HTTPError:
-            if remaining_tries > 0:
-                print('waiting {} seconds'.format(hold_off))
-                time.sleep(hold_off)
-                hold_off *= 2
-                print('Retrying: {} {}'.format(args, kwargs))
+            [package_name] = (
+                package
+                for package in self.distribution.packages
+                if '.' not in package
+            )
 
-                continue
+            build_command = self.distribution.command_obj['build']
 
+            cwd = pathlib.Path.cwd()
+            print('::set-env name=BUILD_PATH::{}'.format(fspath(cwd)))
+            lib_path = cwd / build_command.build_lib
+            package_path = lib_path / package_name
+
+            results = main(
+                package_path=package_path,
+                build_base_path=cwd / build_command.build_base,
+            )
+
+            if getattr(self.distribution, 'entry_points', None) is None:
+                self.distribution.entry_points = {}
+            console_scripts = self.distribution.entry_points.setdefault('console_scripts', [])
+            console_scripts.extend(results.console_scripts)
+        except:
+            # something apparently consumes tracebacks (not exception messages)
+            # for OSError at least.  let's avoid that silliness.
+            traceback.print_exc()
             raise
 
-        return result
+
+Collector = typing.Callable[
+    [pathlib.Path, pathlib.Path],
+    typing.Iterable[pathlib.Path],
+]
 
 
-def get_environment_from_batch_command(env_cmd, initial=None):
-    """
-    Take a command (either a single command or list of arguments)
-    and return the environment created after running that command.
-    Note that if the command must be a batch file or .cmd file, or the
-    changes to the environment will not be captured.
-
-    If initial is supplied, it is used as the initial environment passed
-    to the child process.
-    """
-    if not isinstance(env_cmd, (list, tuple)):
-        env_cmd = [env_cmd]
-    # construct the command that will alter the environment
-    env_cmd = subprocess.list2cmdline(env_cmd)
-    # create a tag so we can tell in the output when the proc is done
-    tag = 'Done running command'
-    # construct a cmd.exe command to do accomplish this
-    cmd = 'cmd.exe /s /c "{env_cmd} && echo "{tag}" && set"'.format(**vars())
-    # launch the process
-    proc = subprocess.run(cmd, stdout=subprocess.PIPE, env=initial, check=True)
-    # parse the output sent to stdout
-    lines = proc.stdout.decode().splitlines()
-    # consume whatever output occurs until the tag is reached
-    consume(itertools.takewhile(lambda l: tag not in l, lines))
-    # define a way to handle each KEY=VALUE line
-    handle_line = lambda l: l.rstrip().split('=',1)
-    # parse key/values into pairs
-    pairs = map(handle_line, lines)
-    # make sure the pairs are valid
-    valid_pairs = filter(validate_pair, pairs)
-    # construct a dictionary of the pairs
-    result = dict(valid_pairs)
-    return result
+@attr.s(frozen=True)
+class Results:
+    console_scripts = attr.ib()
 
 
-# TODO: CAMPid 079079043724533410718467080456813604134316946765431341384014
-def report_and_check_call(command, *args, cwd=None, shell=False, **kwargs):
-    print('\nCalling:')
-    print('    Caller: {}'.format(callers_line_info()))
-    print('    CWD: {}'.format(repr(cwd)))
-    print('    As passed: {}'.format(repr(command)))
-    print('    Full: {}'.format(
-        ' '.join(shlex.quote(fspath(x)) for x in command),
-    ))
+@attr.s(frozen=True)
+class Destinations:
+    package = attr.ib()
+    examples = attr.ib()
+    qt = attr.ib()
+    qt_bin = attr.ib()
+    qt_plugins = attr.ib()
+    qt_platforms = attr.ib()
 
-    if shell:
-        print('    {}'.format(repr(command)))
-    else:
-        for arg in command:
-            print('    {}'.format(repr(arg)))
+    @classmethod
+    def build(cls, package_path):
+        qt = package_path / 'Qt'
+        qt_bin = qt / 'bin'
+        qt_plugins = qt_bin / 'plugins'
+        qt_platforms = qt_plugins / 'platforms'
 
-    sys.stdout.flush()
-    return subprocess.run(command, *args, cwd=cwd, check=True, **kwargs)
+        return cls(
+            package=package_path,
+            examples=package_path / 'examples',
+            qt=qt,
+            qt_bin=qt_bin,
+            qt_plugins=qt_plugins,
+            qt_platforms=qt_platforms,
+        )
+
+    def create_directories(self):
+        for path in [
+            self.qt,
+            self.qt_bin,
+            self.qt_plugins,
+            self.qt_platforms,
+        ]:
+            path.mkdir(parents=True, exist_ok=True)
+
+
+bits = int(platform.architecture()[0][0:2])
+
+# platform_names = {
+#     32: 'win32',
+#     64: 'win_amd64'
+# }
+# try:
+#     platform_name = platform_names[bits]
+# except KeyError:
+#     raise Exception(
+#         'Bit depth {bits} not recognized {options}'.format(
+#             bits=bits,
+#             options=platform_names.keys(),
+#         ),
+#     )
+
+
+# @attr.s(frozen=True)
+# class Application:
+#     original_path = attr.ib()
+#     relative_path = attr.ib()
+#     file_name = attr.ib()
+#     identifier = attr.ib()
+#
+#     @classmethod
+#     def build(cls, path, relative_path):
+#         return cls(
+#             original_path=path,
+#             relative_path=relative_path,
+#             file_name=path.name,
+#             identifier=path.stem.replace('-', '_'),
+#         )
+
+
+T = typing.TypeVar('T')
+
+
+@attr.s(frozen=True)
+class FileCopyAction:
+    source = attr.ib()
+    destination = attr.ib() # including file name, relative
+
+    @classmethod
+    def from_path(
+            cls: typing.Type[T],
+            source: pathlib.Path,
+            root: pathlib.Path,
+    ) -> T:
+        action = cls(
+            source=source,
+            destination=source.resolve().relative_to(root.resolve()),
+        )
+
+        return action
+
+    @classmethod
+    def from_tree_path(
+            cls: typing.Type[T],
+            source: pathlib.Path,
+            root: pathlib.Path,
+            filter: typing.Callable[[pathlib.Path], bool] = lambda path: True,
+    ) -> typing.Set[T]:
+        actions = {
+            cls(
+                source=source,
+                destination=source.relative_to(root),
+            )
+            for source in source.rglob('*')
+            if filter(source)
+            if source.is_file()
+        }
+
+        return actions
+
+    def linux_less_specific_so_target(self: T) -> T:
+        destination = self.destination
+
+        if '.so.' in destination.name:
+            marker = '.so.'
+            index = destination.name.find(marker)
+            index = destination.name.find('.', index + len(marker));
+            less_specific = destination.with_name(destination.name[:index])
+
+            if destination != less_specific:
+                return attr.evolve(self, destination=less_specific)
+
+        return self
+
+    def copy(self, destination_root: pathlib.Path) -> None:
+        destination = destination_root / self.destination
+        destination.parent.mkdir(parents=True, exist_ok=True)
+
+        shutil.copy(src=fspath(self.source), dst=fspath(destination))
+
+
+# @attr.s(frozen=True)
+# class DirectoryCopyAction:
+#     source = attr.ib()
+#     destination = attr.ib() # including target root directory name, relative
+#
+#     def copy(self, destination_root: pathlib.Path) -> None:
+#         destination = destination_root / self.destination
+#         destination.mkdir(parents=True, exist_ok=True)
+#
+#         shutil.copytree(
+#             src=self.source,
+#             dst=destination,
+#             dirs_exist_ok=True,
+#         )
+
+
+def create_script_function_name(path: pathlib.Path):
+    return path.stem.replace('-', '_')
+
+
+def linuxdeployqt_substitute_list_source(
+        target,
+        translation_path,
+) -> typing.List[pathlib.Path]:
+    paths = [
+        dependency.path
+        for dependency in lddwrap.list_dependencies(
+            path=target,
+        )
+        if dependency.path is not None
+    ]
+
+    if any('libicu' in path.name for path in paths):
+        paths.extend(translation_path.glob('*.qm'))
+
+    return paths
+
+
+def linux_executable_copy_actions(
+        source_path: pathlib.Path,
+        reference_path: pathlib.Path,
+        translation_path: pathlib.Path,
+) -> typing.Set[FileCopyAction]:
+    actions = {
+        FileCopyAction.from_path(
+            source=source_path,
+            root=reference_path,
+        ),
+        *(
+            FileCopyAction.from_path(
+                source=path,
+                root=reference_path,
+            )
+            for path in filtered_relative_to(
+                base=reference_path,
+                paths=linuxdeployqt_substitute_list_source(
+                    target=source_path,
+                    translation_path=translation_path,
+                ),
+            )
+        ),
+    }
+
+    return actions
+
+
+@attr.s(frozen=True)
+class LinuxExecutable:
+    original_path = attr.ib()
+    relative_path = attr.ib()
+    executable_relative_path = attr.ib()
+    path_name = attr.ib()
+    script_function_name = attr.ib()
+    copy_actions = attr.ib()
+
+    @classmethod
+    def from_path(
+            cls: typing.Type[T],
+            path: pathlib.Path,
+            reference_path: pathlib.Path,
+            translation_path: pathlib.Path,
+    ) -> T:
+        relative_path = path.resolve().relative_to(reference_path)
+        copy_actions = linux_executable_copy_actions(
+            source_path=path,
+            reference_path=reference_path,
+            translation_path=translation_path,
+        )
+
+        return cls(
+            original_path=path,
+            relative_path=relative_path,
+            executable_relative_path=relative_path,
+            path_name=path.name,
+            script_function_name=create_script_function_name(path=path),
+            copy_actions=copy_actions,
+        )
+
+    @classmethod
+    def list_from_directory(
+            cls: typing.Type[T],
+            directory: pathlib.Path,
+            reference_path: pathlib.Path,
+            translation_path: pathlib.Path,
+    ) -> typing.List[T]:
+        applications = []
+
+        for path in directory.iterdir():
+            if not path.is_file() or path.suffix != '':
+                print('skipping: {}'.format(path))
+                continue
+
+            try:
+                application = cls.from_path(
+                    path=path,
+                    reference_path=reference_path,
+                    translation_path=translation_path,
+                )
+            except DependencyCollectionError:
+                print('failed: {}'.format(path))
+                continue
+
+            print('including: {}'.format(path))
+            applications.append(application)
+
+        return applications
+
+
+def win32_executable_copy_actions(
+        source_path: pathlib.Path,
+        reference_path: pathlib.Path,
+        windeployqt: pathlib.Path,
+) -> typing.Set[FileCopyAction]:
+    actions = {
+        FileCopyAction.from_path(
+            source=source_path,
+            root=reference_path,
+        ),
+        *(
+            FileCopyAction.from_path(
+                source=path,
+                root=reference_path,
+            )
+            for path in filtered_relative_to(
+                base=reference_path,
+                paths=windeployqt_list_source(
+                    target=source_path,
+                    windeployqt=windeployqt,
+                ),
+            )
+        ),
+    }
+
+    return actions
+
+
+@attr.s(frozen=True)
+class Win32Executable:
+    original_path = attr.ib()
+    relative_path = attr.ib()
+    executable_relative_path = attr.ib()
+    path_name = attr.ib()
+    script_function_name = attr.ib()
+    copy_actions = attr.ib()
+
+    @classmethod
+    def from_path(
+            cls: typing.Type[T],
+            path: pathlib.Path,
+            reference_path: pathlib.Path,
+            windeployqt: pathlib.Path,
+    ) -> T:
+        relative_path = path.resolve().relative_to(reference_path.resolve())
+        copy_actions = win32_executable_copy_actions(
+            source_path=path,
+            reference_path=reference_path,
+            windeployqt=windeployqt,
+        )
+
+        return cls(
+            original_path=path,
+            relative_path=relative_path,
+            executable_relative_path=relative_path,
+            path_name=path.name,
+            script_function_name=create_script_function_name(path=path),
+            copy_actions=copy_actions,
+        )
+
+    @classmethod
+    def list_from_directory(
+            cls: typing.Type[T],
+            directory: pathlib.Path,
+            reference_path: pathlib.Path,
+            windeployqt: pathlib.Path,
+    ) -> typing.List[T]:
+        applications = []
+
+        for path in directory.iterdir():
+            if not path.is_file() or path.suffix != '.exe':
+                print('skipping: {}'.format(path))
+                continue
+
+            try:
+                application = cls.from_path(
+                    path=path,
+                    reference_path=reference_path,
+                    windeployqt=windeployqt
+                )
+            except DependencyCollectionError:
+                print('failed: {}'.format(path))
+                continue
+
+            print('including: {}'.format(path))
+            applications.append(application)
+
+        return applications
+
+
+def darwin_executable_copy_actions(
+        source_path: pathlib.Path,
+        reference_path: pathlib.Path,
+        # TODO: shouldn't need this once using a real lib to identify dependencies
+        lib_path: pathlib.Path,
+) -> typing.Set[FileCopyAction]:
+    actions = {
+        FileCopyAction.from_path(
+            source=source_path,
+            root=reference_path,
+        ),
+        *FileCopyAction.from_tree_path(
+            source=lib_path,
+            root=reference_path,
+        ),
+    }
+
+    return actions
+
+
+@attr.s(frozen=True)
+class DarwinExecutable:
+    # The single-file ones
+
+    original_path = attr.ib()
+    relative_path = attr.ib()
+    executable_relative_path = attr.ib()
+    path_name = attr.ib()
+    script_function_name = attr.ib()
+    copy_actions = attr.ib()
+
+    @classmethod
+    def from_path(
+            cls: typing.Type[T],
+            path: pathlib.Path,
+            reference_path: pathlib.Path,
+            lib_path: pathlib.Path,
+    ) -> T:
+        relative_path = path.resolve().relative_to(reference_path)
+        copy_actions = darwin_executable_copy_actions(
+            source_path=path,
+            reference_path=reference_path,
+            lib_path=lib_path,
+        )
+
+        return cls(
+            original_path=path,
+            relative_path=relative_path,
+            executable_relative_path=relative_path,
+            path_name=path.name,
+            script_function_name=create_script_function_name(path=path),
+            copy_actions=copy_actions,
+        )
+
+    @classmethod
+    def list_from_directory(
+            cls: typing.Type[T],
+            directory: pathlib.Path,
+            reference_path: pathlib.Path,
+            lib_path: pathlib.Path,
+    ) -> typing.List[T]:
+        applications = []
+
+        for path in directory.iterdir():
+            if not path.is_file() or path.suffix != '':
+                print('skipping: {}'.format(path))
+                continue
+
+            try:
+                application = cls.from_path(
+                    path=path,
+                    reference_path=reference_path,
+                    lib_path=lib_path,
+                )
+            except DependencyCollectionError:
+                print('failed: {}'.format(path))
+                continue
+
+            print('including: {}'.format(path))
+            applications.append(application)
+
+        return applications
+
+
+def darwin_dot_app_copy_actions(
+        source_path: pathlib.Path,
+        reference_path: pathlib.Path,
+        # TODO: doesn't seem like we should generally need this?  but maybe?
+        lib_path: pathlib.Path,
+) -> typing.Set[FileCopyAction]:
+    actions = {
+        FileCopyAction.from_tree_path(
+            source=source_path,
+            root=reference_path,
+        ),
+        *FileCopyAction.from_tree_path(
+            source=lib_path,
+            root=reference_path,
+        ),
+    }
+
+    return actions
+
+
+@attr.s(frozen=True)
+class DarwinDotApp:
+    # The *.app directory-file ones
+
+    original_path = attr.ib()
+    relative_path = attr.ib()
+    executable_relative_path = attr.ib()
+    path_name = attr.ib()
+    script_function_name = attr.ib()
+    copy_actions = attr.ib(factory=list)
+
+    @classmethod
+    def from_path(
+            cls: typing.Type[T],
+            path: pathlib.Path,
+            reference_path: pathlib.Path,
+            lib_path: pathlib.Path,
+    ) -> T:
+        relative_path = path.resolve().relative_to(reference_path)
+        copy_actions = darwin_dot_app_copy_actions(
+            source_path=path,
+            reference_path=reference_path,
+            lib_path=lib_path,
+        )
+
+        return cls(
+            original_path=path,
+            relative_path=relative_path,
+            executable_relative_path=relative_path,
+            path_name=path.name,
+            script_function_name=create_script_function_name(path=path),
+            copy_actions=copy_actions,
+        )
+
+    @classmethod
+    def list_from_directory(
+            cls: typing.Type[T],
+            directory: pathlib.Path,
+            reference_path: pathlib.Path,
+            lib_path: pathlib.Path,
+    ) -> typing.List[T]:
+        applications = []
+
+        for path in directory.iterdir():
+            if not path.is_file() or path.suffix != '.app':
+                continue
+
+            try:
+                application = cls.from_path(
+                    path=path,
+                    reference_path=reference_path,
+                    lib_path=lib_path,
+                )
+            except DependencyCollectionError:
+                continue
+
+            applications.append(application)
+
+        return applications
+
+
+AnyApplication = typing.Union[
+    DarwinExecutable,
+    DarwinDotApp,
+    Win32Executable,
+]
+
+application_types_by_platform = {   # typing.Dict[str, typing.List[AnyApplication]]
+    'linux': [LinuxExecutable],
+    'win32': [Win32Executable],
+    'darwin': [DarwinExecutable, DarwinDotApp],
+}
+
+
+@attr.s(frozen=True)
+class QtPaths:
+    compiler = attr.ib()
+    bin = attr.ib()
+    lib = attr.ib()
+    translation = attr.ib()
+    qmake = attr.ib()
+    windeployqt = attr.ib()
+    applications = attr.ib()
+    platform_plugins = attr.ib()
+
+    @classmethod
+    def build(
+            cls,
+            base,
+            version,
+            compiler,
+            platform_,
+    ):
+        compiler_path = base / version / compiler
+        bin_path = compiler_path / 'bin'
+        lib_path = compiler_path / 'lib'
+        translation_path = compiler_path / 'translations'
+
+        windeployqt = bin_path / 'windeployqt.exe'
+
+        # TODO: CAMPid 05470781340806731460631
+        qmake_suffix = ''
+        extras = {}
+        if platform_ == 'linux':
+            extras['translation_path'] = translation_path
+        elif platform_ == 'win32':
+            qmake_suffix = '.exe'
+            extras['windeployqt'] = windeployqt
+        elif platform_ == 'darwin':
+            extras['lib_path'] = lib_path
+
+        application_types = application_types_by_platform[platform_]
+        applications = list(itertools.chain.from_iterable(
+            application_type.list_from_directory(
+                directory=bin_path,
+                reference_path=compiler_path,
+                **extras,
+            )
+            for application_type in application_types
+        ))
+
+        return cls(
+            compiler=compiler_path,
+            bin=bin_path,
+            lib=lib_path,
+            translation=translation_path,
+            qmake=(bin_path / 'qmake').with_suffix(qmake_suffix),
+            windeployqt=windeployqt,
+            applications=applications,
+            platform_plugins=compiler_path / 'plugins' / 'platforms',
+        )
+
+
+def filtered_applications(
+        applications: typing.Iterable[AnyApplication],
+        filter: typing.Callable[[pathlib.Path], bool] = lambda path: True,
+) -> typing.List[AnyApplication]:
+    results = []
+
+    for application in applications:
+        print('\n\nChecking: {}'.format(application.path_name))
+
+        if any(
+                filter(copy_action.destination)
+                for copy_action in application.copy_actions
+        ):
+            print('    skipped')
+            continue
+
+        results.append(application)
+
+    return results
+
+
+def identify_preferred_newlines(f):
+    if isinstance(f.newlines, str):
+        return f.newlines
+    return '\n'
 
 
 # TODO: CAMPid 974597249731467124675t40136706803641679349342342
@@ -154,483 +702,797 @@ def callers_line_info():
     )
 
 
-def preferred_newlines(f):
-    if isinstance(f.newlines, str):
-        return f.newlines
-    return '\n'
+# TODO: CAMPid 079079043724533410718467080456813604134316946765431341384014
+def report_and_check_call(command, *args, cwd=None, shell=False, **kwargs):
+    command = [fspath(c) for c in command]
 
+    print('\nCalling:')
+    print('    Caller: {}'.format(callers_line_info()))
+    print('    CWD: {}'.format(repr(cwd)))
+    print('    As passed: {}'.format(repr(command)))
+    print('    Full: {}'.format(
+        ' '.join(shlex.quote(fspath(x)) for x in command),
+    ))
 
-def main():
-    bits = int(platform.architecture()[0][0:2])
-    python_major_minor = '{}{}'.format(
-        sys.version_info.major,
-        sys.version_info.minor
-    )
-    # WARNING: The compiler for Python 3.4 is actually 10 but let's try 12
-    #          because that's what Qt offers
-    msvc_versions = {
-        '34': '12.0',
-        '35': '14.0',
-        '36': '14.0',
-        '37': '14.14',
-        '38': '14.14',
-    }
-    if bits == 32 and python_major_minor in ('35', '36'):
-        msvc_version = '14.14'
+    if shell:
+        print('    {}'.format(repr(command)))
     else:
-        msvc_version = msvc_versions[python_major_minor]
-    compiler_year = {
-        '10.0': '2010',
-        '11.0': '2012',
-        '12.0': '2013',
-        '14.0': '2015',
-        '14.1': '2017',
-        '14.14': '2017',
-    }[msvc_version]
-    if decimal.Decimal(msvc_version) >= 14.1:
-        vs_path = os.path.join(
-            'C:/',
-            'Program Files (x86)',
-            'Microsoft Visual Studio',
-            compiler_year,
-            'Community',
-        )
-    else:
-        vs_path = os.path.join(
-            'C:/', 'Program Files (x86)', 'Microsoft Visual Studio {}'.format(
-                msvc_version
+        for arg in command:
+            print('    {}'.format(repr(arg)))
+
+    sys.stdout.flush()
+    if cwd is not None:
+        cwd = fspath(cwd)
+    return subprocess.run(command, *args, cwd=cwd, check=True, **kwargs)
+
+
+@attr.s(frozen=True)
+class Configuration:
+    qt_version = attr.ib()
+    qt_path = attr.ib()
+    qt_architecture = attr.ib()
+    qt_compiler = attr.ib()
+    pyqt_version = attr.ib()
+    pyqt_source_path = attr.ib()
+    platform = attr.ib()
+    architecture = attr.ib()
+    build_path = attr.ib()
+    download_path = attr.ib()
+    package_path = attr.ib()
+
+    @classmethod
+    def build(cls, environment, build_path, package_path):
+        platform = sys.platform
+        qt_version = environment['QT_VERSION']
+
+        if platform == 'linux':
+            qt_compiler = 'gcc_64'
+            qt_architecture = 'gcc_64'
+        elif platform == 'macos':
+            qt_compiler = 'clang_64'
+            qt_architecture = 'clang_64'
+        elif platform == 'win32':
+            # TODO: change the actual storage
+            
+            if tuple(int(s) for s in qt_version.split('.')) >= (5, 15):
+                year = '2019'
+            else:
+                year = '2017'
+
+            qt_compiler = 'msvc{year}'.format(year=year)
+            qt_architecture = 'win{bits}_msvc{year}'.format(
+                year=year,
+                bits=bits,
             )
+
+            if bits == 64:
+                qt_compiler += '_64'
+                qt_architecture += '_64'
+
+        return cls(
+            qt_version=qt_version,
+            qt_path=build_path / 'qt',
+            qt_architecture=qt_architecture,
+            qt_compiler=qt_compiler,
+            pyqt_version=environment['PYQT_VERSION'],
+            pyqt_source_path=build_path / 'pyqt5',
+            platform=platform,
+            architecture=qt_architecture,
+            build_path=build_path,
+            download_path=build_path / 'downloads',
+            package_path=package_path,
         )
 
-    vcvarsall = os.path.join(vs_path, 'VC')
-    if decimal.Decimal(msvc_version) >= 14.1:
-        vcvarsall = os.path.join(vcvarsall, 'Auxiliary', 'Build')
-    vcvarsall = os.path.join(vcvarsall, 'vcvarsall.bat')
+    def create_directories(self):
+        for path in [
+            self.qt_path,
+            self.pyqt_source_path,
+            self.build_path,
+            self.download_path,
+        ]:
+            path.mkdir(parents=True, exist_ok=True)
 
-    os.environ = get_environment_from_batch_command(
-        [
-            vcvarsall,
-            {32: 'x86', 64: 'x64'}[bits]
-        ],
-        initial=os.environ
+
+# https://repl.it/@altendky/requests-stream-download-to-file-2
+default_chunk_size = 2 ** 24
+
+
+def download_base(
+        file,
+        method,
+        url,
+        *args,
+        chunk_size=default_chunk_size,
+        resume=True,
+        **kwargs
+):
+    if resume:
+        headers = kwargs.get('headers', {})
+        headers.setdefault('Range', 'bytes={}-'.format(file.tell()))
+
+    response = requests.request(
+        method,
+        url,
+        *args,
+        stream=True,
+        **kwargs,
     )
-    os.environ['VCINSTALLDIR'] = vs_path
-    print('  ---- os.environ:')
-    for k, v in os.environ.items():
-        print('    {}: {}'.format(k, v))
+    response.raise_for_status()
 
-    compiler_name = 'msvc'
-    compiler_bits_string = {32: '', 64: '_64'}[bits]
+    for chunk in response.iter_content(chunk_size=chunk_size):
+        file.write(chunk)
 
-    compiler_dir = ''.join((compiler_name, compiler_year, compiler_bits_string))
 
-    qt_path = os.environ['QT_BASE_PATH']
-    qt_compiler_path = os.path.join(qt_path, compiler_dir)
-    qt_bin_path = os.path.join(qt_compiler_path, 'bin')
-    os.environ['PATH'] = os.pathsep.join((os.environ['PATH'], qt_bin_path))
+def get_down(file, url, *args, **kwargs):
+    return download_base(
+        file=file,
+        method='GET',
+        url=url,
+        *args,
+        **kwargs,
+    )
 
-    with open('setup.cfg', 'w') as cfg:
-        plat_names = {
-            32: 'win32',
-            64: 'win_amd64'
-        }
-        try:
-            plat_name = plat_names[bits]
-        except KeyError:
-            raise Exception('Bit depth {bits} not recognized {}'.format(plat_names.keys()))
 
-        python_tag = 'cp{major}{minor}'.format(
-            major=sys.version_info[0],
-            minor=sys.version_info[1],
+def save_sdist(project, version, directory):
+    project_url = hyperlink.URL(
+        scheme='https',
+        host='pypi.org',
+        path=('pypi', project, version, 'json'),
+    )
+    response = requests.get(project_url)
+    response.raise_for_status()
+
+    urls = response.json()['urls']
+
+    [record] = (
+        url
+        for url in urls
+        if url.get('packagetype') == 'sdist'
+    )
+
+    url = hyperlink.URL.from_text(record['url'])
+
+    directory.mkdir(parents=True, exist_ok=True)
+    path = directory / url.path[-1]
+
+    with path.open('wb') as file:
+        get_down(file=file, url=url)
+
+    return path
+
+
+# def save_linuxdeployqt(version, directory):
+#     url = hyperlink.URL(
+#         scheme='https',
+#         host='github.com',
+#         path=(
+#             'probonopd',
+#             'linuxdeployqt',
+#             'releases',
+#             'download',
+#             str(version),
+#             'linuxdeployqt-{version}-x86_64.AppImage'.format(version=version),
+#         ),
+#     )
+#
+#     directory.mkdir(parents=True, exist_ok=True)
+#     path = directory / url.path[-1]
+#
+#     with path.open('wb') as file:
+#         get_down(file=file, url=url)
+#
+#     st = os.stat(path)
+#     path.chmod(st.st_mode | stat.S_IXUSR)
+#
+#     return path
+
+
+# def write_setup_cfg(directory):
+#     setup_cfg_path = directory / 'setup.cfg'
+#
+#     python_tag = 'cp{major}{minor}'.format(
+#         major=sys.version_info[0],
+#         minor=sys.version_info[1],
+#     )
+#
+#     setup_cfg_path.write_text(textwrap.dedent('''\
+#         [bdist_wheel]
+#         python-tag = {python_tag}
+#         plat-name = {platform_name}
+#     ''').format(python_tag=python_tag, platform_name=platform_name))
+
+
+@attr.s
+class LinuxPlugin:
+    original_path = attr.ib()
+    relative_path = attr.ib()
+    copy_actions = attr.ib()
+
+    @classmethod
+    def from_name(
+            cls: typing.Type[T],
+            name: str,
+            reference_path: pathlib.Path,
+            plugin_path: pathlib.Path,
+            translation_path: pathlib.Path,
+    ) -> T:
+        file_name = 'libq{}.so'.format(name)
+        path = plugin_path / file_name
+
+        copy_actions = linux_executable_copy_actions(
+            source_path=path,
+            reference_path=reference_path,
+            translation_path=translation_path,
         )
 
-        cfg.write(
-'''[bdist_wheel]
-python-tag = {python_tag}
-plat-name = {plat_name}'''.format(**locals()))
-
-    build = os.environ.get('APPVEYOR_BUILD_FOLDER', os.getcwd())
-
-    destination = os.path.join(build, 'src', 'pyqt5_tools')
-    os.makedirs(destination, exist_ok=True)
-    examples_destination = os.path.join(destination, 'examples')
-
-    build_id = os.environ.get('APPVEYOR_BUILD_ID', 'local')
-    with open(os.path.join(destination, 'build_id'), 'w') as f:
-        f.write(build_id + '\n')
-
-    job_id = os.environ.get('APPVEYOR_JOB_ID', 'local')
-    with open(os.path.join(destination, 'job_id'), 'w') as f:
-        f.write(job_id + '\n')
-
-    windeployqt_path = os.path.join(qt_bin_path, 'windeployqt.exe')
-
-    application_paths = glob.glob(os.path.join(qt_bin_path, '*.exe'))
-
-    application_names = []
-
-    destination_qt = os.path.join(destination, 'Qt')
-    destination_qt_bin = os.path.join(destination_qt, 'bin')
-    os.makedirs(destination_qt_bin, exist_ok=True)
-
-    for application in application_paths:
-        application_path = os.path.join(qt_bin_path, application)
-
-        print('\n\nChecking: {}'.format(os.path.basename(application)))
-        try:
-            output = subprocess.check_output(
-                [
-                    windeployqt_path,
-                    application_path,
-                    '--dry-run',
-                    '--list', 'source',
-                ],
-                cwd=destination,
-            )
-        except subprocess.CalledProcessError:
-            continue
-
-        if b'WebEngine' in output:
-            print('    skipped')
-            continue
-
-        shutil.copy(application_path, destination_qt_bin)
-
-        report_and_check_call(
-            command=[
-                windeployqt_path,
-                os.path.basename(application),
-            ],
-            cwd=destination_qt_bin,
+        return cls(
+            original_path=path,
+            relative_path=path.relative_to(reference_path),
+            copy_actions=copy_actions,
         )
 
-        application_names.append(pathlib.Path(application).stem)
 
-    entry_point_function_names = {
-        application_name.replace('-', '_'): application_name
-        for application_name in application_names
-    }
+@attr.s
+class Win32Plugin:
+    original_path = attr.ib()
+    relative_path = attr.ib()
+    copy_actions = attr.ib()
 
-    entry_points_py = pathlib.Path(destination)/'entrypoints.py'
-    with open(str(entry_points_py)) as f:
-        f.read()
-        newlines = preferred_newlines(f)
-    with open(str(entry_points_py), 'a', newline=newlines) as f:
-        for function_name, application_name in entry_point_function_names.items():
-            f.write(textwrap.dedent('''\
-            def {function_name}():
-                load_dotenv()
-                return subprocess.call([str(here/'Qt'/'bin'/'{application_name}.exe'), *sys.argv[1:]])
+    @classmethod
+    def from_name(
+            cls: typing.Type[T],
+            name: str,
+            reference_path: pathlib.Path,
+            plugin_path: pathlib.Path,
+            windeployqt: pathlib.Path,
+    ) -> T:
+        file_name = 'q{}.dll'.format(name)
+        path = plugin_path / file_name
 
-
-            '''.format(
-                function_name=function_name,
-                application_name=application_name,
-            )))
-
-    console_scripts = [
-        '{application_name} = pyqt5_tools.entrypoints:{function_name}'.format(
-            function_name=function_name,
-            application_name=application_name,
+        copy_actions = win32_executable_copy_actions(
+            source_path=path,
+            reference_path=reference_path,
+            windeployqt=windeployqt,
         )
-        for function_name, application_name in entry_point_function_names.items()
+
+        return cls(
+            original_path=path,
+            relative_path=path.relative_to(reference_path),
+            copy_actions=copy_actions,
+        )
+
+
+@attr.s
+class DarwinPlugin:
+    original_path = attr.ib()
+    relative_path = attr.ib()
+    copy_actions = attr.ib()
+
+    @classmethod
+    def from_name(
+            cls: typing.Type[T],
+            name: str,
+            reference_path: pathlib.Path,
+            plugin_path: pathlib.Path,
+            lib_path: pathlib.Path,
+    ) -> T:
+        file_name = 'libq{}.dylib'.format(name)
+        path = plugin_path / file_name
+
+        copy_actions = darwin_executable_copy_actions(
+            source_path=path,
+            reference_path=reference_path,
+            lib_path=lib_path,
+        )
+
+        return cls(
+            original_path=path,
+            relative_path=path.relative_to(reference_path),
+            copy_actions=copy_actions,
+        )
+
+
+def main(package_path, build_base_path):
+    print('before ---!!!', file=sys.stderr)
+    # TODO: uhhh....  i'm trying to use an existing directory i thought
+    build_base_path.mkdir(parents=True, exist_ok=True)
+    build_path = tempfile.mkdtemp(
+        prefix='pyqt5_tools-',
+        dir=fspath(build_base_path),
+    )
+    print('after ---!!!', file=sys.stderr)
+    build_path = pathlib.Path(build_path)
+
+    configuration = Configuration.build(
+        environment=os.environ,
+        build_path=build_path,
+        package_path=package_path,
+    )
+    configuration.create_directories()
+
+    return build(configuration=configuration)
+
+
+def checkpoint(name):
+    print('    ----<==== {} ====>----'.format(name))
+
+
+def build(configuration: Configuration):
+    checkpoint('Install Qt')
+    install_qt(configuration=configuration)
+
+    # application_filter = {
+    #     'win32': lambda path: path.suffix == '.exe',
+    #     'linux': lambda path: path.suffix == '',
+    #     # TODO: darwin  the .app is for directories but it still grabs files but not designer...
+    #     # 'darwin': lambda path: path.suffix == '.app',
+    #     'darwin': lambda path: path.suffix == '',
+    # }[configuration.platform]
+
+    checkpoint('Define Paths')
+    qt_paths = QtPaths.build(
+        base=configuration.qt_path,
+        version=configuration.qt_version,
+        compiler=configuration.qt_compiler,
+        platform_=configuration.platform,
+    )
+
+    destinations = Destinations.build(package_path=configuration.package_path)
+
+    checkpoint('Create Directories')
+    destinations.create_directories()
+
+    checkpoint('Select Applications')
+    applications = filtered_applications(
+        applications=qt_paths.applications,
+        filter=lambda path: (
+            'webengine' in fspath(path).casefold()
+            and path.suffix != '.qm'
+        ),
+    )
+
+    checkpoint('Define Plugins')
+    platform_plugin_names = {
+        'linux': ['xcb', 'minimal'],
+        'win32': ['minimal'],
+        'darwin': ['cocoa'],
+    }[configuration.platform]
+
+    platform_plugin_type = {
+        'linux': LinuxPlugin,
+        'win32': Win32Plugin,
+        'darwin': DarwinPlugin,
+    }[configuration.platform]
+
+    # TODO: CAMPid 05470781340806731460631
+    extras = {}
+    if configuration.platform == 'linux':
+        extras['translation_path'] = qt_paths.translation
+    elif configuration.platform == 'win32':
+        extras['windeployqt'] = qt_paths.windeployqt
+    elif configuration.platform == 'darwin':
+        extras['lib_path'] = qt_paths.lib
+
+    platform_plugins = [
+        platform_plugin_type.from_name(
+            name=name,
+            plugin_path=qt_paths.platform_plugins,
+            reference_path=qt_paths.compiler,
+            **extras,
+        )
+        for name in platform_plugin_names
     ]
 
-    destination_plugins = os.path.join(destination_qt_bin, 'plugins')
+    checkpoint('Build Application And Platform Plugin Copy Actions')
+    copy_actions = {
+        *itertools.chain.from_iterable(
+            application.copy_actions
+            for application in applications
+        ),
+        *itertools.chain.from_iterable(
+            plugin.copy_actions
+            for plugin in platform_plugins
+        ),
+    }
 
-    platform_path = os.path.join(destination_plugins, 'platforms')
-    os.makedirs(platform_path, exist_ok=True)
-    for platform_plugin in ('minimal',):
-        shutil.copy(
-            os.path.join(
-                os.environ['QT_BASE_PATH'],
-                compiler_dir,
-                'plugins',
-                'platforms',
-                'q{}.dll'.format(platform_plugin),
+    if configuration.platform == 'linux':
+        copy_actions = {
+            action.linux_less_specific_so_target()
+            for action in copy_actions
+        }
+
+    checkpoint('Write Entry Points')
+    entry_points_py = destinations.package / 'entrypoints.py'
+
+    console_scripts = write_entry_points(
+        entry_points_py=entry_points_py,
+        applications=applications,
+    )
+
+    checkpoint('Download PyQt5')
+    pyqt5_sdist_path = save_sdist(
+        project='PyQt5',
+        version=configuration.pyqt_version,
+        directory=configuration.download_path,
+    )
+
+    with tarfile.open(fspath(pyqt5_sdist_path)) as tar_file:
+        for member in tar_file.getmembers():
+            member.name = pathlib.Path(*pathlib.Path(member.name).parts[1:])
+            member.name = fspath(member.name)
+            tar_file.extract(
+                member=member,
+                path=fspath(configuration.pyqt_source_path),
+            )
+
+    checkpoint('Patch PyQt5')
+    patch_pyqt(configuration, qt_paths)
+
+    checkpoint('Build PyQt5')
+    build_path = build_pyqt(configuration, qt_paths)
+
+    checkpoint('Build PyQt5 Plugin Copy Actions')
+    all_copy_actions = {
+        destinations.qt: copy_actions,
+        destinations.package: set(),
+    }
+
+    if configuration.platform == 'win32':
+        designer_plugin_path = (
+            build_path / 'designer' / 'release' / 'pyqt5.dll'
+        )
+
+        relative_bin = destinations.qt_bin.relative_to(destinations.qt)
+        package_plugins = relative_bin / 'plugins'
+        package_plugins_designer = (
+            package_plugins / 'designer' / designer_plugin_path.name
+        )
+
+        copy_actions.add(FileCopyAction(
+            source=designer_plugin_path,
+            destination=package_plugins_designer,
+        ))
+
+        # huh?  we need two copies at:
+        #   bin/platforms/qwindows.dll
+        #   plugins/platforms/qwindows.dll (or maybe this isn't required?)
+        qwindows_dll = qt_paths.compiler / 'plugins' / 'platforms' / 'qwindows.dll'
+        copy_actions.add(FileCopyAction(
+            source=designer_plugin_path,
+            destination=(destinations.qt_bin / 'platforms' / qwindows_dll.name).relative_to(destinations.qt),
+        ))
+
+        qml_plugin = build_path / 'qmlscene' / 'release' / 'pyqt5qmlplugin.dll'
+
+        copy_actions.add(FileCopyAction(
+            source=qml_plugin,
+            destination=package_plugins,
+        ))
+
+        all_copy_actions[destinations.package].add(FileCopyAction(
+            source=qml_plugin,
+            destination=destinations.examples.relative_to(
+                destinations.package,
             ),
-            platform_path,
+        ))
+    elif configuration.platform == 'linux':
+        designer_plugin_path = build_path / 'designer' / 'libpyqt5.so'
+
+        package_plugins = destinations.qt / 'plugins'
+        package_plugins_designer = (
+            package_plugins / 'designer' / designer_plugin_path.name
         )
 
-    sysroot = os.path.join(build, 'sysroot')
-    os.makedirs(sysroot, exist_ok=True)
-    nmake = shutil.which('nmake')
+        copy_actions.add(FileCopyAction(
+            source=designer_plugin_path,
+            destination=package_plugins_designer.relative_to(destinations.qt),
+        ))
 
-    src = os.path.join(build, 'src')
-    native = os.path.join(sysroot, 'native')
-    os.makedirs(native, exist_ok=True)
-
-    pyqt5_version = os.environ['PYQT5_VERSION']
-    # sip_version = next(
-    #     d.version
-    #     for d in pip.utils.get_installed_distributions()
-    #     if d.project_name == 'sip'
-    # )
-    sip_version = {
-        '5.5.1': '4.17',
-        '5.6': '4.19',
-        '5.7.1': '4.19.8',
-        '5.8.2': '4.19.8',
-        '5.9': '4.19.8',
-        '5.9.2': '4.19.8',
-        '5.10': '4.19.8',
-        '5.10.1': '4.19.8',
-        '5.11.2': '4.19.13',
-        '5.11.3': '4.19.13',
-        '5.12': '4.19.14',
-        '5.12.1': '4.19.15',
-        '5.12.3': '4.19.18',
-        '5.13.0': '4.19.18',
-        '5.13.1': '4.19.19',
-        '5.13.2': '4.19.19',
-    }[pyqt5_version]
-
-    sip_name = 'sip-{}'.format(sip_version)
-    if 'dev' in sip_version:
-        sip_url = (
-            'https://www.riverbankcomputing.com'
-            '/static/Downloads/sip/sip-{}.zip'.format(sip_version)
-        )
-    else:
-        sip_url = (
-            'https://www.riverbankcomputing.com'
-            '/static/Downloads/sip/{}/{}.zip'.format(
-                sip_version, sip_name
-            )
+        qml_plugin = (
+            build_path / 'qmlscene' / 'libpyqt5qmlplugin.so'
         )
 
-    r = download(sip_url)
+        copy_actions.add(FileCopyAction(
+            source=qml_plugin,
+            destination=package_plugins / qml_plugin.name,
+        ))
+        all_copy_actions[destinations.package].add(FileCopyAction(
+            source=qml_plugin,
+            destination=destinations.examples.relative_to(
+                destinations.package,
+            ) / qml_plugin.name,
+        ))
+    # elif configuration.platform == 'darwin':
+    #     package_plugins = destinations.qt / 'plugins'
+    #     package_plugins_designer = package_plugins / 'designer'
+    #
+    #     # designer_plugin_path = build_path / 'designer' / 'libpyqt5.so'
+    #     # shutil.copy(
+    #     #     designer_plugin_path,
+    #     #     package_plugins_designer,
+    #     # )
 
-    z = zipfile.ZipFile(io.BytesIO(r.content))
-    z.extractall(path=src)
-    sip = os.path.join(src, sip_name)
-    native_sip = sip + '-native'
-    shutil.copytree(os.path.join(src, sip_name), native_sip)
-    os.environ['CL'] = '/I"{}\\include\\python{}"'.format(
-        sysroot,
-        '.'.join(python_major_minor)
-    )
+    checkpoint('Execute Copy Actions')
+    for reference, actions in all_copy_actions.items():
+        for action in actions:
+            action.copy(destination_root=reference)
 
-    year = compiler_year
-    if year == '2013':
-        year = '2010'
-
-    pyqt5_version_tuple = tuple(int(x) for x in pyqt5_version.split('.'))
-
-    report_and_check_call(
-        command=[
-            sys.executable,
-            'configure.py',
-        ],
-        cwd=native_sip,
-    )
-    report_and_check_call(
-        command=[
-            nmake,
-        ],
-        cwd=native_sip,
-        env=os.environ,
-    )
-    report_and_check_call(
-        command=[
-            nmake,
-            'install',
-        ],
-        cwd=native_sip,
-        env=os.environ,
-    )
-
-    sip_configure_extras = []
-    if pyqt5_version_tuple >= (5, 11):
-        sip_configure_extras.append('--sip-module=PyQt5.sip')
-
-    report_and_check_call(
-        command=[
-            sys.executable,
-            'configure.py',
-            '--no-tools',
-            *sip_configure_extras,
-        ],
-        cwd=sip,
-    )
-
-    report_and_check_call(
-        command=[
-            nmake,
-        ],
-        cwd=sip,
-        env=os.environ,
-    )
-
-    report_and_check_call(
-        command=[
-            nmake,
-            'install',
-        ],
-        cwd=sip,
-        env=os.environ,
-    )
-
-    pyqt5_version_tuple = tuple(int(x) for x in pyqt5_version.split('.'))
-    if pyqt5_version_tuple >= (5, 13, 2):
-        pyqt5_name = 'PyQt5-{}'.format(pyqt5_version)
-    elif pyqt5_version_tuple >= (5, 6):
-        pyqt5_name = 'PyQt5_gpl-{}'.format(pyqt5_version)
-    else:
-        pyqt5_name = 'PyQt-gpl-{}'.format(pyqt5_version)
-
-    pyqt5_url = (
-        'https://www.riverbankcomputing.com'
-        '/static/Downloads/PyQt5/{}/{}.zip'
-    ).format(pyqt5_version, pyqt5_name)
-
-    r = download(pyqt5_url)
-    z = zipfile.ZipFile(io.BytesIO(r.content))
-    z.extractall(path=src)
-
-    pyqt5 = os.path.join(src, pyqt5_name)
-
-    # TODO: make a patch for the lower versions as well
-    if pyqt5_version_tuple >= (5, 7):
-        if pyqt5_version_tuple >= (5, 11):
-            pluginloader_patch = '..\\..\\pluginloader.5.11.patch'
-        else:
-            pluginloader_patch = '..\\..\\pluginloader.patch'
-
-        report_and_check_call(
-            command=['patch', '-p', '1', '-i', pluginloader_patch],
-            shell=True, # TODO: don't do this
-            cwd=pyqt5,
-        )
-
-    pyqt5_install = pathlib.Path(os.path.expandvars(sysroot))/'pyqt5-install'
-
-    designer_plugin_path = pyqt5_install/'designer'
-    designer_plugin_path.mkdir(parents=True, exist_ok=True)
-
-    qml_plugin_path = pyqt5_install/'qml'
-    qml_plugin_path.mkdir(parents=True, exist_ok=True)
-
-    designer_pro = os.path.join(pyqt5, 'designer', 'designer.pro-in')
-    with open(designer_pro, 'a') as f:
-        f.write('\nDEFINES     += PYTHON_LIB=\'"\\\\\\"@PYSHLIB@\\\\\\""\'\n')
-    command = [
-        sys.executable,
-        'configure.py',
-        '--no-tools',
-        '--no-qsci-api',
-        '--confirm-license',
-        '--enable=QtDesigner',
-        '--designer-plugindir={}'.format(designer_plugin_path),
-        '--enable=QtQml',
-        '--enable=QtQuick',
-        '--qml-plugindir={}'.format(qml_plugin_path),
-        '--verbose',
-        '--sip={}'.format(pathlib.Path(sys.executable).with_name('sip.exe')),
-    ]
-
-    report_and_check_call(
-        command=command,
-        cwd=pyqt5,
-        env=os.environ,
-    )
-
-    sys.stderr.write('another stderr test from {}\n'.format(__file__))
-
-    report_and_check_call(
-        command=[
-            nmake,
-        ],
-        cwd=pyqt5,
-        env=os.environ,
-    )
-    report_and_check_call(
-        command=[
-            nmake,
-            'install',
-        ],
-        cwd=pyqt5,
-        env=os.environ,
-    )
-    designer_plugin_path, = designer_plugin_path.glob('*')
-    designer_plugin_destination = os.path.join(destination_plugins, 'designer')
-    os.makedirs(fspath(designer_plugin_destination), exist_ok=True)
-    shutil.copy(fspath(designer_plugin_path), designer_plugin_destination)
-
-    qml_plugin_path, = qml_plugin_path.glob('*')
-    qml_plugin_destination = os.path.join(destination_plugins)
-    os.makedirs(fspath(qml_plugin_destination), exist_ok=True)
-    shutil.copy(fspath(qml_plugin_path), qml_plugin_destination)
-    shutil.copy(fspath(qml_plugin_path), examples_destination)
-
-    destination_qml = os.path.join(destination_qt, 'qml')
-
-    qml_path = os.path.join(qt_compiler_path, 'qml')
-
-    def ignore(directory, names):
-        names = set(names)
-
-        def is_debug_dll(names, name):
-            base, extension = os.path.splitext(name)
-
-            return (
-                extension == '.dll'
-                and base[-1] == 'd'
-                and (base[:-1] + extension) in names
-            )
-
-        names = {
-            name
-            for name in names
-            if (
-                name.endswith('.pdb')
-                or is_debug_dll(names=names, name=name)
-            )
-        }
-
-        return names
-
-    shutil.copytree(
-        qml_path,
-        destination_qml,
-        ignore=ignore,
-    )
-
-    shutil.copy(os.path.join(pyqt5, 'LICENSE'),
-                os.path.join(destination, 'LICENSE.pyqt5'))
-
-    # Since windeployqt doesn't actually work with --compiler-runtime,
-    # copy it ourselves
-    plat = {32: 'x86', 64: 'x64'}[bits]
-    redist_path = os.path.join(vs_path, 'VC', 'redist')\
-
-    if decimal.Decimal(msvc_version) >= 14.1:
-        redist_path = os.path.join(redist_path, 'MSVC')
-        hmm = os.listdir(redist_path)
-        print('redist_path:', redist_path)
-        print('hmm:', hmm)
-        picked = max(hmm, key=lambda x: x.split('.'))
-        print('picked:', picked)
-        redist_path = os.path.join(redist_path, picked)
-
-    msvc_version_for_files = {'14.14': '14.1'}.get(msvc_version, msvc_version)
-    msvc_version_for_files = msvc_version_for_files.replace('.', '')
-
-    redist_path = os.path.join(
-        redist_path,
-        plat,
-        'Microsoft.VC{}.CRT'.format(msvc_version_for_files),
-    )
-
-    redist_files = os.listdir(redist_path)
-
-    for file in redist_files:
-        dest = os.path.join(destination, file)
-        shutil.copyfile(os.path.join(redist_path, file), dest)
-        os.chmod(dest, stat.S_IWRITE)
-
+    checkpoint('Return Results')
     return Results(console_scripts=console_scripts)
 
 
-if __name__ == '__main__':
-    sys.exit(main())
+def filtered_relative_to(
+        base: pathlib.Path,
+        paths: typing.Iterable[pathlib.Path],
+) -> typing.Generator[pathlib.Path, None, None]:
+    for path in paths:
+        try:
+            path.resolve().relative_to(base.resolve())
+        except (ValueError, OSError):
+            print('filtering out: {}'.format(fspath(path)))
+            continue
+
+        yield path
+
+
+def linux_collect_dependencies(
+        source_base: pathlib.Path,
+        target: pathlib.Path,
+) -> typing.Generator[pathlib.Path, None, None]:
+    yield from filtered_relative_to(
+        base=source_base,
+        paths=(
+            dependency.path.resolve()
+            for dependency in lddwrap.list_dependencies(path=target)
+            if dependency.path is not None
+        ),
+    )
+
+
+def darwin_collect_dependencies(
+        source_base: pathlib.Path,
+        target: pathlib.Path,
+        lib_path: pathlib.Path,
+) -> typing.Generator[pathlib.Path, None, None]:
+    yield from filtered_relative_to(
+        base=source_base,
+        paths=(
+            dependency.resolve()
+            for dependency in lib_path.glob('*.framework')
+        ),
+    )
+
+
+class DependencyCollectionError(Exception):
+    pass
+
+
+def windeployqt_list_source(
+        target: pathlib.Path,
+        windeployqt: pathlib.Path,
+) -> typing.Iterable[pathlib.Path]:
+    try:
+        process = report_and_check_call(
+            command=[
+                windeployqt,
+                '--dry-run',
+                '--list', 'source',
+                # '--compiler-runtime',
+                target,
+            ],
+            stdout=subprocess.PIPE,
+            # ugh, 3.5
+            # encoding='utf-8',
+        )
+    except subprocess.CalledProcessError as e:
+        raise DependencyCollectionError(target) from e
+
+    paths = [
+        pathlib.Path(line)
+        # re: .decode...  ugh, 3.5
+        for line in process.stdout.decode('utf-8').splitlines()
+    ]
+
+    return paths
+
+
+# def win32_collect_dependencies(
+#         source_base: pathlib.Path,
+#         target: pathlib.Path,
+#         windeployqt: pathlib.Path,
+# ) -> typing.Generator[pathlib.Path, None, None]:
+#     yield from filtered_relative_to(
+#         base=source_base,
+#         paths=windeployqt_list_source(
+#             target=target,
+#             windeployqt=windeployqt,
+#         ),
+#     )
+
+
+def patch_pyqt(configuration, qt_paths):
+    # TODO: gee golly get this figured out properly and configured etc
+    patch_path = (
+        pathlib.Path(__file__).parent
+        / 'pluginloader.{}.patch'.format(configuration.pyqt_version)
+    )
+
+    report_and_check_call(
+        command=[
+            'patch',
+            '-p', '1',
+            '-i', fspath(patch_path),
+        ],
+        cwd=fspath(configuration.pyqt_source_path),
+    )
+
+
+def build_pyqt(configuration, qt_paths):
+    sip_module_path = (configuration.pyqt_source_path / 'sip')
+    module_names = [
+        path.name
+        for path in sip_module_path.iterdir()
+        if path.is_dir()
+    ]
+    report_and_check_call(
+        command=[
+            'sip-build',
+            '--confirm-license',
+            '--verbose',
+            '--no-make',
+            '--no-tools',
+            '--no-dbus-python',
+            # TODO: don't usually want this
+            # '--debug',
+            '--qmake', qt_paths.qmake,
+            *itertools.chain.from_iterable(
+                ['--disable', module]
+                for module in module_names
+                if module not in (
+                        {'QtCore'}                  # sip-build raises
+                        | {'QtDesigner', 'QtQml'}   # what we want...  ?
+                        | {'QtGui', 'QtQuick'}      # indirect dependencies
+                )
+            ),
+        ],
+        cwd=configuration.pyqt_source_path,
+    )
+    if configuration.platform == 'win32':
+        command = ['nmake']
+        env = {**os.environ, 'CL': '/MP'}
+    else:
+        available_cpus = os.cpu_count()
+
+        command = ['make', '-j{}'.format(available_cpus)]
+        env = {**os.environ}
+
+    build_path = configuration.pyqt_source_path / 'build'
+
+    report_and_check_call(
+        command=command,
+        env=env,
+        cwd=fspath(build_path),
+    )
+
+    return build_path
+
+
+def install_qt(configuration):
+    # report_and_check_call(
+    #     command=[
+    #         sys.executable,
+    #         '-m', 'pip',
+    #         'install',
+    #         '--upgrade',
+    #         'git+https://github.com/miurahr/aqtinstall@8b983d0a655a3a4e83cc2c35c4910b37f9b01cea#egg=aqtinstall',
+    #     ],
+    # )
+
+    report_and_check_call(
+        command=[
+            # *(  # TODO: 517 yada seemingly doesn't get the right PATH
+            #     #           on windows
+            #     [
+            #         sys.executable,
+            #         '-m',
+            #     ]
+            #     if configuration.platform == 'win32'
+            #     else []
+            # ),
+            sys.executable,
+            '-m', 'aqt',
+            'install',
+            '--outputdir', configuration.qt_path.resolve(),
+            configuration.qt_version,
+            {
+                'linux': 'linux',
+                'win32': 'windows',
+                'darwin': 'mac',
+            }[configuration.platform],
+            'desktop',
+            configuration.architecture,
+        ],
+    )
+    # if configuration.platform == 'linux':
+    #     deployqt = save_linuxdeployqt(6, configuration.download_path)
+    #     deployqt = deployqt.resolve()
+    # elif configuration.platform == 'win32':
+    #     deployqt = pathlib.Path('windeployqt.exe')
+    # elif configuration.platform == 'darwin':
+    #     deployqt = pathlib.Path('macdeployqt')
+    # else:
+    #     raise Exception(
+    #         'Unsupported platform: {}'.format(configuration.platform),
+    #     )
+    # return deployqt
+
+
+# def collect_dependencies(
+#         base,
+#         target,
+#         collector,
+# ):
+#     yield from
+#     for application in targets:
+#         yield from collector
+#         shutil.copy(application.original_path, destinations.qt_bin)
+#
+#         report_and_check_call(
+#             command=[
+#                 qt_paths.deployqt,
+#                 '--compiler-runtime',
+#                 application.file_name,
+#             ],
+#             cwd=destinations.qt_bin,
+#         )
+#     return filtered_applications
+
+
+def write_entry_points(
+        entry_points_py: pathlib.Path,
+        applications: typing.List[AnyApplication],
+) -> typing.List[str]:
+    with entry_points_py.open(newline='') as f:
+        f.read()
+        newlines = identify_preferred_newlines(f)
+    with entry_points_py.open('a', newline=newlines) as f:
+        f.write(textwrap.dedent('''\
+        
+            # ----  start of generated wrapper entry points
+        
+        '''))
+
+        for application in applications:
+            function_def = textwrap.dedent('''\
+                def {function_name}():
+                    env = create_env(os.environ)
+                    return subprocess.call(
+                        [
+                            str(here/'Qt'/'{application}'),
+                            *sys.argv[1:],
+                        ],
+                        env=env,
+                    )
+    
+    
+            ''')
+            function_def_formatted = function_def.format(
+                function_name=application.script_function_name,
+                application=fspath(application.executable_relative_path.as_posix()),
+            )
+            f.write(function_def_formatted)
+
+        f.write(textwrap.dedent('''\
+
+            # ----  end of generated wrapper entry points
+
+        '''))
+
+        console_scripts = [
+            '{application} = pyqt5_tools.entrypoints:{function_name}'.format(
+                function_name=application.script_function_name,
+                application=application.original_path.stem,
+            )
+            for application in applications
+        ]
+    return console_scripts
