@@ -56,7 +56,7 @@ class Dist(setuptools.Distribution):
 
 
 setuptools.setup(
-    name="pyqt5-tools",
+    name="pyqttools",
     description="Tools to supplement the official PyQt5 wheels",
     long_description=readme,
     long_description_content_type='text/x-rst',

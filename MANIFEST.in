@@ -1,1 +1,1 @@
-recursive-include src/pyqt5_tools *
+recursive-include src/pyqtplugins *
