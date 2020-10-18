@@ -34,6 +34,14 @@ def test_designer_creates_test_widget(tmp_path):
         after=[''],
     ))
 
+    # TODO: seems odd, maybe we can just put stuff in one place? (for windows)
+    env.update(pyqtplugins.utilities.add_to_env_var_path_list(
+        env=env,
+        name='QT_PLUGIN_PATH',
+        before=[fspath(widget_plugin_path), fspath(pyqtplugins.here / 'Qt' / 'bin' / 'plugins')],
+        after=[''],
+    ))
+
     vars_to_print = [
         'PYQTDESIGNERPATH',
         'PYTHONPATH',
