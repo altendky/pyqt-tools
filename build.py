@@ -722,15 +722,6 @@ def build(configuration: Configuration):
             destination=package_plugins_designer.relative_to(destinations.qt),
         ))
 
-        # huh?  we need two copies at:
-        #   bin/platforms/qwindows.dll
-        #   plugins/platforms/qwindows.dll (or maybe this isn't required?)
-        qwindows_dll = qt_paths.compiler / 'plugins' / 'platforms' / 'qwindows.dll'
-        copy_actions.add(FileCopyAction(
-            source=designer_plugin_path,
-            destination=(destinations.qt_bin / 'platforms' / qwindows_dll.name).relative_to(destinations.qt),
-        ))
-
         qml_plugin = build_path / 'qmlscene' / 'release' / 'pyqt5qmlplugin.dll'
 
         copy_actions.add(FileCopyAction(
