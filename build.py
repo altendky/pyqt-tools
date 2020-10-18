@@ -763,13 +763,14 @@ def build(configuration: Configuration):
 
         copy_actions.add(FileCopyAction(
             source=qml_plugin,
-            destination=package_plugins / qml_plugin.name,
+            destination=package_plugins,
         ))
+
         all_copy_actions[destinations.package].add(FileCopyAction(
             source=qml_plugin,
             destination=destinations.examples.relative_to(
                 destinations.package,
-            ) / qml_plugin.name,
+            ),
         ))
     # elif configuration.platform == 'darwin':
     #     package_plugins = destinations.qt / 'plugins'
