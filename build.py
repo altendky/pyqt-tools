@@ -712,15 +712,14 @@ def build(configuration: Configuration):
             build_path / 'designer' / 'release' / 'pyqt5.dll'
         )
 
-        relative_bin = destinations.qt_bin.relative_to(destinations.qt)
-        package_plugins = relative_bin / 'plugins'
+        package_plugins = destinations.qt / 'plugins'
         package_plugins_designer = (
             package_plugins / 'designer' / designer_plugin_path.name
         )
 
         copy_actions.add(FileCopyAction(
             source=designer_plugin_path,
-            destination=package_plugins_designer,
+            destination=package_plugins_designer.relative_to(destinations.qt),
         ))
 
         # huh?  we need two copies at:
