@@ -1,4 +1,3 @@
-import dotenv
 import os
 import pathlib
 import sys
@@ -12,18 +11,8 @@ import pyqtplugins
 fspath = getattr(os, 'fspath', str)
 
 
-def load_dotenv():
-    env_path = dotenv.find_dotenv(usecwd=True)
-    if len(env_path) > 0:
-        os.environ['DOT_ENV_DIRECTORY'] = str(pathlib.Path(env_path).parent)
-        os.environ['SITE_PACKAGES'] = sysconfig.get_path('platlib')
-        dotenv.load_dotenv(dotenv_path=env_path, override=True)
-
-
 def create_env(reference):
     # TODO: uck, mutating
-    load_dotenv()
-
     env = dict(reference)
 
     env.update(add_to_env_var_path_list(

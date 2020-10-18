@@ -56,8 +56,8 @@ class Dist(setuptools.Distribution):
 
 
 setuptools.setup(
-    name="pyqttools",
-    description="Tools to supplement the official PyQt5 wheels",
+    name="pyqtplugins",
+    description="PyQt Designer and QML plugins",
     long_description=readme,
     long_description_content_type='text/x-rst',
     url='https://github.com/altendky/pyqt5-tools',
@@ -68,9 +68,11 @@ setuptools.setup(
         # complete classifier list: https://pypi.org/pypi?%3Aaction=list_classifiers
         'Development Status :: 4 - Beta',
         'Environment :: Win32 (MS Windows)',
+        'Environment :: X11 Applications :: Qt',
         'Intended Audience :: Developers',
         "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
         'Operating System :: Microsoft :: Windows',
+        'Operating System :: POSIX :: Linux',
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
@@ -89,7 +91,6 @@ setuptools.setup(
     python_requires=">=3.5",
     install_requires=[
         'click',
-        'python-dotenv',
         'pyqt5=={}'.format(os.environ['PYQT_VERSION']),
         'qt_tools @ git+https://github.com/altendky/pyqt5-tools@just_applications',
     ],
