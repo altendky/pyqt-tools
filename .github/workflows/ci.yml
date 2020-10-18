@@ -269,7 +269,7 @@ jobs:
       - name: Download
         uses: actions/download-artifact@v1
         with:
-          name: ${{ matrix.os.name }} Qt ${{ matrix.qt.qt_version }}-${{ matrix.bitness.name }}
+          name: ${{ matrix.os.name }} ${{ matrix.python.name }}-${{ matrix.bitness.name }} ${{ matrix.qt.pyqt_version }}
           path: dist/
       - name: Set up Python ${{ matrix.python.name }}-${{ matrix.bitness.name }}
         if: matrix.os.python_platform != 'linux'
