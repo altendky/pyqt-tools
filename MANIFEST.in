@@ -1,1 +1,1 @@
-recursive-include src/qt_tools *
+recursive-include src/qttools *
