@@ -68,7 +68,7 @@ class Dist(setuptools.Distribution):
 
 
 setuptools.setup(
-    name="qt-tools",
+    name="qttools",
     description="The collection of Qt tools easily installable in Python",
     long_description=readme,
     long_description_content_type='text/x-rst',
