@@ -221,7 +221,6 @@ def create_script_function_name(path: pathlib.Path):
 
 def linuxdeployqt_substitute_list_source(
         target,
-        translation_path,
 ) -> typing.List[pathlib.Path]:
     paths = [
         dependency.path
@@ -231,16 +230,12 @@ def linuxdeployqt_substitute_list_source(
         if dependency.path is not None
     ]
 
-    if any('libicu' in path.name for path in paths):
-        paths.extend(translation_path.glob('*.qm'))
-
     return paths
 
 
 def linux_executable_copy_actions(
         source_path: pathlib.Path,
         reference_path: pathlib.Path,
-        translation_path: pathlib.Path,
 ) -> typing.Set[FileCopyAction]:
     actions = {
         FileCopyAction.from_path(
@@ -256,7 +251,6 @@ def linux_executable_copy_actions(
                 base=reference_path,
                 paths=linuxdeployqt_substitute_list_source(
                     target=source_path,
-                    translation_path=translation_path,
                 ),
             )
         ),
@@ -907,7 +901,6 @@ class LinuxPlugin:
             name: str,
             reference_path: pathlib.Path,
             plugin_path: pathlib.Path,
-            translation_path: pathlib.Path,
     ) -> T:
         file_name = 'libq{}.so'.format(name)
         path = plugin_path / file_name
@@ -915,7 +908,6 @@ class LinuxPlugin:
         copy_actions = linux_executable_copy_actions(
             source_path=path,
             reference_path=reference_path,
-            translation_path=translation_path,
         )
 
         return cls(
@@ -1059,9 +1051,7 @@ def build(configuration: Configuration):
 
     # TODO: CAMPid 05470781340806731460631
     extras = {}
-    if configuration.platform == 'linux':
-        extras['translation_path'] = qt_paths.translation
-    elif configuration.platform == 'win32':
+    if configuration.platform == 'win32':
         extras['windeployqt'] = qt_paths.windeployqt
     elif configuration.platform == 'darwin':
         extras['lib_path'] = qt_paths.lib
@@ -1085,6 +1075,16 @@ def build(configuration: Configuration):
         *itertools.chain.from_iterable(
             plugin.copy_actions
             for plugin in platform_plugins
+        ),
+        (
+            FileCopyAction.from_path(
+                source=path,
+                root=qt_paths.compiler,
+            )
+            for path in filtered_relative_to(
+                base=qt_paths.compiler,
+                paths=qt_paths.translation.glob('*.qm'),
+            )
         ),
     }
 
