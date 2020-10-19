@@ -273,13 +273,11 @@ class LinuxExecutable:
             cls: typing.Type[T],
             path: pathlib.Path,
             reference_path: pathlib.Path,
-            translation_path: pathlib.Path,
     ) -> T:
         relative_path = path.resolve().relative_to(reference_path)
         copy_actions = linux_executable_copy_actions(
             source_path=path,
             reference_path=reference_path,
-            translation_path=translation_path,
         )
 
         return cls(
@@ -296,7 +294,6 @@ class LinuxExecutable:
             cls: typing.Type[T],
             directory: pathlib.Path,
             reference_path: pathlib.Path,
-            translation_path: pathlib.Path,
     ) -> typing.List[T]:
         applications = []
 
@@ -309,7 +306,6 @@ class LinuxExecutable:
                 application = cls.from_path(
                     path=path,
                     reference_path=reference_path,
-                    translation_path=translation_path,
                 )
             except DependencyCollectionError:
                 print('failed: {}'.format(path))
@@ -618,9 +614,7 @@ class QtPaths:
         # TODO: CAMPid 05470781340806731460631
         qmake_suffix = ''
         extras = {}
-        if platform_ == 'linux':
-            extras['translation_path'] = translation_path
-        elif platform_ == 'win32':
+        if platform_ == 'win32':
             qmake_suffix = '.exe'
             extras['windeployqt'] = windeployqt
         elif platform_ == 'darwin':
@@ -1076,7 +1070,7 @@ def build(configuration: Configuration):
             plugin.copy_actions
             for plugin in platform_plugins
         ),
-        (
+        *(
             FileCopyAction.from_path(
                 source=path,
                 root=qt_paths.compiler,
