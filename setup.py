@@ -92,6 +92,6 @@ setuptools.setup(
     install_requires=[
         'click',
         'pyqt5=={}'.format(os.environ['PYQT_VERSION']),
-        'qt_tools @ git+https://github.com/altendky/pyqt5-tools@just_applications',
+        'qttools @ git+https://github.com/altendky/pyqt5-tools@just_applications',
     ],
 )
