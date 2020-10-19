@@ -40,7 +40,9 @@ class BuildPy(setuptools.command.build_py.build_py):
             build_command = self.distribution.command_obj['build']
 
             cwd = pathlib.Path.cwd()
-            print('::set-env name=BUILD_PATH::{}'.format(fspath(cwd)))
+
+            with open(os.environ['GITHUB_ENV'], 'a') as github_env:
+                github_env.write('BUILD_PATH={}\n'.format(fspath(cwd)))
             lib_path = cwd / build_command.build_lib
             package_path = lib_path / package_name
 
