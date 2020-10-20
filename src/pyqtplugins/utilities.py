@@ -49,6 +49,12 @@ def add_to_env_var_path_list(env, name, before, after):
 
 def mutate_env_for_paths(env):
     env['PYTHONHOME'] = sysconfig.get_path('data')
+    env.update(add_to_env_var_path_list(
+        env=env,
+        name='PATH',
+        before=sys.path,
+        after=[''],
+    ))
 
 
 def print_environment_variables(env, *variables):
