@@ -143,7 +143,7 @@ jobs:
         # native shell for nmake...  keep commands here simple i guess
         run: |
           mkdir -p dist/
-          pip wheel -vvv --no-deps --wheel-dir dist/ --no-clean .
+          pip wheel -vv --no-deps --wheel-dir dist/ --no-clean .
       - name: Rename to manylinux2014 tag
         if: matrix.os.python_platform == 'linux'
         shell: python
