@@ -135,7 +135,7 @@ jobs:
         # native shell for nmake...  keep commands here simple i guess
         run: |
           mkdir -p dist/
-          pip wheel -v --no-deps --wheel-dir dist/ --no-clean .
+          python -m pep517.build --binary --out-dir dist/ .
       - name: Rename to manylinux2014 tag
         if: matrix.os.python_platform == 'linux'
         shell: python
