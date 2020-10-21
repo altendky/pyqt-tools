@@ -172,7 +172,16 @@ class FileCopyAction:
     )
     def copy(self, destination_root: pathlib.Path) -> None:
         destination = destination_root / self.destination
-        destination.parent.mkdir(parents=True, exist_ok=True)
+        try:
+            destination.parent.mkdir(parents=True, exist_ok=True)
+        except (NotADirectoryError, FileExistsError):
+            print('destination_root', destination_root)
+            print('self.source', self.source)
+            print('self.destination', self.destination)
+            print('destination', destination)
+            print('destination.parent', destination.parent, destination.parent.is_dir(), destination.parent.is_file())
+            print('destination.parent.iterdir()', list(destination.parent.iterdir()))
+            raise
 
         shutil.copy(src=fspath(self.source), dst=fspath(destination))
 
