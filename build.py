@@ -21,6 +21,7 @@ import hyperlink
 import lddwrap
 import requests
 import setuptools.command.build_py
+import tenacity
 
 
 fspath = getattr(os, 'fspath', str)
@@ -161,6 +162,14 @@ class FileCopyAction:
 
         return self
 
+    @tenacity.retry(
+        reraise=True,
+        retry=tenacity.retry_if_exception_type(
+            (NotADirectoryError, FileExistsError),
+        ),
+        stop=tenacity.stop_after_attempt(5),
+        wait=tenacity.wait_fixed(5),
+    )
     def copy(self, destination_root: pathlib.Path) -> None:
         destination = destination_root / self.destination
         destination.parent.mkdir(parents=True, exist_ok=True)
