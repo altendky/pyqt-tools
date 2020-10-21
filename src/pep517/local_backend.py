@@ -26,6 +26,7 @@ requirements = {
    'requests': '',
    'setuptools': '',
    'sip': '',
+   'tenacity': '',
    'vcversioner': '',
    'wheel': '',
 }
