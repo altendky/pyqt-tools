@@ -165,7 +165,7 @@ class FileCopyAction:
         destination = destination_root / self.destination
         try:
             destination.parent.mkdir(parents=True, exist_ok=True)
-        except NotADirectoryError:
+        except (NotADirectoryError, FileExistsError):
             print('destination_root', destination_root)
             print('self.source', self.source)
             print('self.destination', self.destination)
