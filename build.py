@@ -41,11 +41,6 @@ class BuildPy(setuptools.command.build_py.build_py):
             build_command = self.distribution.command_obj['build']
 
             cwd = pathlib.Path.cwd()
-
-            github_env_path = os.environ.get('GITHUB_ENV')
-            if github_env_path is not None:
-                with open(github_env_path, 'a') as github_env:
-                    github_env.write('BUILD_PATH={}\n'.format(fspath(cwd)))
             lib_path = cwd / build_command.build_lib
             package_path = lib_path / package_name
 
@@ -836,7 +831,6 @@ def windeployqt_list_source(
                 windeployqt,
                 '--dry-run',
                 '--list', 'source',
-                # '--compiler-runtime',
                 target,
             ],
             stdout=subprocess.PIPE,
@@ -853,20 +847,6 @@ def windeployqt_list_source(
     ]
 
     return paths
-
-
-# def win32_collect_dependencies(
-#         source_base: pathlib.Path,
-#         target: pathlib.Path,
-#         windeployqt: pathlib.Path,
-# ) -> typing.Generator[pathlib.Path, None, None]:
-#     yield from filtered_relative_to(
-#         base=source_base,
-#         paths=windeployqt_list_source(
-#             target=target,
-#             windeployqt=windeployqt,
-#         ),
-#     )
 
 
 def patch_pyqt(configuration, qt_paths):
@@ -937,27 +917,8 @@ def build_pyqt(configuration, qt_paths):
 
 
 def install_qt(configuration):
-    # report_and_check_call(
-    #     command=[
-    #         sys.executable,
-    #         '-m', 'pip',
-    #         'install',
-    #         '--upgrade',
-    #         'git+https://github.com/miurahr/aqtinstall@8b983d0a655a3a4e83cc2c35c4910b37f9b01cea#egg=aqtinstall',
-    #     ],
-    # )
-
     report_and_check_call(
         command=[
-            # *(  # TODO: 517 yada seemingly doesn't get the right PATH
-            #     #           on windows
-            #     [
-            #         sys.executable,
-            #         '-m',
-            #     ]
-            #     if configuration.platform == 'win32'
-            #     else []
-            # ),
             sys.executable,
             '-m', 'aqt',
             'install',
