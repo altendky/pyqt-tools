@@ -170,7 +170,8 @@ class FileCopyAction:
             print('self.source', self.source)
             print('self.destination', self.destination)
             print('destination', destination)
-            print('destination.parent', destination.parent)
+            print('destination.parent', destination.parent, destination.parent.is_dir(), destination.parent.is_file())
+            print('destination.parent.iterdir()', list(destination.parent.iterdir()))
             raise
 
         shutil.copy(src=fspath(self.source), dst=fspath(destination))
