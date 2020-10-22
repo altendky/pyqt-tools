@@ -175,6 +175,7 @@ class FileCopyAction:
         try:
             destination.parent.mkdir(parents=True, exist_ok=True)
         except (NotADirectoryError, FileExistsError):
+            subprocess.run(['df', '-h'], check=True)
             print('destination_root', destination_root)
             print('self.source', self.source)
             print('self.destination', self.destination)
