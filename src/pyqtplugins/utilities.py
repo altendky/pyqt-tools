@@ -48,12 +48,7 @@ def add_to_env_var_path_list(env, name, before, after):
 
 
 def mutate_env_for_paths(env):
-    env.update(add_to_env_var_path_list(
-        env=env,
-        name='PYTHONPATH',
-        before=sys.path,
-        after=[''],
-    ))
+    env['PYTHONHOME'] = os.pathsep.join([sys.prefix, sys.exec_prefix])
     env.update(add_to_env_var_path_list(
         env=env,
         name='PATH',
