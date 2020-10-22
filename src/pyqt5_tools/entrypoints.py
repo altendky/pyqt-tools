@@ -30,10 +30,18 @@ bad_path = str(
 
 pyqt5_root = pathlib.Path(PyQt5.__file__).parent
 
+
+def darwin_maybe_extension(name):
+    if name not in ['designer']:
+        return name
+
+    return name[0].upper() + name[1:] + '.app'
+
+
 maybe_extension = {
     'linux': lambda name: name,
     'win32': lambda name: '{}.exe'.format(name),
-    'darwin': lambda name: name,
+    'darwin': darwin_maybe_extension,
 }[sys.platform]
 
 
@@ -77,6 +85,13 @@ def create_env(reference):
         env.update(add_to_env_var_path_list(
             env=env,
             name='LD_LIBRARY_PATH',
+            before=[''],
+            after=[sysconfig.get_config_var('LIBDIR')],
+        ))
+    elif sys.platform == 'darwin':
+        env.update(add_to_env_var_path_list(
+            env=env,
+            name='DYLD_LIBRARY_PATH',
             before=[''],
             after=[sysconfig.get_config_var('LIBDIR')],
         ))
@@ -191,6 +206,8 @@ def pyqt5designer(
     if sys.platform == 'linux':
         vars_to_print.append('LD_LIBRARY_PATH')
         vars_to_print.append('DISPLAY')
+    elif sys.platform == 'darwin':
+        vars_to_print.append('DYLD_LIBRARY_PATH')
 
     env.update(add_to_env_var_path_list(
         env=env,
@@ -206,13 +223,7 @@ def pyqt5designer(
 
     print_environment_variables(env, *vars_to_print)
 
-    command = [
-        str(bin / maybe_extension('designer')),
-        *extras,
-        *ctx.args,
-    ]
-
-    return subprocess.call(command, env=env)
+    return designer(args=[*extras, *ctx.args], env=env)
 
 
 qml2_import_path_option = click.option(
@@ -290,16 +301,12 @@ def pyqt5qmlscene(
     if sys.platform == 'linux':
         vars_to_print.append('LD_LIBRARY_PATH')
         vars_to_print.append('DISPLAY')
+    elif sys.platform == 'darwin':
+        vars_to_print.append('DYLD_LIBRARY_PATH')
 
     print_environment_variables(env, *vars_to_print)
 
-    command = [
-        str(bin / maybe_extension('qmlscene')),
-        *extras,
-        *ctx.args,
-    ]
-
-    return subprocess.call(command, env=env)
+    return qmlscene(args=[*extras, *ctx.args], env=env)
 
 
 @click.command(
@@ -361,24 +368,25 @@ def pyqt5qmltestrunner(
     if sys.platform == 'linux':
         vars_to_print.append('LD_LIBRARY_PATH')
         vars_to_print.append('DISPLAY')
+    elif sys.platform == 'darwin':
+        vars_to_print.append('DYLD_LIBRARY_PATH')
 
     print_environment_variables(env, *vars_to_print)
 
-    command = [
-        str(bin / maybe_extension('qmltestrunner')),
-        *extras,
-        *ctx.args,
-    ]
-
-    return subprocess.call(command, env=env)
+    return qmltestrunner(args=[*extras, *ctx.args], env=env)
 
 
-# def designer():
-#     env = create_env(os.environ)
+# def designer(args=None, env=None):
+#     if args is None:
+#         args = sys.argv[1:]
+#
+#     if env is None:
+#         env = create_env(os.environ)
+#
 #     return subprocess.call(
 #         [
-#             str(here/'Qt'/'bin'/'designer.exe'),
-#             *sys.argv[1:],
+#             *[fspath(here / 'Qt' / 'bin/designer')],
+#             *args,
 #         ],
 #         env=env,
 #     )

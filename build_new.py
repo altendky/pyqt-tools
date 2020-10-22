@@ -4,12 +4,14 @@ faulthandler.enable()
 import inspect
 import itertools
 import os
+import os.path
 import pathlib
 import platform
 import shlex
 import shutil
 import subprocess
 import sys
+import sysconfig
 import tarfile
 import tempfile
 import textwrap
@@ -218,7 +220,7 @@ class FileCopyAction:
 
 
 def create_script_function_name(path: pathlib.Path):
-    return path.stem.replace('-', '_')
+    return path.stem.replace('-', '_').casefold()
 
 
 def linuxdeployqt_substitute_list_source(
@@ -328,6 +330,12 @@ class LinuxExecutable:
 
         return applications
 
+    def subprocess_elements(self, qt_path_string):
+        return "[fspath({qt_path_string} / {relative!r})]".format(
+            qt_path_string=qt_path_string,
+            relative=fspath(self.executable_relative_path.as_posix()),
+        )
+
 
 def win32_executable_copy_actions(
         source_path: pathlib.Path,
@@ -418,6 +426,12 @@ class Win32Executable:
 
         return applications
 
+    def subprocess_elements(self, qt_path_string):
+        return "[fspath({qt_path_string} / {relative!r})]".format(
+            qt_path_string=qt_path_string,
+            relative=fspath(self.executable_relative_path.as_posix()),
+        )
+
 
 def darwin_executable_copy_actions(
         source_path: pathlib.Path,
@@ -502,6 +516,12 @@ class DarwinExecutable:
 
         return applications
 
+    def subprocess_elements(self, qt_path_string):
+        return "[fspath({qt_path_string} / {relative!r})]".format(
+            qt_path_string=qt_path_string,
+            relative=fspath(self.executable_relative_path.as_posix()),
+        )
+
 
 def darwin_dot_app_copy_actions(
         source_path: pathlib.Path,
@@ -510,7 +530,7 @@ def darwin_dot_app_copy_actions(
         lib_path: pathlib.Path,
 ) -> typing.Set[FileCopyAction]:
     actions = {
-        FileCopyAction.from_tree_path(
+        *FileCopyAction.from_tree_path(
             source=source_path,
             root=reference_path,
         ),
@@ -567,7 +587,8 @@ class DarwinDotApp:
         applications = []
 
         for path in directory.iterdir():
-            if not path.is_file() or path.suffix != '.app':
+            if path.is_file() or path.suffix != '.app':
+                print('skipping: {}'.format(path))
                 continue
 
             try:
@@ -582,6 +603,15 @@ class DarwinDotApp:
             applications.append(application)
 
         return applications
+
+    def subprocess_elements(self, qt_path_string):
+        relative = self.executable_relative_path
+
+        return "[fspath({qt_path_string} / {relative!r} / 'Contents' / 'MacOS' / {stem!r})]".format(
+            qt_path_string=qt_path_string,
+            relative=fspath(relative.as_posix()),
+            stem=relative.stem,
+        )
 
 
 AnyApplication = typing.Union[
@@ -665,11 +695,19 @@ def filtered_applications(
     for application in applications:
         print('\n\nChecking: {}'.format(application.path_name))
 
-        if any(
-                filter(copy_action.destination)
-                for copy_action in application.copy_actions
-        ):
-            print('    skipped')
+        skip = False
+
+        for copy_action in application.copy_actions:
+            if filter(copy_action.destination):
+                print('    skipped {!r} because of {!r}'.format(
+                    application.path_name,
+                    copy_action.destination,
+                ))
+
+                skip = True
+                break
+
+        if skip:
             continue
 
         results.append(application)
@@ -1202,15 +1240,51 @@ def build(configuration: Configuration):
                 destinations.package,
             ) / qml_plugin.name,
         ))
-    # elif configuration.platform == 'darwin':
-    #     package_plugins = destinations.qt / 'plugins'
-    #     package_plugins_designer = package_plugins / 'designer'
-    #
-    #     # designer_plugin_path = build_path / 'designer' / 'libpyqt5.so'
-    #     # shutil.copy(
-    #     #     designer_plugin_path,
-    #     #     package_plugins_designer,
-    #     # )
+    elif configuration.platform == 'darwin':
+        libdest = pathlib.Path(sysconfig.get_config_var("LIBDEST"))
+        ldlibrary = pathlib.Path(sysconfig.get_config_var("LDLIBRARY"))
+        dylib_absolute = libdest / ldlibrary
+        dylib_executable_relative = os.path.relpath(
+            dylib_absolute,
+            start=pathlib.Path(sys.executable).resolve().parent,
+        )
+
+        designer_plugin_path = build_path / 'designer' / 'libpyqt5.dylib'
+        qml_plugin = build_path / 'qmlscene' / 'libpyqt5qmlplugin.dylib'
+
+        for path in [designer_plugin_path, qml_plugin]:
+            report_and_check_call(
+                [
+                    'install_name_tool',
+                    '-change',
+                    dylib_absolute,
+                    pathlib.Path('@executable_path') / dylib_executable_relative,
+                    path,
+                ],
+            )
+
+            # install_name_tool -change /Users/runner/hostedtoolcache/Python/3.8.2/x64/lib/libpython3.8.dylib @executable_path/../lib/libpython3.8.dylib venv/lib/python3.8/site-packages/pyqt5_tools/Qt/plugins/designer/libpyqt5.dylib
+
+        package_plugins = destinations.qt / 'plugins'
+        package_plugins_designer = (
+                package_plugins / 'designer' / designer_plugin_path.name
+        )
+
+        copy_actions.add(FileCopyAction(
+            source=designer_plugin_path,
+            destination=package_plugins_designer.relative_to(destinations.qt),
+        ))
+
+        copy_actions.add(FileCopyAction(
+            source=qml_plugin,
+            destination=package_plugins / qml_plugin.name,
+        ))
+        all_copy_actions[destinations.package].add(FileCopyAction(
+            source=qml_plugin,
+            destination=destinations.examples.relative_to(
+                destinations.package,
+            ) / qml_plugin.name,
+        ))
 
     checkpoint('Execute Copy Actions')
     for reference, actions in all_copy_actions.items():
@@ -1464,12 +1538,17 @@ def write_entry_points(
 
         for application in applications:
             function_def = textwrap.dedent('''\
-                def {function_name}():
-                    env = create_env(os.environ)
+                def {function_name}(args=None, env=None):
+                    if args is None:
+                        args = sys.argv[1:]
+
+                    if env is None:
+                        env = create_env(os.environ)
+
                     return subprocess.call(
                         [
-                            str(here/'Qt'/'{application}'),
-                            *sys.argv[1:],
+                            *{elements},
+                            *args,
                         ],
                         env=env,
                     )
@@ -1478,7 +1557,9 @@ def write_entry_points(
             ''')
             function_def_formatted = function_def.format(
                 function_name=application.script_function_name,
-                application=fspath(application.executable_relative_path.as_posix()),
+                elements=application.subprocess_elements(
+                    qt_path_string="here / 'Qt'",
+                ),
             )
             f.write(function_def_formatted)
 
