@@ -1236,7 +1236,7 @@ def write_entry_points(
             ''')
             function_def_formatted = function_def.format(
                 function_name=application.script_function_name,
-                application=application.path_name,
+                application=application.original_path.stem,
             )
             f.write(function_def_formatted)
 
