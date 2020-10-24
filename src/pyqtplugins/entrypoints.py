@@ -3,10 +3,8 @@ import pathlib
 import shutil
 import subprocess
 import sys
-import sysconfig
 
 import click
-import dotenv
 import qttools
 
 import PyQt5
