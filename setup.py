@@ -26,6 +26,7 @@ def pad_version(v):
 # TODO: really doesn't seem quite proper here and probably should come
 #       in some other way?
 os.environ.setdefault('PYQT_VERSION', '5.15.1')
+os.environ.setdefault('QT_VERSION', '5.15.1')
 
 version = '.'.join((
     pad_version(os.environ['PYQT_VERSION']),
