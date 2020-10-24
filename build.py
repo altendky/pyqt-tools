@@ -1218,27 +1218,15 @@ def write_entry_points(
         '''))
 
         for application in sorted(applications, key=lambda a: a.path_name):
-            function_def = textwrap.dedent('''\
-                def {function_name}():
-                    env = qttools.create_environment(reference=os.environ)
-
-                    completed_process = subprocess.run(
-                        [
-                            fspath(qttools.application_path('{application}')),
-                            *sys.argv[1:],
-                        ],
-                        env=env,
-                    )
-                    
-                    sys.exit(completed_process.returncode)
-    
-    
-            ''')
-            function_def_formatted = function_def.format(
+            partial_def = (
+                '{function_name}'
+                ' = functools.partial(run, application_name={application!r})\n'
+            )
+            partial_def_formatted = partial_def.format(
                 function_name=application.script_function_name,
                 application=application.original_path.stem,
             )
-            f.write(function_def_formatted)
+            f.write(partial_def_formatted)
 
         f.write(textwrap.dedent('''\
 
