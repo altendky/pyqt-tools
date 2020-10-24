@@ -3,10 +3,9 @@ import pathlib
 import shutil
 import subprocess
 import sys
-import sysconfig
 
 import click
-import dotenv
+import qttools
 
 import PyQt5
 import pyqtplugins.utilities
@@ -135,7 +134,7 @@ def pyqt5designer(
     pyqtplugins.utilities.print_environment_variables(env, *vars_to_print)
 
     command = [
-        str(bin / maybe_extension('designer')),
+        pyqtplugins.utilities.fspath(qttools.application_path('designer')),
         *extras,
         *ctx.args,
     ]
@@ -213,7 +212,7 @@ def pyqt5qmlscene(
     pyqtplugins.utilities.print_environment_variables(env, *vars_to_print)
 
     command = [
-        str(bin / maybe_extension('qmlscene')),
+        pyqtplugins.utilities.fspath(qttools.application_path('qmlscene')),
         *extras,
         *ctx.args,
     ]
@@ -284,7 +283,7 @@ def pyqt5qmltestrunner(
     pyqtplugins.utilities.print_environment_variables(env, *vars_to_print)
 
     command = [
-        str(bin / maybe_extension('qmltestrunner')),
+        pyqtplugins.utilities.fspath(qttools.application_path('qmltestrunner')),
         *extras,
         *ctx.args,
     ]

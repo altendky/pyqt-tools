@@ -4,7 +4,7 @@ import sys
 
 here = pathlib.Path(__file__).parent
 
-sys.path.insert(0, here)
+sys.path.insert(0, os.fspath(here))
 # TODO: yuck, put the build command in a separate project and
 #       build-requires it?
 import build
@@ -25,26 +25,16 @@ def pad_version(v):
 
 # TODO: really doesn't seem quite proper here and probably should come
 #       in some other way?
-os.environ.setdefault('PYQT_VERSION', '5.14.1')
+os.environ.setdefault('PYQT_VERSION', '5.15.1')
+os.environ.setdefault('QT_VERSION', '5.15.1')
 
 version = '.'.join((
     pad_version(os.environ['PYQT_VERSION']),
     version.version,
 ))
 
-# sys.stderr.write('another stderr test from {}\n'.format(__file__))
-
 with open('README.rst') as f:
     readme = f.read()
-
-# print('--- console_scripts')
-# for console_script in console_scripts:
-#     print('    ' + repr(console_script))
-
-# # TODO: do i really need this?  seems like it could be specified to be
-# #       specific to whatever is running it without saying what that is
-# #       or that it would default to that
-# build.write_setup_cfg(here)
 
 
 class Dist(setuptools.Distribution):
