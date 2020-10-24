@@ -9,8 +9,8 @@ import qttools
 fspath = getattr(os, 'fspath', str)
 
 
-def run(application_name):
-    environment = qttools.create_environment(reference=os.environ)
+def run(application_name, environment=os.environ):
+    modified_environment = qttools.create_environment(reference=environment)
     application_path = qttools.application_path(application_name)
 
     completed_process = subprocess.run(
@@ -18,7 +18,7 @@ def run(application_name):
             fspath(application_path),
             *sys.argv[1:],
         ],
-        env=environment,
+        env=modified_environment,
     )
 
     sys.exit(completed_process.returncode)
