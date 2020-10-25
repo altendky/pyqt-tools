@@ -19,6 +19,7 @@ import typing
 import attr
 import hyperlink
 import lddwrap
+import patch
 import requests
 import setuptools.command.build_py
 import tenacity
@@ -856,14 +857,8 @@ def patch_pyqt(configuration, qt_paths):
         / 'pluginloader.{}.patch'.format(configuration.pyqt_version)
     )
 
-    report_and_check_call(
-        command=[
-            'patch',
-            '-p', '1',
-            '-i', fspath(patch_path),
-        ],
-        cwd=fspath(configuration.pyqt_source_path),
-    )
+    patchset = patch.fromfile(patch_path)
+    patchset.apply(strip=1)
 
 
 def build_pyqt(configuration, qt_paths):

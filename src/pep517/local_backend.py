@@ -21,6 +21,7 @@ requirements = {
    'importlib-metadata': '',
    'hyperlink': '',
    'macholib': '',
+   'patch': '',
    'pylddwrap': '',
    'PyQt-builder': '',
    'requests': '',
