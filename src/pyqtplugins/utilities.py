@@ -3,38 +3,42 @@ import pathlib
 import sys
 import sysconfig
 
+import qttools
 import PyQt5
 
 import pyqtplugins
-
 
 fspath = getattr(os, 'fspath', str)
 
 
 def create_env(reference):
-    # TODO: uck, mutating
-    env = dict(reference)
+    environment = qttools.create_environment(reference=reference)
 
-    env.update(add_to_env_var_path_list(
-        env=env,
+    environment.update(add_to_env_var_path_list(
+        env=environment,
         name='QT_PLUGIN_PATH',
         before=[],
-        after=[fspath(pyqtplugins.here / 'Qt' / 'plugins')],
+        after=[fspath(pyqtplugins.plugins)],
     ))
     # TODO: maybe also
     # PyQt5.QtCore.QLibraryInfo.location(
     #    PyQt5.QtCore.QLibraryInfo.PluginsPath,
     # )
 
-    if sys.platform == 'linux':
-        env.update(add_to_env_var_path_list(
-            env=env,
-            name='LD_LIBRARY_PATH',
-            before=[''],
-            after=[sysconfig.get_config_var('LIBDIR')],
-        ))
+    environment.update(add_to_env_var_path_list(
+        env=environment,
+        name='PYTHONPATH',
+        before=sys.path,
+        after=[''],
+    ))
+    environment.update(add_to_env_var_path_list(
+        env=environment,
+        name='PATH',
+        before=sys.path,
+        after=[''],
+    ))
 
-    return env
+    return environment
 
 
 def add_to_env_var_path_list(env, name, before, after):
@@ -45,21 +49,6 @@ def add_to_env_var_path_list(env, name, before, after):
             *after
         ))
     }
-
-
-def mutate_env_for_paths(env):
-    env.update(add_to_env_var_path_list(
-        env=env,
-        name='PYTHONPATH',
-        before=sys.path,
-        after=[''],
-    ))
-    env.update(add_to_env_var_path_list(
-        env=env,
-        name='PATH',
-        before=sys.path,
-        after=[''],
-    ))
 
 
 def print_environment_variables(env, *variables):
@@ -75,6 +64,6 @@ def mutate_qml_path(env, paths):
     env.update(add_to_env_var_path_list(
         env=env,
         name='QML2_IMPORT_PATH',
-        before=[*paths, fspath(pathlib.Path(PyQt5.__file__).parent/'Qt'/'qml')],
+        before=[*paths, fspath(pyqtplugins.pyqt5_qml_path)],
         after=[''],
     ))

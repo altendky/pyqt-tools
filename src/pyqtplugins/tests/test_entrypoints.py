@@ -17,7 +17,6 @@ fspath = getattr(os, 'fspath', str)
 
 def test_designer_creates_test_widget(tmp_path):
     env = pyqtplugins.utilities.create_env(os.environ)
-    pyqtplugins.utilities.mutate_env_for_paths(env)
     env['QT_DEBUG_PLUGINS'] = '1'
 
     file_path = tmp_path/'tigger'
@@ -67,14 +66,13 @@ def test_designer_creates_test_widget(tmp_path):
     )
 
 
-qml2_import_paths = (pyqtplugins.utilities.fspath(pyqtplugins.here),)
+qml2_import_paths = (pyqtplugins.utilities.fspath(pyqtplugins.root),)
 
 
 def test_qmlscene_paints_test_item(tmp_path):
     env = pyqtplugins.utilities.create_env(os.environ)
 
     pyqtplugins.utilities.mutate_qml_path(env, paths=qml2_import_paths)
-    pyqtplugins.utilities.mutate_env_for_paths(env)
     env['QT_DEBUG_PLUGINS'] = '1'
 
     file_path = tmp_path/'eeyore'
@@ -122,7 +120,6 @@ def test_qmltestrunner_paints_test_item(tmp_path):
     env = pyqtplugins.utilities.create_env(os.environ)
 
     pyqtplugins.utilities.mutate_qml_path(env, paths=qml2_import_paths)
-    pyqtplugins.utilities.mutate_env_for_paths(env)
     env['QT_DEBUG_PLUGINS'] = '1'
 
     file_path = tmp_path/'piglet'

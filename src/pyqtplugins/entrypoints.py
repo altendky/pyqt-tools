@@ -92,7 +92,7 @@ def pyqt5designer(
         test_exception_dialog,
         qt_debug_plugins
 ):
-    env = pyqtplugins.utilities.create_env(os.environ)
+    env = pyqtplugins.utilities.create_env(reference=os.environ)
 
     extras = []
     widget_paths = list(widget_paths)
@@ -125,8 +125,6 @@ def pyqt5designer(
         before=widget_paths,
         after=[''],
     ))
-
-    pyqtplugins.utilities.mutate_env_for_paths(env)
 
     if qt_debug_plugins:
         env['QT_DEBUG_PLUGINS'] = '1'
@@ -191,7 +189,6 @@ def pyqt5qmlscene(
         ))
 
     pyqtplugins.utilities.mutate_qml_path(env, paths=qml2_import_paths)
-    pyqtplugins.utilities.mutate_env_for_paths(env)
 
     if qt_debug_plugins:
         env['QT_DEBUG_PLUGINS'] = '1'
@@ -262,7 +259,6 @@ def pyqt5qmltestrunner(
         ])
 
     pyqtplugins.utilities.mutate_qml_path(env, paths=qml2_import_paths)
-    pyqtplugins.utilities.mutate_env_for_paths(env)
 
     if qt_debug_plugins:
         env['QT_DEBUG_PLUGINS'] = '1'
