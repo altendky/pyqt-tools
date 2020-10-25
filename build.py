@@ -732,14 +732,14 @@ def build(configuration: Configuration):
 
         copy_actions.add(FileCopyAction(
             source=qml_plugin,
-            destination=package_plugins,
+            destination=package_plugins / qml_plugin.name,
         ))
 
         all_copy_actions[destinations.package].add(FileCopyAction(
             source=qml_plugin,
             destination=destinations.examples.relative_to(
                 destinations.package,
-            ),
+            ) / qml_plugin.name,
         ))
     elif configuration.platform == 'linux':
         designer_plugin_path = build_path / 'designer' / 'libpyqt5.so'
@@ -760,14 +760,14 @@ def build(configuration: Configuration):
 
         copy_actions.add(FileCopyAction(
             source=qml_plugin,
-            destination=package_plugins,
+            destination=package_plugins / qml_plugin.name,
         ))
 
         all_copy_actions[destinations.package].add(FileCopyAction(
             source=qml_plugin,
             destination=destinations.examples.relative_to(
                 destinations.package,
-            ),
+            ) / qml_plugin.name,
         ))
     # elif configuration.platform == 'darwin':
     #     package_plugins = destinations.qt / 'plugins'
