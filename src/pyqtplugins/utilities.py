@@ -8,6 +8,7 @@ import PyQt5
 
 import pyqtplugins
 
+
 fspath = getattr(os, 'fspath', str)
 
 
