@@ -15,6 +15,20 @@ import pyqtplugins.utilities
 fspath = getattr(os, 'fspath', str)
 
 
+vars_to_print = [
+    'DISPLAY',
+    'LD_LIBRARY_PATH'
+    'PYQTDESIGNERPATH',
+    'PYTHONPATH',
+    'PATH',
+    'QML2_IMPORT_PATH',
+    'QT_DEBUG_PLUGINS',
+    'QT_PLUGIN_PATH',
+    pyqtplugins.examples.exampleqmlitem.test_path_env_var,
+    pyqtplugins.tests.testbutton.test_path_env_var,
+]
+
+
 def test_designer_creates_test_widget(tmp_path):
     env = pyqtplugins.utilities.create_env(os.environ)
     env['QT_DEBUG_PLUGINS'] = '1'
@@ -32,19 +46,6 @@ def test_designer_creates_test_widget(tmp_path):
         before=[fspath(widget_plugin_path)],
         after=[''],
     ))
-
-    vars_to_print = [
-        'PYQTDESIGNERPATH',
-        'PYTHONPATH',
-        'PATH',
-        'QT_DEBUG_PLUGINS',
-        'QT_PLUGIN_PATH',
-        pyqtplugins.tests.testbutton.test_path_env_var,
-    ]
-
-    if sys.platform == 'linux':
-        vars_to_print.append('LD_LIBRARY_PATH')
-        vars_to_print.append('DISPLAY')
 
     pyqtplugins.utilities.print_environment_variables(env, *vars_to_print)
 
@@ -82,19 +83,6 @@ def test_qmlscene_paints_test_item(tmp_path):
         pathlib.Path(pyqtplugins.examples.__file__).parent / 'qmlapp.qml'
     )
 
-    vars_to_print = [
-        'QML2_IMPORT_PATH',
-        'PYTHONPATH',
-        'PATH',
-        'QT_DEBUG_PLUGINS',
-        'QT_PLUGIN_PATH',
-        pyqtplugins.examples.exampleqmlitem.test_path_env_var,
-    ]
-
-    if sys.platform == 'linux':
-        vars_to_print.append('LD_LIBRARY_PATH')
-        vars_to_print.append('DISPLAY')
-
     pyqtplugins.utilities.print_environment_variables(env, *vars_to_print)
 
     with pytest.raises(subprocess.TimeoutExpired):
@@ -128,19 +116,6 @@ def test_qmltestrunner_paints_test_item(tmp_path):
     qml_test_path = pyqtplugins.utilities.fspath(
         pathlib.Path(pyqtplugins.examples.__file__).parent / 'qmltest.qml'
     )
-
-    vars_to_print = [
-        'QML2_IMPORT_PATH',
-        'PYTHONPATH',
-        'PATH',
-        'QT_DEBUG_PLUGINS',
-        'QT_PLUGIN_PATH',
-        pyqtplugins.examples.exampleqmlitem.test_path_env_var,
-    ]
-
-    if sys.platform == 'linux':
-        vars_to_print.append('LD_LIBRARY_PATH')
-        vars_to_print.append('DISPLAY')
 
     pyqtplugins.utilities.print_environment_variables(env, *vars_to_print)
 
