@@ -86,7 +86,7 @@ def test_qmlscene_paints_test_item(tmp_path, environment):
     with pytest.raises(subprocess.TimeoutExpired):
         subprocess.run(
             [
-                [fspath(qttools.application_path('qmlscene'))],
+                fspath(qttools.application_path('qmlscene')),
                 fspath(qml_example_path),
             ],
             check=True,
@@ -112,7 +112,7 @@ def test_qmltestrunner_paints_test_item(tmp_path, environment):
 
     subprocess.run(
         [
-            [fspath(qttools.application_path('qmltestrunner'))],
+            fspath(qttools.application_path('qmltestrunner')),
             '-input',
             qml_test_path,
         ],
