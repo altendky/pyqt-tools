@@ -29,25 +29,31 @@ vars_to_print = [
 ]
 
 
-def test_designer_creates_test_widget(tmp_path):
-    env = pyqtplugins.utilities.create_env(os.environ)
-    env['QT_DEBUG_PLUGINS'] = '1'
+@pytest.fixture(name='environment')
+def environment_fixture():
+    environment = pyqtplugins.utilities.create_env(os.environ)
+    pyqtplugins.utilities.mutate_qml_path(environment, paths=qml2_import_paths)
+    environment['QT_DEBUG_PLUGINS'] = '1'
 
+    return environment
+
+
+def test_designer_creates_test_widget(tmp_path, environment):
     file_path = tmp_path/'tigger'
-    env[pyqtplugins.tests.testbutton.test_path_env_var] = fspath(file_path)
+    environment[pyqtplugins.tests.testbutton.test_path_env_var] = fspath(file_path)
 
     widget_plugin_path = pathlib.Path(
         pyqtplugins.tests.testbuttonplugin.__file__,
     ).parent
 
-    env.update(pyqtplugins.utilities.add_to_env_var_path_list(
-        env=env,
+    environment.update(pyqtplugins.utilities.add_to_env_var_path_list(
+        env=environment,
         name='PYQTDESIGNERPATH',
         before=[fspath(widget_plugin_path)],
         after=[''],
     ))
 
-    pyqtplugins.utilities.print_environment_variables(env, *vars_to_print)
+    pyqtplugins.utilities.print_environment_variables(environment, *vars_to_print)
 
     with pytest.raises(subprocess.TimeoutExpired):
         subprocess.run(
@@ -57,7 +63,7 @@ def test_designer_creates_test_widget(tmp_path):
                 ),
             ],
             check=True,
-            env=env,
+            env=environment,
             timeout=20,
         )
 
@@ -70,20 +76,15 @@ def test_designer_creates_test_widget(tmp_path):
 qml2_import_paths = (pyqtplugins.utilities.fspath(pyqtplugins.root),)
 
 
-def test_qmlscene_paints_test_item(tmp_path):
-    env = pyqtplugins.utilities.create_env(os.environ)
-
-    pyqtplugins.utilities.mutate_qml_path(env, paths=qml2_import_paths)
-    env['QT_DEBUG_PLUGINS'] = '1'
-
+def test_qmlscene_paints_test_item(tmp_path, environment):
     file_path = tmp_path/'eeyore'
-    env[pyqtplugins.examples.exampleqmlitem.test_path_env_var] = fspath(file_path)
+    environment[pyqtplugins.examples.exampleqmlitem.test_path_env_var] = fspath(file_path)
 
     qml_example_path = pyqtplugins.utilities.fspath(
         pathlib.Path(pyqtplugins.examples.__file__).parent / 'qmlapp.qml'
     )
 
-    pyqtplugins.utilities.print_environment_variables(env, *vars_to_print)
+    pyqtplugins.utilities.print_environment_variables(environment, *vars_to_print)
 
     with pytest.raises(subprocess.TimeoutExpired):
         subprocess.run(
@@ -94,7 +95,7 @@ def test_qmlscene_paints_test_item(tmp_path):
                 fspath(qml_example_path),
             ],
             check=True,
-            env=env,
+            env=environment,
             timeout=20,
         )
 
@@ -104,20 +105,15 @@ def test_qmlscene_paints_test_item(tmp_path):
     )
 
 
-def test_qmltestrunner_paints_test_item(tmp_path):
-    env = pyqtplugins.utilities.create_env(os.environ)
-
-    pyqtplugins.utilities.mutate_qml_path(env, paths=qml2_import_paths)
-    env['QT_DEBUG_PLUGINS'] = '1'
-
+def test_qmltestrunner_paints_test_item(tmp_path, environment):
     file_path = tmp_path/'piglet'
-    env[pyqtplugins.examples.exampleqmlitem.test_path_env_var] = fspath(file_path)
+    environment[pyqtplugins.examples.exampleqmlitem.test_path_env_var] = fspath(file_path)
 
     qml_test_path = pyqtplugins.utilities.fspath(
         pathlib.Path(pyqtplugins.examples.__file__).parent / 'qmltest.qml'
     )
 
-    pyqtplugins.utilities.print_environment_variables(env, *vars_to_print)
+    pyqtplugins.utilities.print_environment_variables(environment, *vars_to_print)
 
     subprocess.run(
         [
@@ -128,7 +124,7 @@ def test_qmltestrunner_paints_test_item(tmp_path):
             qml_test_path,
         ],
         check=True,
-        env=env,
+        env=environment,
         timeout=20,
     )
 
