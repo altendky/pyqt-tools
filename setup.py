@@ -1,17 +1,8 @@
 import os
-import pathlib
-import sys
-
-here = pathlib.Path(__file__).parent
-
-sys.path.insert(0, os.fspath(here))
-# TODO: yuck, put the build command in a separate project and
-#       build-requires it?
-import build
-sys.path.pop(0)
 
 import setuptools
 import vcversioner
+
 
 version = vcversioner.find_version(
         version_module_paths=['_version.py'],
@@ -37,16 +28,8 @@ with open('README.rst') as f:
     readme = f.read()
 
 
-class Dist(setuptools.Distribution):
-    def has_ext_modules(self):
-        # Event if we don't have extension modules (e.g. on PyPy) we want to
-        # claim that we do so that wheels get properly tagged as Python
-        # specific.  (thanks dstufft!)
-        return True
-
-
 setuptools.setup(
-    name="pyqtplugins",
+    name="pyqtwrappers",
     description="PyQt Designer and QML plugins",
     long_description=readme,
     long_description_content_type='text/x-rst',
@@ -72,8 +55,6 @@ setuptools.setup(
         'Topic :: Software Development',
         'Topic :: Utilities',
     ],
-    cmdclass={'build_py': build.BuildPy},
-    distclass=Dist,
     packages=setuptools.find_packages('src'),
     package_dir={'': 'src'},
     version=version,
@@ -82,6 +63,15 @@ setuptools.setup(
     install_requires=[
         'click',
         'pyqt5=={}'.format(os.environ['PYQT_VERSION']),
+        'pyqtplugins @ git+https://github.com/altendky/pyqt5-tools@just_plugins',
         'qttools @ git+https://github.com/altendky/pyqt5-tools@just_applications',
     ],
+    entry_points={
+        'console_scripts': [
+            'pyqttoolsinstalluic = pyqtwrappers.entrypoints:pyqttoolsinstalluic',
+            'pyqtdesigner = pyqtwrappers.entrypoints:pyqtdesigner',
+            'pyqtqmlscene = pyqtwrappers.entrypoints:pyqtqmlscene',
+            'pyqtqmltestrunner = pyqtwrappers.entrypoints:pyqtqmltestrunner',
+        ]
+    }
 )

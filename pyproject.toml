@@ -1,4 +1,7 @@
 [build-system]
-requires = ["setuptools"]
-backend-path = ["src/pep517", "."]
-build-backend = "local_backend"
+requires = [
+    "setuptools ~= 50.3",
+    "vcversioner ~= 2.16",
+    "wheel ~= 0.35",
+]
+build-backend = "setuptools.build_meta"

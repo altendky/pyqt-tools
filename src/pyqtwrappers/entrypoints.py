@@ -34,7 +34,7 @@ maybe_extension = {
 }[sys.platform]
 
 
-def pyqt5toolsinstalluic():
+def pyqttoolsinstalluic():
     destination = bin/'bin'
     destination.mkdir(parents=True, exist_ok=True)
     there = pathlib.Path(sys.executable).parent
@@ -84,7 +84,7 @@ qt_debug_plugins_option = click.option(
     is_flag=True,
 )
 @qt_debug_plugins_option
-def pyqt5designer(
+def pyqtdesigner(
         ctx,
         widget_paths,
         designer_help,
@@ -159,7 +159,7 @@ qml2_import_path_option = click.option(
     help='Run the pyqt5-tools QML example',
     is_flag=True,
 )
-def pyqt5qmlscene(
+def pyqtqmlscene(
         ctx,
         qml2_import_paths,
         qmlscene_help,
@@ -216,7 +216,7 @@ def pyqt5qmlscene(
     help='Test the pyqt5-tools QML example',
     is_flag=True,
 )
-def pyqt5qmltestrunner(
+def pyqtqmltestrunner(
         ctx,
         qml2_import_paths,
         qmltestrunner_help,
