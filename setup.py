@@ -28,10 +28,4 @@ def calculate_version():
 
 setuptools.setup(
     version=calculate_version(),
-    install_requires=[
-        'click',
-        'pyqt5=={}'.format(os.environ['PYQT_VERSION']),
-        'pyqtplugins @ git+https://github.com/altendky/pyqt5-tools@just_plugins',
-        'qttools @ git+https://github.com/altendky/pyqt5-tools@just_applications',
-    ],
 )

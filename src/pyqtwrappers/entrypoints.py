@@ -7,7 +7,6 @@ import sys
 import click
 import qttools
 
-import PyQt5
 import pyqtplugins.utilities
 import pyqtplugins.badplugin
 import pyqtplugins.examplebuttonplugin
@@ -24,8 +23,6 @@ example_path = str(
 bad_path = str(
     pathlib.Path(pyqtplugins.badplugin.__file__).parent,
 )
-
-pyqt5_root = pathlib.Path(PyQt5.__file__).parent
 
 maybe_extension = {
     'linux': lambda name: name,
