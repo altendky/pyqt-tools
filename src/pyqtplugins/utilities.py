@@ -21,8 +21,6 @@ diagnostic_variables_to_print = [
     'QML2_IMPORT_PATH',
     'QT_DEBUG_PLUGINS',
     'QT_PLUGIN_PATH',
-    pyqtplugins.examples.exampleqmlitem.test_path_env_var,
-    pyqtplugins.tests.testbutton.test_path_env_var,
 ]
 
 
