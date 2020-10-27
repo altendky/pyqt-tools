@@ -12,6 +12,20 @@ import pyqtplugins
 fspath = getattr(os, 'fspath', str)
 
 
+diagnostic_variables_to_print = [
+    'DISPLAY',
+    'LD_LIBRARY_PATH'
+    'PYQTDESIGNERPATH',
+    'PYTHONPATH',
+    'PATH',
+    'QML2_IMPORT_PATH',
+    'QT_DEBUG_PLUGINS',
+    'QT_PLUGIN_PATH',
+    pyqtplugins.examples.exampleqmlitem.test_path_env_var,
+    pyqtplugins.tests.testbutton.test_path_env_var,
+]
+
+
 def create_env(reference):
     environment = qttools.create_environment(reference=reference)
 

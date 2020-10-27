@@ -106,19 +106,6 @@ def pyqt5designer(
     if test_exception_dialog:
         widget_paths.append(bad_path)
 
-    vars_to_print = [
-        'PYQTDESIGNERPATH',
-        'PYTHONPATH',
-        'PATH',
-        'QT_DEBUG_PLUGINS',
-        'QT_PLUGIN_PATH',
-        pyqtplugins.tests.testbutton.test_path_env_var,
-    ]
-
-    if sys.platform == 'linux':
-        vars_to_print.append('LD_LIBRARY_PATH')
-        vars_to_print.append('DISPLAY')
-
     env.update(pyqtplugins.utilities.add_to_env_var_path_list(
         env=env,
         name='PYQTDESIGNERPATH',
@@ -129,7 +116,10 @@ def pyqt5designer(
     if qt_debug_plugins:
         env['QT_DEBUG_PLUGINS'] = '1'
 
-    pyqtplugins.utilities.print_environment_variables(env, *vars_to_print)
+    pyqtplugins.utilities.print_environment_variables(
+        env,
+        *pyqtplugins.utilities.diagnostic_variables_to_print,
+    )
 
     command = [
         pyqtplugins.utilities.fspath(qttools.application_path('designer')),
@@ -193,20 +183,10 @@ def pyqt5qmlscene(
     if qt_debug_plugins:
         env['QT_DEBUG_PLUGINS'] = '1'
 
-    vars_to_print = [
-        'QML2_IMPORT_PATH',
-        'PYTHONPATH',
-        'PATH',
-        'QT_DEBUG_PLUGINS',
-        'QT_PLUGIN_PATH',
-        pyqtplugins.examples.exampleqmlitem.test_path_env_var,
-    ]
-
-    if sys.platform == 'linux':
-        vars_to_print.append('LD_LIBRARY_PATH')
-        vars_to_print.append('DISPLAY')
-
-    pyqtplugins.utilities.print_environment_variables(env, *vars_to_print)
+    pyqtplugins.utilities.print_environment_variables(
+        env,
+        *pyqtplugins.utilities.diagnostic_variables_to_print,
+    )
 
     command = [
         pyqtplugins.utilities.fspath(qttools.application_path('qmlscene')),
@@ -263,20 +243,10 @@ def pyqt5qmltestrunner(
     if qt_debug_plugins:
         env['QT_DEBUG_PLUGINS'] = '1'
 
-    vars_to_print = [
-        'QML2_IMPORT_PATH',
-        'PYTHONPATH',
-        'PATH',
-        'QT_DEBUG_PLUGINS',
-        'QT_PLUGIN_PATH',
-        pyqtplugins.examples.exampleqmlitem.test_path_env_var,
-    ]
-
-    if sys.platform == 'linux':
-        vars_to_print.append('LD_LIBRARY_PATH')
-        vars_to_print.append('DISPLAY')
-
-    pyqtplugins.utilities.print_environment_variables(env, *vars_to_print)
+    pyqtplugins.utilities.print_environment_variables(
+        env,
+        *pyqtplugins.utilities.diagnostic_variables_to_print,
+    )
 
     command = [
         pyqtplugins.utilities.fspath(qttools.application_path('qmltestrunner')),
