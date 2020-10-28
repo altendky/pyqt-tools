@@ -5,6 +5,10 @@ import sys
 import PyQt5
 
 
+from ._version import get_versions
+__version__ = get_versions()['version']
+del get_versions
+
 root = pathlib.Path(__file__).resolve().parent
 # TODO: so apparently qml wants it all lower case...
 if sys.platform == 'win32':

@@ -11,30 +11,38 @@ import build
 sys.path.pop(0)
 
 import setuptools
-import vcversioner
+import versioneer
 
-version = vcversioner.find_version(
-        version_module_paths=['_version.py'],
-        vcs_args=['git', '--git-dir', '%(root)s/.git', 'describe',
-                     '--tags', '--long', '--abbrev=999'],
-    )
-
-def pad_version(v):
-    split = v.split('.')
-    return '.'.join(split + ['0'] * (3 - len(split)))
 
 # TODO: really doesn't seem quite proper here and probably should come
 #       in some other way?
 os.environ.setdefault('PYQT_VERSION', '5.15.1')
 os.environ.setdefault('QT_VERSION', '5.15.1')
 
-version = '.'.join((
-    pad_version(os.environ['PYQT_VERSION']),
-    version.version,
-))
+
+def pad_version(v):
+    split = v.split('.')
+    return '.'.join(split + ['0'] * (3 - len(split)))
+
+
+def calculate_version():
+    version = versioneer.get_versions()['version']
+
+    version = '.'.join((
+        pad_version(os.environ['PYQT_VERSION']),
+        version,
+    ))
+
+    return version
+
 
 with open('README.rst') as f:
     readme = f.read()
+
+
+# waiting for release of:
+# https://github.com/python-versioneer/python-versioneer/commit/c619d3a144c3355f2236e536e289886154891c31#
+cmdclass = versioneer.get_cmdclass()
 
 
 class Dist(setuptools.Distribution):
@@ -43,6 +51,9 @@ class Dist(setuptools.Distribution):
         # claim that we do so that wheels get properly tagged as Python
         # specific.  (thanks dstufft!)
         return True
+
+
+cmdclass['build_py'] = build.create_build_py(cmdclass=cmdclass['build_py'])
 
 
 setuptools.setup(
@@ -72,11 +83,11 @@ setuptools.setup(
         'Topic :: Software Development',
         'Topic :: Utilities',
     ],
-    cmdclass={'build_py': build.BuildPy},
     distclass=Dist,
     packages=setuptools.find_packages('src'),
     package_dir={'': 'src'},
-    version=version,
+    version=calculate_version(),
+    cmdclass=cmdclass,
     include_package_data=True,
     python_requires=">=3.5",
     install_requires=[
