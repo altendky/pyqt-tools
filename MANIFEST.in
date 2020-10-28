@@ -1,1 +1,2 @@
-recursive-include src/pyqtplugins *
+recursive-include src/pyqtwrappers *
+include src/pyqtwrappers/_version.py
