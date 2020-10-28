@@ -11,7 +11,7 @@ import build
 sys.path.pop(0)
 
 import setuptools
-import vcversioner
+import versioneer
 
 try:
     import wheel.bdist_wheel
@@ -19,10 +19,15 @@ except ImportError:
     wheel = None
 
 
+# waiting for release of:
+# https://github.com/python-versioneer/python-versioneer/commit/c619d3a144c3355f2236e536e289886154891c31#
+cmdclass = versioneer.get_cmdclass()
+
+
 if wheel is None:
     BdistWheel = None
 else:
-    class BdistWheel(wheel.bdist_wheel.bdist_wheel):
+    class BdistWheel(cmdclass.get('bdist_wheel', wheel.bdist_wheel.bdist_wheel)):
         def finalize_options(self):
             super().finalize_options()
             # Mark us as not a pure python package
@@ -35,12 +40,6 @@ else:
             return python, abi, plat
 
 
-version = vcversioner.find_version(
-        version_module_paths=['_version.py'],
-        vcs_args=['git', '--git-dir', '%(root)s/.git', 'describe',
-                     '--tags', '--long', '--abbrev=999'],
-    )
-
 def pad_version(v):
     split = v.split('.')
     return '.'.join(split + ['0'] * (3 - len(split)))
@@ -49,10 +48,16 @@ def pad_version(v):
 #       in some other way?
 os.environ.setdefault('QT_VERSION', '5.15.1')
 
-version = '.'.join((
-    pad_version(os.environ['QT_VERSION']),
-    version.version,
-))
+
+def calculate_version():
+    version = versioneer.get_versions()['version']
+
+    version = '.'.join((
+        pad_version(os.environ['QT_VERSION']),
+        version,
+    ))
+
+    return version
 
 
 with open('README.rst') as f:
@@ -65,6 +70,10 @@ class Dist(setuptools.Distribution):
         # claim that we do so that wheels get properly tagged as Python
         # specific.  (thanks dstufft!)
         return True
+
+
+cmdclass['build_py'] = build.create_build_py(cmdclass=cmdclass['build_py'])
+cmdclass['bdist_wheel'] = BdistWheel
 
 
 setuptools.setup(
@@ -92,14 +101,11 @@ setuptools.setup(
         'Topic :: Software Development',
         'Topic :: Utilities',
     ],
-    cmdclass={
-        'bdist_wheel': BdistWheel,
-        'build_py': build.BuildPy,
-    },
     distclass=Dist,
     packages=setuptools.find_packages('src'),
     package_dir={'': 'src'},
-    version=version,
+    version=calculate_version(),
+    cmdclass=cmdclass,
     include_package_data=True,
     python_requires=">=3.5",
 )

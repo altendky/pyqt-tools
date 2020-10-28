@@ -4,6 +4,10 @@ import sys
 import sysconfig
 
 
+from ._version import get_versions
+__version__ = get_versions()['version']
+del get_versions
+
 root = pathlib.Path(__file__).parent
 bin = root.joinpath('Qt', 'bin')
 

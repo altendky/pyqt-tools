@@ -1,1 +1,3 @@
 recursive-include src/qttools *
+include versioneer.py
+include src/qttools/_version.py
