@@ -40,11 +40,8 @@ else:
             return python, abi, plat
 
 
-def pad_version(v, segment_count=3, strip=False):
+def pad_version(v, segment_count=3):
     split = v.split('.')
-
-    if strip:
-        split = list(itertools.takewhile(str.isdigit, split))
 
     if len(split) > segment_count:
         raise InvalidVersionError('{} has more than three segments'.format(v))
@@ -56,10 +53,7 @@ def pad_version(v, segment_count=3, strip=False):
 #       in some other way?
 qt_version = pad_version(os.environ.setdefault('QT_VERSION', '5.15.1'))
 
-qt5_applications_wrapper_version = pad_version(
-    versioneer.get_versions()['version'],
-    strip=True,
-)
+qt5_applications_wrapper_version = versioneer.get_versions()['version']
 qt5_applications_version = '{}.{}'.format(qt_version, qt5_applications_wrapper_version)
 
 
