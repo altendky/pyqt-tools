@@ -8,8 +8,8 @@ from PyQt5 import QtQml
 sys.stderr.write('exampleqmlitemplugin.py debug: : just imported QtQml\n')
 sys.stderr.flush()
 
-import pyqtplugins.examples.exampleqmlitem
-sys.stderr.write('exampleqmlitemplugin.py debug: : just imported pyqtplugins.examples.exampleqmlitem\n')
+import pyqt5_plugins.examples.exampleqmlitem
+sys.stderr.write('exampleqmlitemplugin.py debug: : just imported pyqt5_tools.examples.exampleqmlitem\n')
 sys.stderr.flush()
 
 
@@ -19,7 +19,7 @@ class ExampleQmlItemPlugin(QtQml.QQmlExtensionPlugin):
         sys.stderr.flush()
         try:
             QtQml.qmlRegisterType(
-                pyqtplugins.examples.exampleqmlitem.ExampleQmlItem,
+                pyqt5_plugins.examples.exampleqmlitem.ExampleQmlItem,
                 'examples',
                 1,
                 0,

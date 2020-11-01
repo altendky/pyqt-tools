@@ -10,6 +10,7 @@ class InvalidVersionError(Exception):
 
 def pad_version(v, segment_count=3):
     split = v.split('.')
+
     if len(split) > segment_count:
         raise InvalidVersionError('{} has more than three segments'.format(v))
 
@@ -22,19 +23,24 @@ pyqt_version = pad_version(os.environ.setdefault('PYQT_VERSION', '5.15.1'))
 qt_version = pad_version(os.environ.setdefault('QT_VERSION', '5.15.1'))
 
 
-pyqt5_tools_wrapper_version = pad_version(versioneer.get_versions()['version'])
+pyqt5_tools_wrapper_version = versioneer.get_versions()['version']
 pyqt5_tools_version = '{}.{}'.format(pyqt_version, pyqt5_tools_wrapper_version)
 
 
-# When using ~=, don't pad because that affects allowed versions
-pyqt_plugins_wrapper_version = '0.1.0'
-pyqt_plugins_version_specifier = '~={}.{}'.format(
-    pyqt_version,
-    pyqt_plugins_wrapper_version,
-)
 # such as:  @ git+https://github.com/altendky/pyqt5-tools@just_plugins
 # or empty when using a regular index
 pyqt_plugins_url = ' @ git+https://github.com/altendky/pyqt5-tools@just_plugins'
+
+if pyqt_plugins_url == '':
+    # When using ~=, don't pad because that affects allowed versions.  The last
+    # segment is the one that is allowed to increase.
+    pyqt_plugins_wrapper_version = '0.1.0'
+    pyqt_plugins_version_specifier = '~={}.{}'.format(
+        pyqt_version,
+        pyqt_plugins_wrapper_version,
+    )
+else:
+    pyqt_plugins_version_specifier = ''
 
 
 with open('README.rst') as f:
@@ -76,7 +82,7 @@ setuptools.setup(
     install_requires=[
         'click',
         'pyqt5=={}'.format(pyqt_version),
-        'pyqtplugins{}{}'.format(
+        'pyqt5-plugins{}{}'.format(
             pyqt_plugins_version_specifier,
             pyqt_plugins_url,
         ),
