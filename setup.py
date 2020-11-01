@@ -19,15 +19,14 @@ except ImportError:
     wheel = None
 
 
-# waiting for release of:
-# https://github.com/python-versioneer/python-versioneer/commit/c619d3a144c3355f2236e536e289886154891c31#
-cmdclass = versioneer.get_cmdclass()
+class InvalidVersionError(Exception):
+    pass
 
 
 if wheel is None:
     BdistWheel = None
 else:
-    class BdistWheel(cmdclass.get('bdist_wheel', wheel.bdist_wheel.bdist_wheel)):
+    class BdistWheel(wheel.bdist_wheel.bdist_wheel):
         def finalize_options(self):
             super().finalize_options()
             # Mark us as not a pure python package
@@ -40,24 +39,21 @@ else:
             return python, abi, plat
 
 
-def pad_version(v):
+def pad_version(v, segment_count=3):
     split = v.split('.')
-    return '.'.join(split + ['0'] * (3 - len(split)))
+    if len(split) > segment_count:
+        raise InvalidVersionError('{} has more than three segments'.format(v))
+
+    return '.'.join(split + ['0'] * (segment_count - len(split)))
+
 
 # TODO: really doesn't seem quite proper here and probably should come
 #       in some other way?
-os.environ.setdefault('QT_VERSION', '5.15.1')
+qt_version = pad_version(os.environ.setdefault('QT_VERSION', '5.15.1'))
 
 
-def calculate_version():
-    version = versioneer.get_versions()['version']
-
-    version = '.'.join((
-        pad_version(os.environ['QT_VERSION']),
-        version,
-    ))
-
-    return version
+qt5_applications_wrapper_version = pad_version(versioneer.get_versions()['version'])
+qt5_applications_version = '{}.{}'.format(qt_version, qt5_applications_wrapper_version)
 
 
 with open('README.rst') as f:
@@ -104,8 +100,7 @@ setuptools.setup(
     distclass=Dist,
     packages=setuptools.find_packages('src'),
     package_dir={'': 'src'},
-    version=calculate_version(),
-    cmdclass=cmdclass,
+    version=qt5_applications_version,
     include_package_data=True,
     python_requires=">=3.5",
 )
