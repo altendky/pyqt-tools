@@ -48,7 +48,7 @@ with open('README.rst') as f:
 
 
 setuptools.setup(
-    name="pyqtwrappers",
+    name="pyqt5_tools",
     description="PyQt Designer and QML plugins",
     long_description=readme,
     long_description_content_type='text/x-rst',
@@ -89,10 +89,10 @@ setuptools.setup(
     ],
     entry_points={
         'console_scripts': [
-            'pyqttoolsinstalluic = pyqtwrappers.entrypoints:pyqttoolsinstalluic',
-            'pyqtdesigner = pyqtwrappers.entrypoints:pyqtdesigner',
-            'pyqtqmlscene = pyqtwrappers.entrypoints:pyqtqmlscene',
-            'pyqtqmltestrunner = pyqtwrappers.entrypoints:pyqtqmltestrunner',
+            'pyqttoolsinstalluic = pyqt5_tools.entrypoints:pyqttoolsinstalluic',
+            'pyqtdesigner = pyqt5_tools.entrypoints:pyqtdesigner',
+            'pyqtqmlscene = pyqt5_tools.entrypoints:pyqtqmlscene',
+            'pyqtqmltestrunner = pyqt5_tools.entrypoints:pyqtqmltestrunner',
         ]
     }
 )
