@@ -57,7 +57,7 @@ cmdclass['build_py'] = build.create_build_py(cmdclass=cmdclass['build_py'])
 
 
 setuptools.setup(
-    name="pyqtplugins",
+    name="pyqt5_plugins",
     description="PyQt Designer and QML plugins",
     long_description=readme,
     long_description_content_type='text/x-rst',

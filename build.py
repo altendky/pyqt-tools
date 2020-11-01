@@ -576,7 +576,7 @@ def main(package_path, build_base_path):
     # TODO: uhhh....  i'm trying to use an existing directory i thought
     build_base_path.mkdir(parents=True, exist_ok=True)
     build_path = tempfile.mkdtemp(
-        prefix='pyqtplugins-',
+        prefix='pyqt5_plugins-',
         dir=fspath(build_base_path),
     )
     print('after ---!!!', file=sys.stderr)

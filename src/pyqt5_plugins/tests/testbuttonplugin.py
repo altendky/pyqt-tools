@@ -1,6 +1,6 @@
 from PyQt5 import QtGui, QtDesigner
 
-import pyqtplugins.tests.testbutton
+import pyqt5_plugins.tests.testbutton
 
 
 class TestButtonPlugin(QtDesigner.QPyDesignerCustomWidgetPlugin):
@@ -21,10 +21,10 @@ class TestButtonPlugin(QtDesigner.QPyDesignerCustomWidgetPlugin):
         return self.initialized
 
     def createWidget(self, parent):
-        return pyqtplugins.tests.testbutton.TestButton(parent)
+        return pyqt5_plugins.tests.testbutton.TestButton(parent)
 
     def name(self):
-        return pyqtplugins.tests.testbutton.TestButton.__name__
+        return pyqt5_plugins.tests.testbutton.TestButton.__name__
 
     def group(self):
         return 'pyqt5-tools'
@@ -42,4 +42,4 @@ class TestButtonPlugin(QtDesigner.QPyDesignerCustomWidgetPlugin):
         return False
 
     def includeFile(self):
-        return 'pyqtplugins.tests.testbutton'
+        return 'pyqt5_plugins.tests.testbutton'

@@ -6,7 +6,7 @@ import sysconfig
 import qttools
 import PyQt5
 
-import pyqtplugins
+import pyqt5_plugins
 
 
 fspath = getattr(os, 'fspath', str)
@@ -31,7 +31,7 @@ def create_env(reference):
         env=environment,
         name='QT_PLUGIN_PATH',
         before=[],
-        after=[fspath(pyqtplugins.pyqt5_plugins_path), fspath(pyqtplugins.plugins)],
+        after=[fspath(pyqt5_plugins.pyqt5_plugins_path), fspath(pyqt5_plugins.plugins)],
     ))
     # TODO: maybe also
     # PyQt5.QtCore.QLibraryInfo.location(
@@ -77,6 +77,6 @@ def mutate_qml_path(env, paths):
     env.update(add_to_env_var_path_list(
         env=env,
         name='QML2_IMPORT_PATH',
-        before=[*paths, fspath(pyqtplugins.pyqt5_qml_path)],
+        before=[*paths, fspath(pyqt5_plugins.pyqt5_qml_path)],
         after=[''],
     ))

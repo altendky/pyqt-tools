@@ -1,2 +1,1 @@
-src/pyqtwrappers/_version.py export-subst
-src/pyqtplugins/_version.py export-subst
+src/pyqt5_plugins/_version.py export-subst
