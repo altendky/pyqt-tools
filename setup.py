@@ -77,7 +77,7 @@ cmdclass['bdist_wheel'] = BdistWheel
 
 
 setuptools.setup(
-    name="qt-applications",
+    name="qt5-applications",
     description="The collection of Qt tools easily installable in Python",
     long_description=readme,
     long_description_content_type='text/x-rst',
