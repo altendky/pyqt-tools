@@ -14,35 +14,27 @@ import setuptools
 import versioneer
 
 
+def pad_version(v, segment_count=3):
+    split = v.split('.')
+
+    if len(split) > segment_count:
+        raise InvalidVersionError('{} has more than three segments'.format(v))
+
+    return '.'.join(split + ['0'] * (segment_count - len(split)))
+
+
 # TODO: really doesn't seem quite proper here and probably should come
 #       in some other way?
-os.environ.setdefault('PYQT_VERSION', '5.15.1')
-os.environ.setdefault('QT_VERSION', '5.15.1')
+pyqt_version = pad_version(os.environ.setdefault('PYQT_VERSION', '5.15.1'))
+qt_version = pad_version(os.environ.setdefault('QT_VERSION', '5.15.1'))
 
 
-def pad_version(v):
-    split = v.split('.')
-    return '.'.join(split + ['0'] * (3 - len(split)))
-
-
-def calculate_version():
-    version = versioneer.get_versions()['version']
-
-    version = '.'.join((
-        pad_version(os.environ['PYQT_VERSION']),
-        version,
-    ))
-
-    return version
+pyqt5_plugins_wrapper_version = versioneer.get_versions()['version']
+pyqt5_plugins_version = '{}.{}'.format(pyqt_version, pyqt5_tools_wrapper_version)
 
 
 with open('README.rst') as f:
     readme = f.read()
-
-
-# waiting for release of:
-# https://github.com/python-versioneer/python-versioneer/commit/c619d3a144c3355f2236e536e289886154891c31#
-cmdclass = versioneer.get_cmdclass()
 
 
 class Dist(setuptools.Distribution):
@@ -51,9 +43,6 @@ class Dist(setuptools.Distribution):
         # claim that we do so that wheels get properly tagged as Python
         # specific.  (thanks dstufft!)
         return True
-
-
-cmdclass['build_py'] = build.create_build_py(cmdclass=cmdclass['build_py'])
 
 
 setuptools.setup(
@@ -83,11 +72,11 @@ setuptools.setup(
         'Topic :: Software Development',
         'Topic :: Utilities',
     ],
+    cmdclass={'build_py': build.BuildPy},
     distclass=Dist,
     packages=setuptools.find_packages('src'),
     package_dir={'': 'src'},
-    version=calculate_version(),
-    cmdclass=cmdclass,
+    version=pyqt5_plugins_version,
     include_package_data=True,
     python_requires=">=3.5",
     install_requires=[

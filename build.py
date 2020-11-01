@@ -28,39 +28,36 @@ import tenacity
 fspath = getattr(os, 'fspath', str)
 
 
-def create_build_py(cmdclass=setuptools.command.build_py.build_py):
-    class BuildPy(cmdclass):
-        def build_packages(self):
-            super().build_packages()
+class BuildPy(setuptools.command.build_py.build_py):
+    def build_packages(self):
+        super().build_packages()
 
-            try:
-                [package_name] = (
-                    package
-                    for package in self.distribution.packages
-                    if '.' not in package
-                )
+        try:
+            [package_name] = (
+                package
+                for package in self.distribution.packages
+                if '.' not in package
+            )
 
-                build_command = self.distribution.command_obj['build']
+            build_command = self.distribution.command_obj['build']
 
-                cwd = pathlib.Path.cwd()
-                lib_path = cwd / build_command.build_lib
-                package_path = lib_path / package_name
+            cwd = pathlib.Path.cwd()
+            lib_path = cwd / build_command.build_lib
+            package_path = lib_path / package_name
 
-                main(
-                    package_path=package_path,
-                    build_base_path=cwd / build_command.build_base,
-                )
+            main(
+                package_path=package_path,
+                build_base_path=cwd / build_command.build_base,
+            )
 
-                if getattr(self.distribution, 'entry_points', None) is None:
-                    self.distribution.entry_points = {}
-                console_scripts = self.distribution.entry_points.setdefault('console_scripts', [])
-            except:
-                # something apparently consumes tracebacks (not exception messages)
-                # for OSError at least.  let's avoid that silliness.
-                traceback.print_exc()
-                raise
-
-    return BuildPy
+            if getattr(self.distribution, 'entry_points', None) is None:
+                self.distribution.entry_points = {}
+            console_scripts = self.distribution.entry_points.setdefault('console_scripts', [])
+        except:
+            # something apparently consumes tracebacks (not exception messages)
+            # for OSError at least.  let's avoid that silliness.
+            traceback.print_exc()
+            raise
 
 
 Collector = typing.Callable[
