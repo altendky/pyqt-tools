@@ -3,7 +3,7 @@ import pathlib
 import subprocess
 
 import pytest
-import qttools
+import qt5_applications
 
 import pyqt5_plugins.entrypoints
 import pyqt5_plugins.examples.exampleqmlitem
@@ -50,7 +50,7 @@ def test_designer_creates_test_widget(tmp_path, environment):
 
     with pytest.raises(subprocess.TimeoutExpired):
         subprocess.run(
-            [fspath(qttools.application_path('designer'))],
+            [fspath(qt5_applications.application_path('designer'))],
             check=True,
             env=environment,
             timeout=20,
@@ -78,7 +78,7 @@ def test_qmlscene_paints_test_item(tmp_path, environment):
     with pytest.raises(subprocess.TimeoutExpired):
         subprocess.run(
             [
-                fspath(qttools.application_path('qmlscene')),
+                fspath(qt5_applications.application_path('qmlscene')),
                 fspath(qml_example_path),
             ],
             check=True,
@@ -104,7 +104,7 @@ def test_qmltestrunner_paints_test_item(tmp_path, environment):
 
     subprocess.run(
         [
-            fspath(qttools.application_path('qmltestrunner')),
+            fspath(qt5_applications.application_path('qmltestrunner')),
             '-input',
             qml_test_path,
         ],

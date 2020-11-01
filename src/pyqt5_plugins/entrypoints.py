@@ -5,7 +5,7 @@ import subprocess
 import sys
 
 import click
-import qttools
+import qt5_applications
 
 import PyQt5
 import pyqt5_plugins.utilities
@@ -122,7 +122,7 @@ def pyqt5designer(
     )
 
     command = [
-        pyqt5_plugins.utilities.fspath(qttools.application_path('designer')),
+        pyqt5_plugins.utilities.fspath(qt5_applications.application_path('designer')),
         *extras,
         *ctx.args,
     ]
@@ -189,7 +189,7 @@ def pyqt5qmlscene(
     )
 
     command = [
-        pyqt5_plugins.utilities.fspath(qttools.application_path('qmlscene')),
+        pyqt5_plugins.utilities.fspath(qt5_applications.application_path('qmlscene')),
         *extras,
         *ctx.args,
     ]
@@ -249,7 +249,7 @@ def pyqt5qmltestrunner(
     )
 
     command = [
-        pyqt5_plugins.utilities.fspath(qttools.application_path('qmltestrunner')),
+        pyqt5_plugins.utilities.fspath(qt5_applications.application_path('qmltestrunner')),
         *extras,
         *ctx.args,
     ]
