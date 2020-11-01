@@ -60,7 +60,6 @@ setuptools.setup(
     packages=setuptools.find_packages('src'),
     package_dir={'': 'src'},
     version=calculate_version(),
-    cmdclass=versioneer.get_cmdclass(),
     include_package_data=True,
     python_requires=">=3.5",
     install_requires=[
