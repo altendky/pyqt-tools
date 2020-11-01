@@ -1,3 +1,4 @@
+import itertools
 import os
 import pathlib
 import sys
@@ -39,8 +40,12 @@ else:
             return python, abi, plat
 
 
-def pad_version(v, segment_count=3):
+def pad_version(v, segment_count=3, strip=False):
     split = v.split('.')
+
+    if strip:
+        split = list(itertools.takewhile(str.isdigit, split))
+
     if len(split) > segment_count:
         raise InvalidVersionError('{} has more than three segments'.format(v))
 
@@ -51,8 +56,10 @@ def pad_version(v, segment_count=3):
 #       in some other way?
 qt_version = pad_version(os.environ.setdefault('QT_VERSION', '5.15.1'))
 
-
-qt5_applications_wrapper_version = pad_version(versioneer.get_versions()['version'])
+qt5_applications_wrapper_version = pad_version(
+    versioneer.get_versions()['version'],
+    strip=True,
+)
 qt5_applications_version = '{}.{}'.format(qt_version, qt5_applications_wrapper_version)
 
 
@@ -66,10 +73,6 @@ class Dist(setuptools.Distribution):
         # claim that we do so that wheels get properly tagged as Python
         # specific.  (thanks dstufft!)
         return True
-
-
-cmdclass['build_py'] = build.create_build_py(cmdclass=cmdclass['build_py'])
-cmdclass['bdist_wheel'] = BdistWheel
 
 
 setuptools.setup(
@@ -97,6 +100,7 @@ setuptools.setup(
         'Topic :: Software Development',
         'Topic :: Utilities',
     ],
+    cmdclass={'bdist_wheel': BdistWheel, 'build_py': build.BuildPy},
     distclass=Dist,
     packages=setuptools.find_packages('src'),
     package_dir={'': 'src'},

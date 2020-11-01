@@ -25,40 +25,37 @@ import setuptools.command.build_py
 fspath = getattr(os, 'fspath', str)
 
 
-def create_build_py(cmdclass=setuptools.command.build_py.build_py):
-    class BuildPy(cmdclass):
-        def build_packages(self):
-            super().build_packages()
-    
-            try:
-                [package_name] = (
-                    package
-                    for package in self.distribution.packages
-                    if '.' not in package
-                )
-    
-                build_command = self.distribution.command_obj['build']
-    
-                cwd = pathlib.Path.cwd()
-                lib_path = cwd / build_command.build_lib
-                package_path = lib_path / package_name
-    
-                results = main(
-                    package_path=package_path,
-                    build_base_path=cwd / build_command.build_base,
-                )
-    
-                if getattr(self.distribution, 'entry_points', None) is None:
-                    self.distribution.entry_points = {}
-                console_scripts = self.distribution.entry_points.setdefault('console_scripts', [])
-                console_scripts.extend(results.console_scripts)
-            except:
-                # something apparently consumes tracebacks (not exception messages)
-                # for OSError at least.  let's avoid that silliness.
-                traceback.print_exc()
-                raise
+class BuildPy(setuptools.command.build_py.build_py):
+    def build_packages(self):
+        super().build_packages()
 
-    return BuildPy
+        try:
+            [package_name] = (
+                package
+                for package in self.distribution.packages
+                if '.' not in package
+            )
+
+            build_command = self.distribution.command_obj['build']
+
+            cwd = pathlib.Path.cwd()
+            lib_path = cwd / build_command.build_lib
+            package_path = lib_path / package_name
+
+            results = main(
+                package_path=package_path,
+                build_base_path=cwd / build_command.build_base,
+            )
+
+            if getattr(self.distribution, 'entry_points', None) is None:
+                self.distribution.entry_points = {}
+            console_scripts = self.distribution.entry_points.setdefault('console_scripts', [])
+            console_scripts.extend(results.console_scripts)
+        except:
+            # something apparently consumes tracebacks (not exception messages)
+            # for OSError at least.  let's avoid that silliness.
+            traceback.print_exc()
+            raise
 
 
 Collector = typing.Callable[
