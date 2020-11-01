@@ -14,6 +14,10 @@ import setuptools
 import versioneer
 
 
+class InvalidVersionError(Exception):
+    pass
+
+
 def pad_version(v, segment_count=3):
     split = v.split('.')
 
@@ -30,7 +34,10 @@ qt_version = pad_version(os.environ.setdefault('QT_VERSION', '5.15.1'))
 
 
 pyqt5_plugins_wrapper_version = versioneer.get_versions()['version']
-pyqt5_plugins_version = '{}.{}'.format(pyqt_version, pyqt5_tools_wrapper_version)
+pyqt5_plugins_version = '{}.{}'.format(
+    pyqt_version,
+    pyqt5_plugins_wrapper_version,
+)
 
 
 with open('README.rst') as f:
