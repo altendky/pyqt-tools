@@ -31,7 +31,7 @@ def create_env(reference):
         env=environment,
         name='QT_PLUGIN_PATH',
         before=[],
-        after=[fspath(pyqtplugins.plugins)],
+        after=[fspath(pyqtplugins.pyqt5_plugins_path), fspath(pyqtplugins.plugins)],
     ))
     # TODO: maybe also
     # PyQt5.QtCore.QLibraryInfo.location(

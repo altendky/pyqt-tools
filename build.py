@@ -147,20 +147,6 @@ class FileCopyAction:
 
         return actions
 
-    def linux_less_specific_so_target(self: T) -> T:
-        destination = self.destination
-
-        if '.so.' in destination.name:
-            marker = '.so.'
-            index = destination.name.find(marker)
-            index = destination.name.find('.', index + len(marker));
-            less_specific = destination.with_name(destination.name[:index])
-
-            if destination != less_specific:
-                return attr.evolve(self, destination=less_specific)
-
-        return self
-
     @tenacity.retry(
         reraise=True,
         retry=tenacity.retry_if_exception_type(
@@ -636,12 +622,6 @@ def build(configuration: Configuration):
     destinations.create_directories()
 
     checkpoint('Define Plugins')
-    platform_plugin_names = {
-        'linux': ['xcb', 'minimal'],
-        'win32': ['minimal'],
-        'darwin': ['cocoa'],
-    }[configuration.platform]
-
     platform_plugin_type = {
         'linux': LinuxPlugin,
         'win32': Win32Plugin,
@@ -654,30 +634,6 @@ def build(configuration: Configuration):
         extras['windeployqt'] = qt_paths.windeployqt
     elif configuration.platform == 'darwin':
         extras['lib_path'] = qt_paths.lib
-
-    platform_plugins = [
-        platform_plugin_type.from_name(
-            name=name,
-            plugin_path=qt_paths.platform_plugins,
-            reference_path=qt_paths.compiler,
-            **extras,
-        )
-        for name in platform_plugin_names
-    ]
-
-    checkpoint('Build Application And Platform Plugin Copy Actions')
-    copy_actions = {
-        *itertools.chain.from_iterable(
-            plugin.copy_actions
-            for plugin in platform_plugins
-        ),
-    }
-
-    if configuration.platform == 'linux':
-        copy_actions = {
-            action.linux_less_specific_so_target()
-            for action in copy_actions
-        }
 
     checkpoint('Download PyQt5')
     pyqt5_sdist_path = save_sdist(
@@ -703,7 +659,7 @@ def build(configuration: Configuration):
 
     checkpoint('Build PyQt5 Plugin Copy Actions')
     all_copy_actions = {
-        destinations.qt: copy_actions,
+        destinations.qt: set(),
         destinations.package: set(),
     }
 
@@ -717,14 +673,14 @@ def build(configuration: Configuration):
             package_plugins / 'designer' / designer_plugin_path.name
         )
 
-        copy_actions.add(FileCopyAction(
+        all_copy_actions[destinations.qt].add(FileCopyAction(
             source=designer_plugin_path,
             destination=package_plugins_designer.relative_to(destinations.qt),
         ))
 
         qml_plugin = build_path / 'qmlscene' / 'release' / 'pyqt5qmlplugin.dll'
 
-        copy_actions.add(FileCopyAction(
+        all_copy_actions[destinations.qt].add(FileCopyAction(
             source=qml_plugin,
             destination=package_plugins / qml_plugin.name,
         ))
@@ -743,7 +699,7 @@ def build(configuration: Configuration):
             package_plugins / 'designer' / designer_plugin_path.name
         )
 
-        copy_actions.add(FileCopyAction(
+        all_copy_actions[destinations.qt].add(FileCopyAction(
             source=designer_plugin_path,
             destination=package_plugins_designer.relative_to(destinations.qt),
         ))
@@ -752,7 +708,7 @@ def build(configuration: Configuration):
             build_path / 'qmlscene' / 'libpyqt5qmlplugin.so'
         )
 
-        copy_actions.add(FileCopyAction(
+        all_copy_actions[destinations.qt].add(FileCopyAction(
             source=qml_plugin,
             destination=package_plugins / qml_plugin.name,
         ))
