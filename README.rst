@@ -5,7 +5,9 @@ qt-applications
 
 |PyPI| |Pythons| |GitHub|
 
-Perhaps docs will follow but for now see `the pyqt5-tools readme`_.
+Perhaps docs will follow but for now see `the pyqt5-tools readme`_.  This
+package provides just the collection of Qt applications to avoid repeating the
+same large files in several packages for different Python versions.
 
 
 .. |PyPI| image:: https://img.shields.io/pypi/v/qt5-applications.svg
