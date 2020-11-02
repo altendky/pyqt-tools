@@ -45,11 +45,10 @@ keeps a list of `all available versions`_.
 .. _`release compatible with`: https://www.python.org/dev/peps/pep-0440/#compatible-release
 .. _`all available versions`: https://pypi.org/project/pyqt5-tools/#history
 
-.. note::
-
-  As of pyqt5-tools v2 the package has been broken down into three pieces.  The
-  wrappers remain here but the plugins are located in _pyqt5-plugins and the
-  applications are in _qt5-applications.
+Note:
+    As of pyqt5-tools v2 the package has been broken down into three pieces.
+    The wrappers remain here but the plugins are located in _pyqt5-plugins and
+    the applications are in _qt5-applications.
 
 .. _pyqt5-plugins: https://github.com/altendky/pyqt-plugins
 .. _qt5-applications: https://github.com/altendky/qt-applications
