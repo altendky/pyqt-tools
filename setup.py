@@ -21,26 +21,29 @@ def pad_version(v, segment_count=3):
 #       in some other way?
 pyqt_version = pad_version(os.environ.setdefault('PYQT_VERSION', '5.15.1'))
 qt_version = pad_version(os.environ.setdefault('QT_VERSION', '5.15.1'))
+pyqt_major_version = pyqt_version.partition('.')[0]
 
 
 pyqt5_tools_wrapper_version = versioneer.get_versions()['version']
 pyqt5_tools_version = '{}.{}'.format(pyqt_version, pyqt5_tools_wrapper_version)
 
 
-# such as: ' @ git+https://github.com/altendky/pyqt-plugins@main'
-# or empty when using a regular index
-pyqt_plugins_url = ''
+# When using ~=, don't pad because that affects allowed versions.  The last
+# segment is the one that is allowed to increase.
+pyqt_plugins_wrapper_version = '1.0'
 
-if pyqt_plugins_url == '':
-    # When using ~=, don't pad because that affects allowed versions.  The last
-    # segment is the one that is allowed to increase.
-    pyqt_plugins_wrapper_version = '1.0'
+# Must be False for release.  PyPI won't let you uplaod with a URL dependency.
+use_pyqt_plugins_url = True
+
+if use_pyqt_plugins_url:
+    pyqt_plugins_url = ' @ git+https://github.com/altendky/pyqt-plugins@main'
+    pyqt_plugins_version_specifier = ''
+else:
+    pyqt_plugins_url = ''
     pyqt_plugins_version_specifier = '~={}.{}.dev0'.format(
         pyqt_version,
         pyqt_plugins_wrapper_version,
     )
-else:
-    pyqt_plugins_version_specifier = ''
 
 
 with open('README.rst') as f:
@@ -82,7 +85,8 @@ setuptools.setup(
     install_requires=[
         'click',
         'pyqt5=={}'.format(pyqt_version),
-        'pyqt5-plugins{}{}'.format(
+        'pyqt{}-plugins{}{}'.format(
+            pyqt_major_version,
             pyqt_plugins_version_specifier,
             pyqt_plugins_url,
         ),
