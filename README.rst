@@ -1,6 +1,6 @@
-===========
-pyqt5-tools
-===========
+==========
+pyqt-tools
+==========
 
 
 |PyPI| |Pythons| |GitHub|
@@ -22,11 +22,11 @@ incomplete but see `issue #12`_ if you want to discuss it.
    :alt: supported Python versions
    :target: https://pypi.org/project/pyqt5-tools/
 
-.. |GitHub| image:: https://img.shields.io/github/last-commit/altendky/pyqt5-tools/master.svg
+.. |GitHub| image:: https://img.shields.io/github/last-commit/altendky/pyqt-tools/main.svg
    :alt: source on GitHub
-   :target: https://github.com/altendky/pyqt5-tools
+   :target: https://github.com/altendky/pyqt-tools
 
-.. _`issue #12`: https://github.com/altendky/pyqt5-tools/issues/12
+.. _`issue #12`: https://github.com/altendky/pyqt-tools/issues/12
 
 ------------
 Installation

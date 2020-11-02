@@ -27,15 +27,15 @@ pyqt5_tools_wrapper_version = versioneer.get_versions()['version']
 pyqt5_tools_version = '{}.{}'.format(pyqt_version, pyqt5_tools_wrapper_version)
 
 
-# such as:  @ git+https://github.com/altendky/pyqt5-tools@just_plugins
+# such as: ' @ git+https://github.com/altendky/pyqt-plugins@main'
 # or empty when using a regular index
-pyqt_plugins_url = ' @ git+https://github.com/altendky/pyqt5-tools@just_plugins'
+pyqt_plugins_url = ''
 
 if pyqt_plugins_url == '':
     # When using ~=, don't pad because that affects allowed versions.  The last
     # segment is the one that is allowed to increase.
-    pyqt_plugins_wrapper_version = '0.1.0'
-    pyqt_plugins_version_specifier = '~={}.{}'.format(
+    pyqt_plugins_wrapper_version = '1.0'
+    pyqt_plugins_version_specifier = '~={}.{}.dev0'.format(
         pyqt_version,
         pyqt_plugins_wrapper_version,
     )
