@@ -10,6 +10,9 @@ the old binary installers. This package aims to provide those in a separate
 package which is useful for developers while the official PyQt5 wheels stay
 focused on fulfilling the dependencies of PyQt5 applications.
 
+Both Windows and Linux are supported.  Adjust paths etc accordingly if applying
+the explanations below in Linux rather than Windows.  macOS support is
+incomplete but see `issue #12`_ if you want to discuss it.
 
 .. |PyPI| image:: https://img.shields.io/pypi/v/pyqt5-tools.svg
    :alt: PyPI version
@@ -22,6 +25,8 @@ focused on fulfilling the dependencies of PyQt5 applications.
 .. |GitHub| image:: https://img.shields.io/github/last-commit/altendky/pyqt5-tools/master.svg
    :alt: source on GitHub
    :target: https://github.com/altendky/pyqt5-tools
+
+.. _`issue #12`: https://github.com/altendky/pyqt5-tools/issues/12
 
 ------------
 Installation
