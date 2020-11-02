@@ -86,6 +86,7 @@ setuptools.setup(
             pyqt_plugins_version_specifier,
             pyqt_plugins_url,
         ),
+        'python-dotenv',
     ],
     entry_points={
         'console_scripts': [

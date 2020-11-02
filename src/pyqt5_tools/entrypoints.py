@@ -3,8 +3,10 @@ import pathlib
 import shutil
 import subprocess
 import sys
+import sysconfig
 
 import click
+import dotenv
 import qt5_applications
 
 import PyQt5
@@ -32,6 +34,19 @@ maybe_extension = {
     'win32': lambda name: '{}.exe'.format(name),
     'darwin': lambda name: name,
 }[sys.platform]
+
+
+def load_dotenv():
+    env_path = dotenv.find_dotenv(usecwd=True)
+
+    if len(env_path) == 0:
+        return
+
+    os.environ['DOT_ENV_DIRECTORY'] = pyqt5_plugins.utilities.fspath(
+        pathlib.Path(env_path).parent,
+    )
+    os.environ['SITE_PACKAGES'] = sysconfig.get_path('platlib')
+    dotenv.load_dotenv(dotenv_path=env_path, interpolate=True, override=True)
 
 
 def pyqttoolsinstalluic():
@@ -92,6 +107,8 @@ def pyqtdesigner(
         test_exception_dialog,
         qt_debug_plugins
 ):
+    # here for now at least since it still mutates
+    load_dotenv()
     env = pyqt5_plugins.utilities.create_env(reference=os.environ)
 
     extras = []
@@ -166,6 +183,8 @@ def pyqtqmlscene(
         qt_debug_plugins,
         run_qml_example,
 ):
+    # here for now at least since it still mutates
+    load_dotenv()
     env = pyqt5_plugins.utilities.create_env(os.environ)
     extras = []
 
@@ -223,6 +242,8 @@ def pyqtqmltestrunner(
         qt_debug_plugins,
         test_qml_example,
 ):
+    # here for now at least since it still mutates
+    load_dotenv()
     env = pyqt5_plugins.utilities.create_env(os.environ)
     extras = []
 
