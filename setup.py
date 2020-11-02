@@ -4,54 +4,44 @@ import sys
 
 here = pathlib.Path(__file__).parent
 
-sys.path.insert(0, here)
+sys.path.insert(0, os.fspath(here))
 # TODO: yuck, put the build command in a separate project and
 #       build-requires it?
-import build_new
+import build
 sys.path.pop(0)
 
 import setuptools
-import vcversioner
+import versioneer
 
-version = vcversioner.find_version(
-        version_module_paths=['_version.py'],
-        vcs_args=['git', '--git-dir', '%(root)s/.git', 'describe',
-                     '--tags', '--long', '--abbrev=999'],
-    )
 
-def pad_version(v):
+class InvalidVersionError(Exception):
+    pass
+
+
+def pad_version(v, segment_count=3):
     split = v.split('.')
-    return '.'.join(split + ['0'] * (3 - len(split)))
+
+    if len(split) > segment_count:
+        raise InvalidVersionError('{} has more than three segments'.format(v))
+
+    return '.'.join(split + ['0'] * (segment_count - len(split)))
+
 
 # TODO: really doesn't seem quite proper here and probably should come
 #       in some other way?
-os.environ.setdefault('PYQT_VERSION', '5.14.1')
+pyqt_version = pad_version(os.environ.setdefault('PYQT_VERSION', '5.15.1'))
+qt_version = pad_version(os.environ.setdefault('QT_VERSION', '5.15.1'))
 
-version = '.'.join((
-    pad_version(os.environ['PYQT_VERSION']),
-    version.version,
-))
 
-# sys.stderr.write('another stderr test from {}\n'.format(__file__))
+pyqt5_plugins_wrapper_version = versioneer.get_versions()['version']
+pyqt5_plugins_version = '{}.{}'.format(
+    pyqt_version,
+    pyqt5_plugins_wrapper_version,
+)
+
 
 with open('README.rst') as f:
     readme = f.read()
-
-console_scripts = [
-    'pyqt5toolsinstalluic = pyqt5_tools.entrypoints:pyqt5toolsinstalluic',
-    'pyqt5designer = pyqt5_tools.entrypoints:pyqt5designer',
-    'pyqt5qmlscene = pyqt5_tools.entrypoints:pyqt5qmlscene',
-    'pyqt5qmltestrunner = pyqt5_tools.entrypoints:pyqt5qmltestrunner',
-]
-
-# print('--- console_scripts')
-# for console_script in console_scripts:
-#     print('    ' + repr(console_script))
-
-# # TODO: do i really need this?  seems like it could be specified to be
-# #       specific to whatever is running it without saying what that is
-# #       or that it would default to that
-# build_new.write_setup_cfg(here)
 
 
 class Dist(setuptools.Distribution):
@@ -63,8 +53,8 @@ class Dist(setuptools.Distribution):
 
 
 setuptools.setup(
-    name="pyqt5-tools",
-    description="Tools to supplement the official PyQt5 wheels",
+    name="pyqt5_plugins",
+    description="PyQt Designer and QML plugins",
     long_description=readme,
     long_description_content_type='text/x-rst',
     url='https://github.com/altendky/pyqt5-tools',
@@ -75,9 +65,11 @@ setuptools.setup(
         # complete classifier list: https://pypi.org/pypi?%3Aaction=list_classifiers
         'Development Status :: 4 - Beta',
         'Environment :: Win32 (MS Windows)',
+        'Environment :: X11 Applications :: Qt',
         'Intended Audience :: Developers',
         "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
         'Operating System :: Microsoft :: Windows',
+        'Operating System :: POSIX :: Linux',
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
@@ -87,24 +79,16 @@ setuptools.setup(
         'Topic :: Software Development',
         'Topic :: Utilities',
     ],
-    cmdclass={'build_py': build_new.BuildPy},
+    cmdclass={'build_py': build.BuildPy},
     distclass=Dist,
     packages=setuptools.find_packages('src'),
     package_dir={'': 'src'},
-    version=version,
+    version=pyqt5_plugins_version,
     include_package_data=True,
     python_requires=">=3.5",
     install_requires=[
         'click',
-        'python-dotenv',
         'pyqt5=={}'.format(os.environ['PYQT_VERSION']),
+        'qt5-applications @ git+https://github.com/altendky/pyqt5-tools@just_applications',
     ],
-    entry_points={
-        'console_scripts': console_scripts,
-    },
-#    data_files=buildinfo.data_files()
-#    scripts=[
-#        {scripts}
-#        'pyqt5-tools/designer.exe'
-#    ]
 )

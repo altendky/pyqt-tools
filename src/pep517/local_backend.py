@@ -21,12 +21,14 @@ requirements = {
    'importlib-metadata': '',
    'hyperlink': '',
    'macholib': '',
+   'patch': '',
    'pylddwrap': '',
    'PyQt-builder': '',
    'requests': '',
    'setuptools': '',
    'sip': '',
-   'vcversioner': '',
+   'tenacity': '',
+   'versioneer-518': '== 0.18',
    'wheel': '',
 }
 
@@ -62,7 +64,7 @@ def to_list(*dicts):
 
 def get_requires_for_build_wheel(config_settings=None):
     # TODO: get this in via config_settings maybe
-    version = tuple(int(v) for v in os.environ['PYQT_VERSION'].split('.'))
+    version = tuple(int(v) for v in os.environ.get('PYQT_VERSION', '5.15.1').split('.'))
 
     dicts = [
         requirements,
