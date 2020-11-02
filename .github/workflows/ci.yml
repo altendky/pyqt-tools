@@ -12,8 +12,8 @@ env:
   PIP_NO_PYTHON_VERSION_WARNING: 1
 
 jobs:
-  ci:
-    name: ${{ matrix.os.name }} ${{ matrix.python.name }}-${{ matrix.bitness.name }} ${{ matrix.qt.pyqt_version }}
+  build:
+    name: Build ${{ matrix.os.name }} ${{ matrix.python.name }}-${{ matrix.bitness.name }} ${{ matrix.qt.pyqt_version }}
     runs-on: ${{ matrix.os.runs-on }}
     container: ${{ format(matrix.os.container, matrix.python.docker) }}
     strategy:
@@ -24,59 +24,51 @@ jobs:
             runs-on: ubuntu-latest
             python_platform: linux
             container: docker://python:{0}-buster
-            cibuildwheel_before: yum install mesa-libGL-devel
-          - name: Windows
-            runs-on: windows-latest
-            python_platform: win32
-            vs_path: C:/Program Files (x86)/Microsoft Visual Studio/2019/Enterprise/VC/Auxiliary/Build/vcvars64.bat
+#          - name: Windows
+#            runs-on: windows-latest
+#            python_platform: win32
+#            vs_path: C:/Program Files (x86)/Microsoft Visual Studio/2019/Enterprise/VC/Auxiliary/Build/vcvars64.bat
 #          - name: macOS
 #            runs-on: macos-latest
 #            python_platform: darwin
         python:
-          - name: 3.5
-            tox: py35
-            action: 3.5
-            docker: 3.5
-            cibuildwheel: cp38
-          - name: 3.6
-            tox: py36
-            action: 3.6
-            docker: 3.6
-            cibuildwheel: cp36
-          - name: 3.7
-            tox: py37
-            action: 3.7
-            docker: 3.7
-            cibuildwheel: cp37
+#          - name: 3.5
+#            tox: py35
+#            action: 3.5
+#            docker: 3.5
+#          - name: 3.6
+#            tox: py36
+#            action: 3.6
+#            docker: 3.6
+#          - name: 3.7
+#            tox: py37
+#            action: 3.7
+#            docker: 3.7
           - name: 3.8
             tox: py38
             action: 3.8
             docker: 3.8
-            cibuildwheel: cp38
-          - name: 3.9
-            tox: py39
-            action: 3.9
-            docker: 3.9
-            cibuildwheel: cp39
+#          - name: 3.9
+#            tox: py39
+#            action: 3.9
+#            docker: 3.9
         qt:
-          - pyqt_version: 5.14.0
-            qt_version: 5.14.0
-          - pyqt_version: 5.14.1
-            qt_version: 5.14.1
+#          - pyqt_version: 5.14.0
+#            qt_version: 5.14.0
+#          - pyqt_version: 5.14.1
+#            qt_version: 5.14.1
           - pyqt_version: 5.14.2
             qt_version: 5.14.2
-          - pyqt_version: 5.15.0
-            qt_version: 5.15.0
+#          - pyqt_version: 5.15.0
+#            qt_version: 5.15.0
           - pyqt_version: 5.15.1
             qt_version: 5.15.1
         bitness:
-          - name: x32
-            action: x86
-            cibuildwheel: '*32*'
-            ilammy: x86
+#          - name: x32
+#            action: x86
+#            ilammy: x86
           - name: x64
             action: x64
-            cibuildwheel: '*64*'
             ilammy: x64
         exclude:
           - bitness:
@@ -116,10 +108,10 @@ jobs:
         with:
           python-version: ${{ matrix.python.action }}
           architecture: ${{ matrix.bitness.action }}
-      - name: pip/setuptools/tox/cibuildwheel
+      - name: pip/setuptools/tox
         run: |
-          python -m pip install --upgrade pip setuptools
-          pip install tox cibuildwheel
+          python -m pip install --upgrade pip setuptools wheel
+          pip install tox pep517
       - name: Report info
         shell: bash
         run: |
@@ -129,48 +121,141 @@ jobs:
           pip list
           pip freeze --all
           python -c "import sysconfig; print('Py_ENABLE_SHARED -> {}'.format(sysconfig.get_config_var('Py_ENABLE_SHARED')))"
-#      - name: Install Linux Docker dependencies
-#        if: matrix.os.python_platform == 'linux'
-#        run: |
-#          apt-get update --yes
-#          apt-get install --yes docker.io
-#      - name: Build wheel
-#        run: |
-#          cibuildwheel --output-dir dist/
-#        env:
-#          CIBW_BUILD: ${{ matrix.python.cibuildwheel }}-${{ matrix.bitness.cibuildwheel }}
-#          CIBW_MANYLINUX_X86_64_IMAGE: manylinux2014
-#          CIBW_MANYLINUX_I686_IMAGE: manylinux2014
-#          CIBW_BEFORE_BUILD: ${{ matrix.os.cibuildwheel_before }}
-#          CIBW_ENVIRONMENT: QT_VERSION=${{ matrix.qt.qt_version }} QT_COMPILER=${{ matrix.os.qt_compiler }} QT_ARCHITECTURE=${{ matrix.os.aqt_architecture }} PYQT_VERSION=${{ matrix.qt.pyqt_version }}
       - name: Install Linux build dependencies
         if: matrix.os.python_platform == 'linux'
         run: |
           apt-get update --yes
-          apt-get install --yes libgl1-mesa-dev
-          apt-get install --yes libdbus-1-3 libxkbcommon-x11-0 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-randr0 libxcb-render-util0 libxcb-xinerama0 libxcb-xfixes0
-      - name: Set up MSVC
-        uses: ilammy/msvc-dev-cmd@v1
-        if: matrix.os.python_platform == 'win32'
-        with:
-          arch: ${{ matrix.bitness.ilammy }}
+          apt-get install --yes libgl1-mesa-dev libdbus-1-3 libxkbcommon-x11-0 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-randr0 libxcb-render-util0 libxcb-xinerama0 libxcb-xfixes0
       - name: Build wheel
-        # native shell for nmake...  keep commands here simple i guess
+        shell: bash
         run: |
-          mkdir -p dist/
-          pip wheel -vvv --no-deps --wheel-dir dist/ --no-clean .
-      - name: Rename to manylinux2014 tag
-        if: matrix.os.python_platform == 'linux'
-        shell: python
+          python -m pep517.build --binary --out-dir dist/ .
+      - name: Archive individual wheel
+        uses: actions/upload-artifact@v1
+        with:
+          name: ${{ matrix.qt.pyqt_version }}
+          path: dist/
+      - name: Archive all wheels
+        uses: actions/upload-artifact@v1
+        with:
+          name: all_wheels
+          path: dist/
+  test:
+    name: Test ${{ matrix.os.name }} ${{ matrix.python.name }}-${{ matrix.bitness.name }} ${{ matrix.qt.pyqt_version }}
+    runs-on: ${{ matrix.os.runs-on }}
+    container: ${{ format(matrix.os.container, matrix.python.docker) }}
+    needs:
+      - build
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - name: Linux
+            runs-on: ubuntu-latest
+            python_platform: linux
+            container: docker://python:{0}-buster
+          - name: Windows
+            runs-on: windows-latest
+            python_platform: win32
+            vs_path: C:/Program Files (x86)/Microsoft Visual Studio/2019/Enterprise/VC/Auxiliary/Build/vcvars64.bat
+#          - name: macOS
+#            runs-on: macos-latest
+#            python_platform: darwin
+        python:
+#          - name: 3.5
+#            tox: py35
+#            action: 3.5
+#            docker: 3.5
+#          - name: 3.6
+#            tox: py36
+#            action: 3.6
+#            docker: 3.6
+#          - name: 3.7
+#            tox: py37
+#            action: 3.7
+#            docker: 3.7
+          - name: 3.8
+            tox: py38
+            action: 3.8
+            docker: 3.8
+#          - name: 3.9
+#            tox: py39
+#            action: 3.9
+#            docker: 3.9
+        qt:
+#          - pyqt_version: 5.14.0
+#            qt_version: 5.14.0
+#          - pyqt_version: 5.14.1
+#            qt_version: 5.14.1
+          - pyqt_version: 5.14.2
+            qt_version: 5.14.2
+#          - pyqt_version: 5.15.0
+#            qt_version: 5.15.0
+          - pyqt_version: 5.15.1
+            qt_version: 5.15.1
+        bitness:
+#          - name: x32
+#            action: x86
+#            ilammy: x86
+          - name: x64
+            action: x64
+            ilammy: x64
+        exclude:
+          - bitness:
+              name: x32
+            os:
+              name: Linux
+#           - bitness:
+#               name: x32
+#             os:
+#               name: macOS
+          - python:
+              name: 3.9
+            qt:
+              pyqt_version: 5.14.0
+          - python:
+              name: 3.9
+            qt:
+              pyqt_version: 5.14.1
+          - python:
+              name: 3.9
+            qt:
+              pyqt_version: 5.14.2
+          - python:
+              name: 3.9
+            qt:
+              pyqt_version: 5.15.0
+    env:
+      QT_VERSION: ${{ matrix.qt.qt_version }}
+      PYQT_VERSION: ${{ matrix.qt.pyqt_version }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v1
+      - name: Download
+        uses: actions/download-artifact@v1
+        with:
+          name: ${{ matrix.qt.pyqt_version }}
+          path: dist/
+      - name: Set up Python ${{ matrix.python.name }}-${{ matrix.bitness.name }}
+        if: matrix.os.python_platform != 'linux'
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python.action }}
+          architecture: ${{ matrix.bitness.action }}
+      - name: pip/setuptools/tox
         run: |
-          import pathlib
-
-          dist = pathlib.Path.cwd() / 'dist'
-          [wheel] = dist.glob('*.whl')
-
-          # this is cheap...
-          retagged = wheel.parent / wheel.name.replace('linux', 'manylinux2014')
-          wheel.rename(retagged)
+          python -m pip install --upgrade pip setuptools
+          pip install tox
+      - name: Report info
+        shell: bash
+        run: |
+          git show --quiet HEAD
+          python --version --version
+          pip --version
+          pip list
+          pip freeze --all
+          python -c "import sysconfig; print('Py_ENABLE_SHARED -> {}'.format(sysconfig.get_config_var('Py_ENABLE_SHARED')))"
       - name: Set WHEEL_PATH
         shell: python
         run: |
@@ -182,51 +267,36 @@ jobs:
           dist = pathlib.Path.cwd() / 'dist'
           [wheel] = dist.glob('*.whl')
 
-          print('::set-env name=WHEEL_PATH::{}'.format(fspath(wheel)))
-          print('::set-env name=WHEEL_STEM::{}'.format(wheel.stem))
-      - name: Archive individual wheel
-        uses: actions/upload-artifact@v1
-        with:
-          name: ${{ env['WHEEL_STEM'] }}
-          path: dist
-      - name: Archive all wheels
-        uses: actions/upload-artifact@v1
-        with:
-          name: pyqt5_tools-all_wheels
-          path: dist
+          with open(os.environ['GITHUB_ENV'], 'a') as github_env:
+              github_env.write('WHEEL_PATH={}\n'.format(fspath(wheel)))
+              github_env.write('WHEEL_STEM={}\n'.format(wheel.stem))
       - name: Install Linux test dependencies
         if: matrix.os.python_platform == 'linux'
         run: |
           apt-get update --yes
-          apt-get install --yes libgl1-mesa-dev libxkbcommon-x11-0 xvfb
-          apt-get install --yes x11-utils libdbus-1-3
-          # let's guess here...
-          # apt-get install --yes mesa-utils linux-generic xserver-xorg-core xserver-xorg xserver-xorg-video-all xserver-xorg-input-all libwayland-egl1-mesa
+          apt-get install --yes libgl1-mesa-dev libdbus-1-3 libxkbcommon-x11-0 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-randr0 libxcb-render-util0 libxcb-xinerama0 libxcb-xfixes0 xvfb x11-utils
+      - name: Set up MSVC
+        uses: ilammy/msvc-dev-cmd@v1
+        if: matrix.os.python_platform == 'win32'
+        with:
+          arch: ${{ matrix.bitness.ilammy }}
       - name: Test
         run: |
           tox -e ${{ matrix.python.tox }} --installpkg ${{ env['WHEEL_PATH'] }}
-#      - name: prep
-#        if: always()
-#        run: |
-#          apt install --yes xvfb
-#          Xvfb :1 -screen 0 1600x1200x24&
-#      - name: Setup tmate session
-#        if: always()
-#        uses: mxschmitt/action-tmate@v2
   maybe_publish:
     name: Maybe Publish
     runs-on: ubuntu-latest
     container: docker://python:3.8-buster
     needs:
-      - ci
+      - test
     steps:
       - name: Checkout
         uses: actions/checkout@v1
       - name: Download all wheels
         uses: actions/download-artifact@v1
         with:
-          name: pyqt5_tools-all_wheels
-          path: dist
+          name: all_wheels
+          path: dist/
       - name: Install Python packages
         run: |
           pip install --upgrade twine
@@ -240,7 +310,8 @@ jobs:
     name: All
     runs-on: ubuntu-latest
     needs:
-      - ci
+      - build
+      - test
       - maybe_publish
     steps:
       - name: This
