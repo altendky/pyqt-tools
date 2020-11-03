@@ -63,20 +63,22 @@ Usage
 -----
 
 For each tool a script is created such that you get files like
-``Scripts/designer.exe`` to launch the programs.  Each one searches up the
-filesystem tree from your current working directory to find a ``.env`` file
-and loads it if found.  If found the environment variable
-``DOT_ENV_DIRECTORY`` will be set to the directory containing the ``.env``
-file.  With this extra variable you can specify paths relative to the
-``.env`` location.
+``Scripts/qt5designer.exe`` to launch the programs.
+
+Additionally, each ``pyqt5*`` wrapper listed below includes a parameter to
+run a basic example which can be used to see if the plugins are working.
+These examples are `not` intended to be used as examples of good code.
+
+Each ``pyqt5*`` entry point searches up the filesystem tree from your current
+working directory to find a ``.env`` file and loads it if found.  If found, the
+environment variable ``DOT_ENV_DIRECTORY`` will be set to the directory
+containing the ``.env`` file.  With this extra variable you can specify paths
+relative to the ``.env`` location.
 
 .. code-block:: powershell
 
   PYQTDESIGNERPATH=${PYQTDESIGNERPATH};${DOT_ENV_DIRECTORY}/path/to/my/widgets
 
-Additionally, each ``pyqt5*`` wrapper listed below includes a parameter to
-run a basic example which can be used to see if the plugins are working.
-These examples are `not` intended to be used as examples of good code.
 
 Designer
 ========
@@ -163,4 +165,6 @@ Special Thanks
    :alt: MacStadium
    :target: https://www.macstadium.com/
 
-Thanks to MacStadium for providing me with a macOS system to develop and test out the final pyqt5-tools platform.
+Thanks to MacStadium for providing me with a macOS system to develop and test
+out the final pyqt5-tools platform.  This is still 'in work'.  See
+`issue #12`_.

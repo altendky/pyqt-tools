@@ -33,7 +33,7 @@ pyqt5_tools_version = '{}.{}'.format(pyqt_version, pyqt5_tools_wrapper_version)
 pyqt_plugins_wrapper_version = '1.0'
 
 # Must be False for release.  PyPI won't let you uplaod with a URL dependency.
-use_pyqt_plugins_url = True
+use_pyqt_plugins_url = False
 
 if use_pyqt_plugins_url:
     pyqt_plugins_url = ' @ git+https://github.com/altendky/pyqt-plugins@main'
@@ -94,10 +94,10 @@ setuptools.setup(
     ],
     entry_points={
         'console_scripts': [
-            'pyqttoolsinstalluic = pyqt5_tools.entrypoints:pyqttoolsinstalluic',
-            'pyqtdesigner = pyqt5_tools.entrypoints:pyqtdesigner',
-            'pyqtqmlscene = pyqt5_tools.entrypoints:pyqtqmlscene',
-            'pyqtqmltestrunner = pyqt5_tools.entrypoints:pyqtqmltestrunner',
+            'pyqt{}toolsinstalluic = pyqt5_tools.entrypoints:pyqttoolsinstalluic'.format(pyqt_major_version),
+            'pyqt{}designer = pyqt5_tools.entrypoints:pyqtdesigner'.format(pyqt_major_version),
+            'pyqt{}qmlscene = pyqt5_tools.entrypoints:pyqtqmlscene'.format(pyqt_major_version),
+            'pyqt{}qmltestrunner = pyqt5_tools.entrypoints:pyqtqmltestrunner'.format(pyqt_major_version),
         ]
     }
 )
