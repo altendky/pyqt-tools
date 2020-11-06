@@ -30,13 +30,13 @@ pyqt5_tools_version = '{}.{}'.format(pyqt_version, pyqt5_tools_wrapper_version)
 
 # When using ~=, don't pad because that affects allowed versions.  The last
 # segment is the one that is allowed to increase.
-pyqt_plugins_wrapper_version = '1.0'
+pyqt_plugins_wrapper_version = '1.1'
 
 # Must be False for release.  PyPI won't let you uplaod with a URL dependency.
-use_pyqt_plugins_url = False
+use_pyqt_plugins_url = True
 
 if use_pyqt_plugins_url:
-    pyqt_plugins_url = ' @ git+https://github.com/altendky/pyqt-plugins@main'
+    pyqt_plugins_url = ' @ git+https://github.com/altendky/pyqt-plugins@qt-tools'
     pyqt_plugins_version_specifier = ''
 else:
     pyqt_plugins_url = ''
