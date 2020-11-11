@@ -7,7 +7,7 @@ import sysconfig
 
 import click
 import dotenv
-import qt5_applications
+import qt5_tools
 
 import PyQt5
 import pyqt5_plugins.utilities
@@ -139,7 +139,7 @@ def pyqtdesigner(
     )
 
     command = [
-        pyqt5_plugins.utilities.fspath(qt5_applications.application_path('designer')),
+        pyqt5_plugins.utilities.fspath(qt5_tools.application_path('designer')),
         *extras,
         *ctx.args,
     ]
@@ -208,7 +208,7 @@ def pyqtqmlscene(
     )
 
     command = [
-        pyqt5_plugins.utilities.fspath(qt5_applications.application_path('qmlscene')),
+        pyqt5_plugins.utilities.fspath(qt5_tools.application_path('qmlscene')),
         *extras,
         *ctx.args,
     ]
@@ -270,7 +270,7 @@ def pyqtqmltestrunner(
     )
 
     command = [
-        pyqt5_plugins.utilities.fspath(qt5_applications.application_path('qmltestrunner')),
+        pyqt5_plugins.utilities.fspath(qt5_tools.application_path('qmltestrunner')),
         *extras,
         *ctx.args,
     ]
