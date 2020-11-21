@@ -24,7 +24,7 @@ vars_to_print = [
 
 @pytest.fixture(name='environment')
 def environment_fixture():
-    environment = pyqt5_plugins.utilities.create_env(os.environ)
+    environment = pyqt5_plugins.create_environment(os.environ)
     pyqt5_plugins.utilities.mutate_qml_path(environment, paths=qml2_import_paths)
     environment['QT_DEBUG_PLUGINS'] = '1'
 
