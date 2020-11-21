@@ -109,7 +109,7 @@ def pyqtdesigner(
 ):
     # here for now at least since it still mutates
     load_dotenv()
-    env = pyqt5_plugins.utilities.create_env(reference=os.environ)
+    env = pyqt5_plugins.create_environment(reference=os.environ)
 
     extras = []
     widget_paths = list(widget_paths)
@@ -185,7 +185,7 @@ def pyqtqmlscene(
 ):
     # here for now at least since it still mutates
     load_dotenv()
-    env = pyqt5_plugins.utilities.create_env(os.environ)
+    env = pyqt5_plugins.create_environment(os.environ)
     extras = []
 
     if qmlscene_help:
@@ -244,7 +244,7 @@ def pyqtqmltestrunner(
 ):
     # here for now at least since it still mutates
     load_dotenv()
-    env = pyqt5_plugins.utilities.create_env(os.environ)
+    env = pyqt5_plugins.create_environment(os.environ)
     extras = []
 
     if qmltestrunner_help:
