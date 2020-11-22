@@ -28,11 +28,10 @@ pyqt5_tools_wrapper_version = versioneer.get_versions()['version']
 pyqt5_tools_version = '{}.{}'.format(pyqt_version, pyqt5_tools_wrapper_version)
 
 
-# When using ~=, don't pad because that affects allowed versions.  The last
-# segment is the one that is allowed to increase.
-pyqt_plugins_wrapper_version = '1.1'
+# Inclusive of the lower bound and exclusive of the upper
+pyqt_plugins_wrapper_range = ['2', '3']
 
-# Must be False for release.  PyPI won't let you uplaod with a URL dependency.
+# Must be False for release.  PyPI won't let you upload with a URL dependency.
 use_pyqt_plugins_url = True
 
 if use_pyqt_plugins_url:
@@ -40,9 +39,10 @@ if use_pyqt_plugins_url:
     pyqt_plugins_version_specifier = ''
 else:
     pyqt_plugins_url = ''
-    pyqt_plugins_version_specifier = '~={}.{}.dev0'.format(
-        pyqt_version,
-        pyqt_plugins_wrapper_version,
+    pyqt_plugins_version_format = '>={pyqt}.{wrapper[0]}, <{pyqt}.{wrapper[1]}'
+    pyqt_plugins_version_specifier = pyqt_plugins_version_format.format(
+        pyqt=pyqt_version,
+        wrapper=pyqt_plugins_wrapper_range,
     )
 
 
