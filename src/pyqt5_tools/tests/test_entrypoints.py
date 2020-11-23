@@ -3,9 +3,8 @@ import pathlib
 import subprocess
 
 import pytest
-import qt5_applications
+import qt5_tools
 
-import pyqt5_plugins.entrypoints
 import pyqt5_plugins.examples.exampleqmlitem
 import pyqt5_plugins.tests.testbutton
 import pyqt5_plugins.tests.testbuttonplugin
@@ -24,7 +23,7 @@ vars_to_print = [
 
 @pytest.fixture(name='environment')
 def environment_fixture():
-    environment = pyqt5_plugins.utilities.create_env(os.environ)
+    environment = pyqt5_plugins.create_environment(os.environ)
     pyqt5_plugins.utilities.mutate_qml_path(environment, paths=qml2_import_paths)
     environment['QT_DEBUG_PLUGINS'] = '1'
 
@@ -50,7 +49,7 @@ def test_designer_creates_test_widget(tmp_path, environment):
 
     with pytest.raises(subprocess.TimeoutExpired):
         subprocess.run(
-            [fspath(qt5_applications.application_path('designer'))],
+            [fspath(qt5_tools.application_path('designer'))],
             check=True,
             env=environment,
             timeout=20,
@@ -78,7 +77,7 @@ def test_qmlscene_paints_test_item(tmp_path, environment):
     with pytest.raises(subprocess.TimeoutExpired):
         subprocess.run(
             [
-                fspath(qt5_applications.application_path('qmlscene')),
+                fspath(qt5_tools.application_path('qmlscene')),
                 fspath(qml_example_path),
             ],
             check=True,
@@ -104,7 +103,7 @@ def test_qmltestrunner_paints_test_item(tmp_path, environment):
 
     subprocess.run(
         [
-            fspath(qt5_applications.application_path('qmltestrunner')),
+            fspath(qt5_tools.application_path('qmltestrunner')),
             '-input',
             qml_test_path,
         ],

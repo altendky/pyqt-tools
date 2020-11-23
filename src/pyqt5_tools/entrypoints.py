@@ -7,9 +7,8 @@ import sysconfig
 
 import click
 import dotenv
-import qt5_applications
-
 import PyQt5
+import qt5_tools
 import pyqt5_plugins.utilities
 import pyqt5_plugins.badplugin
 import pyqt5_plugins.examplebuttonplugin
@@ -49,7 +48,13 @@ def load_dotenv():
     dotenv.load_dotenv(dotenv_path=env_path, interpolate=True, override=True)
 
 
-def pyqttoolsinstalluic():
+@click.group()
+def main():
+    pass
+
+
+@main.command()
+def installuic():
     destination = bin/'bin'
     destination.mkdir(parents=True, exist_ok=True)
     there = pathlib.Path(sys.executable).parent
@@ -66,7 +71,7 @@ qt_debug_plugins_option = click.option(
 )
 
 
-@click.command(
+@main.command(
     context_settings={
         'ignore_unknown_options': True,
         'allow_extra_args': True,
@@ -99,7 +104,7 @@ qt_debug_plugins_option = click.option(
     is_flag=True,
 )
 @qt_debug_plugins_option
-def pyqtdesigner(
+def designer(
         ctx,
         widget_paths,
         designer_help,
@@ -109,7 +114,7 @@ def pyqtdesigner(
 ):
     # here for now at least since it still mutates
     load_dotenv()
-    env = pyqt5_plugins.utilities.create_env(reference=os.environ)
+    env = pyqt5_plugins.create_environment(reference=os.environ)
 
     extras = []
     widget_paths = list(widget_paths)
@@ -139,7 +144,7 @@ def pyqtdesigner(
     )
 
     command = [
-        pyqt5_plugins.utilities.fspath(qt5_applications.application_path('designer')),
+        pyqt5_plugins.utilities.fspath(qt5_tools.application_path('designer')),
         *extras,
         *ctx.args,
     ]
@@ -157,7 +162,7 @@ qml2_import_path_option = click.option(
 )
 
 
-@click.command(
+@main.command(
     context_settings={
         'ignore_unknown_options': True,
         'allow_extra_args': True,
@@ -176,7 +181,7 @@ qml2_import_path_option = click.option(
     help='Run the pyqt5-tools QML example',
     is_flag=True,
 )
-def pyqtqmlscene(
+def qmlscene(
         ctx,
         qml2_import_paths,
         qmlscene_help,
@@ -185,7 +190,7 @@ def pyqtqmlscene(
 ):
     # here for now at least since it still mutates
     load_dotenv()
-    env = pyqt5_plugins.utilities.create_env(os.environ)
+    env = pyqt5_plugins.create_environment(os.environ)
     extras = []
 
     if qmlscene_help:
@@ -208,7 +213,7 @@ def pyqtqmlscene(
     )
 
     command = [
-        pyqt5_plugins.utilities.fspath(qt5_applications.application_path('qmlscene')),
+        pyqt5_plugins.utilities.fspath(qt5_tools.application_path('qmlscene')),
         *extras,
         *ctx.args,
     ]
@@ -216,7 +221,7 @@ def pyqtqmlscene(
     return subprocess.call(command, env=env)
 
 
-@click.command(
+@main.command(
     context_settings={
         'ignore_unknown_options': True,
         'allow_extra_args': True,
@@ -235,7 +240,7 @@ def pyqtqmlscene(
     help='Test the pyqt5-tools QML example',
     is_flag=True,
 )
-def pyqtqmltestrunner(
+def qmltestrunner(
         ctx,
         qml2_import_paths,
         qmltestrunner_help,
@@ -244,7 +249,7 @@ def pyqtqmltestrunner(
 ):
     # here for now at least since it still mutates
     load_dotenv()
-    env = pyqt5_plugins.utilities.create_env(os.environ)
+    env = pyqt5_plugins.create_environment(os.environ)
     extras = []
 
     if qmltestrunner_help:
@@ -270,7 +275,7 @@ def pyqtqmltestrunner(
     )
 
     command = [
-        pyqt5_plugins.utilities.fspath(qt5_applications.application_path('qmltestrunner')),
+        pyqt5_plugins.utilities.fspath(qt5_tools.application_path('qmltestrunner')),
         *extras,
         *ctx.args,
     ]

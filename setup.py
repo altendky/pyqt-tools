@@ -28,21 +28,21 @@ pyqt5_tools_wrapper_version = versioneer.get_versions()['version']
 pyqt5_tools_version = '{}.{}'.format(pyqt_version, pyqt5_tools_wrapper_version)
 
 
-# When using ~=, don't pad because that affects allowed versions.  The last
-# segment is the one that is allowed to increase.
-pyqt_plugins_wrapper_version = '1.0'
+# Inclusive of the lower bound and exclusive of the upper
+pyqt_plugins_wrapper_range = ['2', '3']
 
-# Must be False for release.  PyPI won't let you uplaod with a URL dependency.
+# Must be False for release.  PyPI won't let you upload with a URL dependency.
 use_pyqt_plugins_url = False
 
 if use_pyqt_plugins_url:
-    pyqt_plugins_url = ' @ git+https://github.com/altendky/pyqt-plugins@main'
+    pyqt_plugins_url = ' @ git+https://github.com/altendky/pyqt-plugins@qt-tools'
     pyqt_plugins_version_specifier = ''
 else:
     pyqt_plugins_url = ''
-    pyqt_plugins_version_specifier = '~={}.{}.dev0'.format(
-        pyqt_version,
-        pyqt_plugins_wrapper_version,
+    pyqt_plugins_version_format = '>={pyqt}.{wrapper[0]}, <{pyqt}.{wrapper[1]}'
+    pyqt_plugins_version_specifier = pyqt_plugins_version_format.format(
+        pyqt=pyqt_version,
+        wrapper=pyqt_plugins_wrapper_range,
     )
 
 
@@ -94,10 +94,7 @@ setuptools.setup(
     ],
     entry_points={
         'console_scripts': [
-            'pyqt{}toolsinstalluic = pyqt5_tools.entrypoints:pyqttoolsinstalluic'.format(pyqt_major_version),
-            'pyqt{}designer = pyqt5_tools.entrypoints:pyqtdesigner'.format(pyqt_major_version),
-            'pyqt{}qmlscene = pyqt5_tools.entrypoints:pyqtqmlscene'.format(pyqt_major_version),
-            'pyqt{}qmltestrunner = pyqt5_tools.entrypoints:pyqtqmltestrunner'.format(pyqt_major_version),
+            'pyqt{}-tools = pyqt5_tools.entrypoints:main'.format(pyqt_major_version),
         ]
     }
 )

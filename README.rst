@@ -83,28 +83,30 @@ relative to the ``.env`` location.
 Designer
 ========
 
-There is a ``Scripts/pyqt5designer.exe`` entry point that will help fill out
+There is a ``Scripts/pyqt5-tools.exe designer.exe`` entry point that will help fill out
 ``PYQTDESIGNERPATH`` from either command line arguments or a ``.env`` file.
 Unknown arguments are passed through to the original Qt Designer program.
 
 .. code-block::
 
-    Usage: pyqt5designer [OPTIONS]
+    Usage: pyqt5-tools designer [OPTIONS]
 
     Options:
       -p, --widget-path DIRECTORY     Paths to be combined with PYQTDESIGNERPATH
       --example-widget-path           Include the path for the pyqt5-tools example
-                                      button (c:/users/sda/testenv/lib/site-
-                                      packages/pyqt5_tools)
+                                      button (c:\users\sda\testenv\lib\site-
+                                      packages\pyqt5_plugins)
+
       --designer-help                 Pass through to get Designer's --help
       --test-exception-dialog         Raise an exception to check the exception
                                       dialog functionality.
+
       --qt-debug-plugins / --no-qt-debug-plugins
                                       Set QT_DEBUG_PLUGINS=1
       --help                          Show this message and exit.
 
 If you want to use ``Form`` > ``View Code...`` from within Designer you can
-run ``Scripts/pyqt5toolsinstalluic.exe`` and it will copy ``pyuic5.exe``
+run ``Scripts/pyqt5-tools.exe installuic`` and it will copy ``pyuic5.exe``
 such that Designer will use it and show you generated Python code.  ``pyqt5``
 must already be installed or this script will be unable to find the original
 ``pyuic5.exe`` to copy.
@@ -127,7 +129,7 @@ QML Scene
 
 .. code-block::
 
-    Usage: pyqt5qmlscene [OPTIONS]
+    Usage: pyqt5-tools qmlscene [OPTIONS]
 
     Options:
       -p, --qml2-import-path DIRECTORY
@@ -143,7 +145,7 @@ QML Test Runner
 
 .. code-block::
 
-    Usage: pyqt5qmltestrunner [OPTIONS]
+    Usage: pyqt5-tools qmltestrunner [OPTIONS]
 
     Options:
       -p, --qml2-import-path DIRECTORY
