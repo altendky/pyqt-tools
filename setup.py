@@ -94,10 +94,7 @@ setuptools.setup(
     ],
     entry_points={
         'console_scripts': [
-            'pyqt{}toolsinstalluic = pyqt5_tools.entrypoints:pyqttoolsinstalluic'.format(pyqt_major_version),
-            'pyqt{}designer = pyqt5_tools.entrypoints:pyqtdesigner'.format(pyqt_major_version),
-            'pyqt{}qmlscene = pyqt5_tools.entrypoints:pyqtqmlscene'.format(pyqt_major_version),
-            'pyqt{}qmltestrunner = pyqt5_tools.entrypoints:pyqtqmltestrunner'.format(pyqt_major_version),
+            'pyqt{}-tools = pyqt5_tools.entrypoints:main'.format(pyqt_major_version),
         ]
     }
 )
