@@ -32,7 +32,7 @@ pyqt5_tools_version = '{}.{}'.format(pyqt_version, pyqt5_tools_wrapper_version)
 pyqt_plugins_wrapper_range = ['2', '3']
 
 # Must be False for release.  PyPI won't let you upload with a URL dependency.
-use_pyqt_plugins_url = True
+use_pyqt_plugins_url = False
 
 if use_pyqt_plugins_url:
     pyqt_plugins_url = ' @ git+https://github.com/altendky/pyqt-plugins@qt-tools'
