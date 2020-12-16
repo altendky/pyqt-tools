@@ -52,7 +52,7 @@ def test_designer_creates_test_widget(tmp_path, environment):
             [fspath(qt5_tools.application_path('designer'))],
             check=True,
             env=environment,
-            timeout=20,
+            timeout=40,
         )
 
     assert (
@@ -82,7 +82,7 @@ def test_qmlscene_paints_test_item(tmp_path, environment):
             ],
             check=True,
             env=environment,
-            timeout=20,
+            timeout=40,
         )
 
     assert (
@@ -109,7 +109,7 @@ def test_qmltestrunner_paints_test_item(tmp_path, environment):
         ],
         check=True,
         env=environment,
-        timeout=20,
+        timeout=40,
     )
 
     assert (
