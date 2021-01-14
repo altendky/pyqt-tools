@@ -235,13 +235,13 @@ jobs:
           name: ${{ matrix.qt.pyqt_version }}
           path: dist/
       - name: Set up CPython ${{ matrix.python.name }}-${{ matrix.bitness.name }}
-        if: matrix.python.matrix != "miniconda" && matrix.os.matrix != 'linux'
+        if: matrix.python.matrix != 'miniconda' && matrix.os.matrix != 'linux'
         uses: actions/setup-python@v2
         with:
           python-version: ${{ matrix.python.action }}
           architecture: ${{ matrix.bitness.action }}
       - name: Set up Miniconda Python ${{ matrix.python.name }}-${{ matrix.bitness.name }}
-        if: matrix.python.matrix == "miniconda" && matrix.os.matrix != 'linux'
+        if: matrix.python.matrix == 'miniconda' && matrix.os.matrix != 'linux'
         uses: conda-incubator/setup-miniconda@v2
         with:
           auto-update-conda: true
