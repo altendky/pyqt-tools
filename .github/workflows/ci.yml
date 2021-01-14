@@ -119,7 +119,7 @@ jobs:
   test:
     name: Test ${{ matrix.os.name }} ${{ matrix.python.name }}-${{ matrix.bitness.name }} ${{ matrix.qt.pyqt_version }}
     runs-on: ${{ matrix.os.runs-on }}
-    container: ${{ format(matrix.os.container, matrix.python.docker) }}
+    container: ${{ matrix.os.container[matrix.python.docker] }}
     needs:
       - build
     strategy:
@@ -129,11 +129,20 @@ jobs:
           - name: Linux
             runs-on: ubuntu-latest
             python_platform: linux
-            container: docker://python:{0}-buster
+            container:
+              2.7: docker://python:2.7-buster
+              3.5: docker://python:3.5-buster
+              3.6: docker://python:3.6-buster
+              3.7: docker://python:3.7-buster
+              3.8: docker://python:3.8-buster
+              3.9: docker://python:3.9-buster
+              miniconda3: docker://continuumio/miniconda3
+            matrix: linux
           - name: Windows
             runs-on: windows-latest
             python_platform: win32
             vs_path: C:/Program Files (x86)/Microsoft Visual Studio/2019/Enterprise/VC/Auxiliary/Build/vcvars64.bat
+            matrix: windows
 #          - name: macOS
 #            runs-on: macos-latest
 #            python_platform: darwin
@@ -142,22 +151,32 @@ jobs:
             tox: py35
             action: 3.5
             docker: 3.5
+            matrix: cpython3.5
           - name: 3.6
             tox: py36
             action: 3.6
             docker: 3.6
+            matrix: cpython3.6
           - name: 3.7
             tox: py37
             action: 3.7
             docker: 3.7
+            matrix: cpython3.7
           - name: 3.8
             tox: py38
             action: 3.8
             docker: 3.8
+            matrix: cpython3.8
           - name: 3.9
             tox: py39
             action: 3.9
             docker: 3.9
+            matrix: cpython3.9
+          - name: Miniconda
+            tox: py38
+            action: miniconda3
+            docker: miniconda3
+            matrix: miniconda3
         qt:
           - pyqt_version: 5.14.0
             qt_version: 5.14.0
@@ -182,7 +201,7 @@ jobs:
           - bitness:
               name: x32
             os:
-              name: Linux
+              matrix: linux
 #           - bitness:
 #               name: x32
 #             os:
@@ -203,6 +222,14 @@ jobs:
               name: 3.9
             qt:
               pyqt_version: 5.15.0
+          - python:
+              matrix: miniconda3
+            os:
+              matrix: windows
+#          - python:
+#              matrix: miniconda3
+#            os:
+#              name: macOS
     env:
       QT_VERSION: ${{ matrix.qt.qt_version }}
       PYQT_VERSION: ${{ matrix.qt.pyqt_version }}
@@ -216,7 +243,7 @@ jobs:
           name: ${{ matrix.qt.pyqt_version }}
           path: dist/
       - name: Set up Python ${{ matrix.python.name }}-${{ matrix.bitness.name }}
-        if: matrix.os.python_platform != 'linux'
+        if: matrix.os.matrix != 'linux'
         uses: actions/setup-python@v2
         with:
           python-version: ${{ matrix.python.action }}
@@ -249,7 +276,7 @@ jobs:
               github_env.write('WHEEL_PATH={}\n'.format(fspath(wheel)))
               github_env.write('WHEEL_STEM={}\n'.format(wheel.stem))
       - name: Install Linux test dependencies
-        if: matrix.os.python_platform == 'linux'
+        if: matrix.os.matrix == 'linux'
         run: |
           apt-get update --yes
           apt-get install --yes libgl1-mesa-dev libdbus-1-3 libxkbcommon-x11-0 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-randr0 libxcb-render-util0 libxcb-xinerama0 libxcb-xfixes0 xvfb x11-utils
