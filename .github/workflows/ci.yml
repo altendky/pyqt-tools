@@ -222,14 +222,6 @@ jobs:
               name: 3.9
             qt:
               pyqt_version: 5.15.0
-          - python:
-              matrix: miniconda3
-            os:
-              matrix: windows
-#          - python:
-#              matrix: miniconda3
-#            os:
-#              name: macOS
     env:
       QT_VERSION: ${{ matrix.qt.qt_version }}
       PYQT_VERSION: ${{ matrix.qt.pyqt_version }}
@@ -242,12 +234,18 @@ jobs:
         with:
           name: ${{ matrix.qt.pyqt_version }}
           path: dist/
-      - name: Set up Python ${{ matrix.python.name }}-${{ matrix.bitness.name }}
-        if: matrix.os.matrix != 'linux'
+      - name: Set up CPython ${{ matrix.python.name }}-${{ matrix.bitness.name }}
+        if: matrix.python.matrix != "miniconda" && matrix.os.matrix != 'linux'
         uses: actions/setup-python@v2
         with:
           python-version: ${{ matrix.python.action }}
           architecture: ${{ matrix.bitness.action }}
+      - name: Set up Miniconda Python ${{ matrix.python.name }}-${{ matrix.bitness.name }}
+        if: matrix.python.matrix == "miniconda" && matrix.os.matrix != 'linux'
+        uses: conda-incubator/setup-miniconda@v2
+        with:
+          auto-update-conda: true
+          python-version: ${{ matrix.python-version }}
       - name: pip/setuptools/tox
         run: |
           python -m pip install --upgrade pip setuptools
