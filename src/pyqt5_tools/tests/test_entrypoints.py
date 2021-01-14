@@ -126,7 +126,7 @@ def test_installuic_does_not_fail(environment):
 
     subprocess.run(
         [
-            fspath(scripts_path.joinpath("pyqt5-tools"),
+            fspath(scripts_path.joinpath("pyqt5-tools")),
             'installuic',
         ],
         check=True,
