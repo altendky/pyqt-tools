@@ -122,7 +122,7 @@ def test_qmltestrunner_paints_test_item(tmp_path, environment):
 def test_installuic_does_not_fail(environment):
     pyqt5_plugins.utilities.print_environment_variables(environment, *vars_to_print)
 
-    scripts_path = pathlib.path(sysconfig.get_path("scripts"))
+    scripts_path = pathlib.Path(sysconfig.get_path("scripts"))
 
     subprocess.run(
         [
