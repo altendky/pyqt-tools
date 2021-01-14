@@ -15,7 +15,7 @@ jobs:
   ci:
     name: ${{ matrix.os.name }} ${{ matrix.python.name }}-${{ matrix.bitness.name }} ${{ matrix.qt.pyqt_version }}
     runs-on: ${{ matrix.os.runs-on }}
-    container: ${{ format(matrix.os.container, matrix.python.docker) }}
+    container: ${{ matrix.os.container[matrix.python.docker] }}
     strategy:
       fail-fast: false
       matrix:
@@ -23,7 +23,14 @@ jobs:
           - name: Linux
             runs-on: ubuntu-latest
             python_platform: linux
-            container: docker://python:{0}-buster
+            container:
+              2.7: docker://python:2.7-buster
+              3.5: docker://python:3.5-buster
+              3.6: docker://python:3.6-buster
+              3.7: docker://python:3.7-buster
+              3.8: docker://python:3.8-buster
+              3.9: docker://python:3.9-buster
+              miniconda3: docker://continuumio/miniconda3
             cibuildwheel_before: yum install mesa-libGL-devel
           - name: Windows
             runs-on: windows-latest
@@ -58,6 +65,11 @@ jobs:
             action: 3.9
             docker: 3.9
             cibuildwheel: cp39
+          - name: Miniconda
+            tox: py38
+            action: miniconda3
+            docker: miniconda3
+            cibuildwheel: na
         qt:
           - pyqt_version: 5.14.0
             qt_version: 5.14.0
