@@ -1,6 +1,7 @@
 import os
 import pathlib
 import subprocess
+import sysconfig
 
 import pytest
 import qt5_tools
@@ -115,4 +116,20 @@ def test_qmltestrunner_paints_test_item(tmp_path, environment):
     assert (
             file_path.read_bytes()
             == pyqt5_plugins.examples.exampleqmlitem.test_file_contents
+    )
+
+
+def test_installuic_does_not_fail(environment):
+    pyqt5_plugins.utilities.print_environment_variables(environment, *vars_to_print)
+
+    scripts_path = pathlib.Path(sysconfig.get_path("scripts"))
+
+    subprocess.run(
+        [
+            fspath(scripts_path.joinpath("pyqt5-tools")),
+            'installuic',
+        ],
+        check=True,
+        env=environment,
+        timeout=40,
     )

@@ -57,11 +57,15 @@ def main():
 def installuic():
     destination = bin/'bin'
     destination.mkdir(parents=True, exist_ok=True)
-    there = pathlib.Path(sys.executable).parent
+    scripts_path = pathlib.Path(sysconfig.get_path("scripts"))
 
     shutil.copy(
-        src=str(there / maybe_extension('pyuic5')),
-        dst=str(destination/maybe_extension('uic')),
+        src=pyqt5_plugins.utilities.fspath(
+            scripts_path.joinpath(maybe_extension('pyuic5')),
+        ),
+        dst=pyqt5_plugins.utilities.fspath(
+            destination.joinpath(maybe_extension('uic')),
+        ),
     )
 
 
