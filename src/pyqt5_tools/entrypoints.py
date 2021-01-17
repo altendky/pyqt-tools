@@ -18,7 +18,6 @@ import pyqt5_plugins.tests.testbutton
 
 
 here = pathlib.Path(__file__).parent
-bin = here/'Qt'/'bin'
 example_path = str(
     pathlib.Path(pyqt5_plugins.examplebuttonplugin.__file__).parent,
 )
@@ -55,8 +54,7 @@ def main():
 
 @main.command()
 def installuic():
-    destination = bin/'bin'
-    destination.mkdir(parents=True, exist_ok=True)
+    destination = qt5_tools.bin_path()
     scripts_path = pathlib.Path(sysconfig.get_path("scripts"))
 
     shutil.copy(
