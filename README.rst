@@ -40,8 +40,8 @@ You will generally install pyqt5-tools using ``pip install``.  In most cases
 you should be using virtualenv_ or venv_ to create isolated environments to
 install your dependencies in.  The above command assumes an env in the
 directory ``yourenv``.  The ``~=5.15`` specifies a `release compatible with`_
-5.11 which will be the latest version of pyqt5-tools built for PyQt5_ 5.11. If
-you are using a different PyQt5 version, specify it instead of 5.11.  PyPI
+5.15 which will be the latest version of pyqt5-tools built for PyQt5_ 5.15. If
+you are using a different PyQt5 version, specify it instead of 5.15.  PyPI
 keeps a list of `all available versions`_.
 
 .. _virtualenv: https://virtualenv.pypa.io/en/stable/
@@ -51,25 +51,31 @@ keeps a list of `all available versions`_.
 .. _`all available versions`: https://pypi.org/project/pyqt5-tools/#history
 
 Note:
-    As of pyqt5-tools v2 the package has been broken down into three pieces.
-    The wrappers remain here but the plugins are located in pyqt5-plugins_ and
-    the applications are in qt5-applications_.
+    As of pyqt5-tools v3 the package has been broken down into four pieces.
+    The wrappers remain here but the plugins are located in pyqt5-plugins_,
+    some Qt application helpers in qt5-tools_, and the applications are in
+    qt5-applications_.
 
 .. _pyqt5-plugins: https://github.com/altendky/pyqt-plugins
+.. _qt5-tools: https://github.com/altendky/qt-tools
 .. _qt5-applications: https://github.com/altendky/qt-applications
 
 -----
 Usage
 -----
 
-For each tool a script is created such that you get files like
-``Scripts/qt5designer.exe`` to launch the programs.
+A program is provided available as ``Scripts/pyqt5-tools.exe``.  There are
+subcommands provided for each of Designer, QML Scene, and the QML Test Runner.
+These wrapper commands provide additional functionality related to launching
+the underlying programs.  A larger set of Qt application are available as
+subcommands of the ``Scripts/qt5-tools.exe`` program.  In both cases, passing
+``--help`` will list the available subcommands.
 
-Additionally, each ``pyqt5*`` wrapper listed below includes a parameter to
-run a basic example which can be used to see if the plugins are working.
+Additionally, each ``pyqt5-tools`` subcommand listed below includes a parameter
+to run a basic example which can be used to see if the plugins are working.
 These examples are `not` intended to be used as examples of good code.
 
-Each ``pyqt5*`` entry point searches up the filesystem tree from your current
+Each subcommand searches up the filesystem tree from your current
 working directory to find a ``.env`` file and loads it if found.  If found, the
 environment variable ``DOT_ENV_DIRECTORY`` will be set to the directory
 containing the ``.env`` file.  With this extra variable you can specify paths
@@ -105,11 +111,14 @@ Unknown arguments are passed through to the original Qt Designer program.
                                       Set QT_DEBUG_PLUGINS=1
       --help                          Show this message and exit.
 
-If you want to use ``Form`` > ``View Code...`` from within Designer you can
+If you want to view the generated code from within Designer, you can
 run ``Scripts/pyqt5-tools.exe installuic`` and it will copy ``pyuic5.exe``
-such that Designer will use it and show you generated Python code.  ``pyqt5``
-must already be installed or this script will be unable to find the original
-``pyuic5.exe`` to copy.
+such that Designer will use it and show you generated Python code.  Note that
+this will enable viewing using the C++ menu item while the Python menu item
+will be broken.  Without having made this adjustment, the C++ option shows
+C++ code while the Python option shows PySide2 code.  ``pyqt5`` must already
+be installed or this script will be unable to find the original ``pyuic5.exe``
+to copy.
 
 In addition to the standard features of the official Designer plugin, this
 provides an exception dialog for your widget's Python code.  Otherwise Designer
