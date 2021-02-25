@@ -19,7 +19,7 @@ def pad_version(v, segment_count=3):
 
 # TODO: really doesn't seem quite proper here and probably should come
 #       in some other way?
-pyqt_version = pad_version(os.environ.setdefault('PYQT_VERSION', '5.15.2'))
+pyqt_version = pad_version(os.environ.setdefault('PYQT_VERSION', '5.15.3'))
 qt_version = pad_version(os.environ.setdefault('QT_VERSION', '5.15.2'))
 pyqt_major_version = pyqt_version.partition('.')[0]
 
@@ -32,7 +32,7 @@ pyqt5_tools_version = '{}.{}'.format(pyqt_version, pyqt5_tools_wrapper_version)
 pyqt_plugins_wrapper_range = ['2', '3']
 
 # Must be False for release.  PyPI won't let you upload with a URL dependency.
-use_pyqt_plugins_url = False
+use_pyqt_plugins_url = True
 
 if use_pyqt_plugins_url:
     pyqt_plugins_url = ' @ git+https://github.com/altendky/pyqt-plugins@qt-tools'
