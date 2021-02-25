@@ -35,7 +35,7 @@ pyqt_plugins_wrapper_range = ['2', '3']
 use_pyqt_plugins_url = True
 
 if use_pyqt_plugins_url:
-    pyqt_plugins_url = ' @ git+https://github.com/altendky/pyqt-plugins@qt-tools'
+    pyqt_plugins_url = ' @ git+https://github.com/altendky/pyqt-plugins@add-5.15.3'
     pyqt_plugins_version_specifier = ''
 else:
     pyqt_plugins_url = ''
