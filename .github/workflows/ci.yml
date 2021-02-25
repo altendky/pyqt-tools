@@ -292,6 +292,7 @@ jobs:
       - name: Set up Conda GCC
         if: matrix.python.matrix == 'miniconda3'
         run: |
+          conda init bash
           conda activate root
           conda install -y gxx_linux-64
       - name: Set up MSVC
