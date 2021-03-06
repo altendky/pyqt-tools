@@ -175,7 +175,7 @@ jobs:
             docker: 3.9
             matrix: cpython3.9
           - name: Miniconda
-            tox: py38
+            tox: py38-conda
             action: miniconda3
             docker: miniconda3
             matrix: miniconda3
@@ -304,8 +304,6 @@ jobs:
         with:
           arch: ${{ matrix.bitness.ilammy }}
       - name: Test
-        env:
-          ACTIVATE_CONDA: ${{ matrix.python.matrix == 'miniconda3' }}
         run: |
           tox -e ${{ matrix.python.tox }} --installpkg ${{ env['WHEEL_PATH'] }}
   maybe_publish:
