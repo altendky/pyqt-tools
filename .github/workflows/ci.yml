@@ -289,13 +289,10 @@ jobs:
           apt-get update --yes
           apt-get install --yes libgl1-mesa-dev libdbus-1-3 libxkbcommon-x11-0 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-randr0 libxcb-render-util0 libxcb-xinerama0 libxcb-xfixes0 xvfb x11-utils
       - uses: altendky/QTBUG-88688-libxcb-util@v3
-      - name: Init Conda
-        if: matrix.python.matrix == 'miniconda3'
-        run: |
-          conda init bash
       - name: Set up Conda GCC
         if: matrix.python.matrix == 'miniconda3'
         run: |
+          conda init bash
           conda activate root
           conda install -y gxx_linux-64
       - name: Set up MSVC
