@@ -185,7 +185,7 @@ jobs:
             docker: 3.9
             matrix: cpython3.9
           - name: Miniconda
-            tox: py38-conda
+            tox: py38
             action: miniconda3
             docker: miniconda3
             matrix: miniconda3
