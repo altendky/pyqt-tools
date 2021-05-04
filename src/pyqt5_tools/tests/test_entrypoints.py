@@ -4,7 +4,6 @@ import subprocess
 import sysconfig
 
 import pytest
-import qt5_tools
 
 import pyqt5_plugins.examples.exampleqmlitem
 import pyqt5_plugins.tests.testbutton
@@ -14,6 +13,8 @@ import pyqt5_plugins.utilities
 
 fspath = getattr(os, 'fspath', str)
 
+scripts_path = pathlib.Path(sysconfig.get_path("scripts"))
+executable_path_string = fspath(scripts_path.joinpath("pyqt5-tools"))
 
 vars_to_print = [
     *pyqt5_plugins.utilities.diagnostic_variables_to_print,
@@ -50,7 +51,10 @@ def test_designer_creates_test_widget(tmp_path, environment):
 
     with pytest.raises(subprocess.TimeoutExpired):
         subprocess.run(
-            [fspath(qt5_tools.application_path('designer'))],
+            [
+                executable_path_string,
+                'designer',
+            ],
             check=True,
             env=environment,
             timeout=40,
@@ -78,7 +82,8 @@ def test_qmlscene_paints_test_item(tmp_path, environment):
     with pytest.raises(subprocess.TimeoutExpired):
         subprocess.run(
             [
-                fspath(qt5_tools.application_path('qmlscene')),
+                executable_path_string,
+                'qmlscene',
                 fspath(qml_example_path),
             ],
             check=True,
@@ -104,7 +109,8 @@ def test_qmltestrunner_paints_test_item(tmp_path, environment):
 
     subprocess.run(
         [
-            fspath(qt5_tools.application_path('qmltestrunner')),
+            executable_path_string,
+            'qmltestrunner',
             '-input',
             qml_test_path,
         ],
@@ -122,11 +128,9 @@ def test_qmltestrunner_paints_test_item(tmp_path, environment):
 def test_installuic_does_not_fail(environment):
     pyqt5_plugins.utilities.print_environment_variables(environment, *vars_to_print)
 
-    scripts_path = pathlib.Path(sysconfig.get_path("scripts"))
-
     subprocess.run(
         [
-            fspath(scripts_path.joinpath("pyqt5-tools")),
+            executable_path_string,
             'installuic',
         ],
         check=True,
