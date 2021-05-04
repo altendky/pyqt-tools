@@ -218,10 +218,10 @@ jobs:
               name: x32
             os:
               matrix: linux
-           - bitness:
-               name: x32
-             os:
-               name: macOS
+          - bitness:
+              name: x32
+            os:
+              name: macOS
           - python:
               name: 3.9
             qt:
