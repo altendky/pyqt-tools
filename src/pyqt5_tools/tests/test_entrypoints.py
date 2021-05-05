@@ -111,6 +111,7 @@ def test_qmltestrunner_paints_test_item(tmp_path, environment):
         [
             executable_path_string,
             'qmltestrunner',
+            '--',
             '-input',
             qml_test_path,
         ],
