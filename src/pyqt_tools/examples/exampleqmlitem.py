@@ -1,10 +1,13 @@
 import os
 import pathlib
 
-from PyQt5 import QtCore
-from PyQt5 import QtQuick
+from .. import _import_it
+from .. import major
 
-test_path_env_var = 'PYQT5TOOLS_TEST_PATH'
+QtCore = _import_it('PyQt', 'QtCore')
+QtQuick = _import_it('PyQt', 'QtQuick')
+
+test_path_env_var = 'PYQT{major}TOOLS_TEST_PATH'.format(major=major)
 test_file_contents = b'jagular'
 write_for_test = test_path_env_var in os.environ
 
@@ -49,5 +52,5 @@ class ExampleQmlItem(QtQuick.QQuickPaintedItem):
         painter.drawText(
             self.width() / 2,
             self.height() / 2,
-            'pyqt5-tools',
+            'pyqt{major}-tools'.format(major=major),
         )
