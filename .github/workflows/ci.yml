@@ -286,6 +286,17 @@ jobs:
             qt_version: 6.0.3
             major: 6
             tox: qt6
+# no PyQt6==6.0.4
+#          - name: 6.0.4
+#            pyqt_version: 6.0.4
+#            qt_version: 6.0.4
+#            major: 6
+#            tox: qt6
+          - name: 6.1.0
+            pyqt_version: 6.1.0
+            qt_version: 6.1.0
+            major: 6
+            tox: qt6
         bitness:
           - name: x32
             action: x86
