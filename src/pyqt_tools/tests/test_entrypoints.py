@@ -21,6 +21,8 @@ _import_it('pyqt_plugins', 'utilities')
 
 fspath = getattr(os, 'fspath', str)
 
+scripts_path = pathlib.Path(sysconfig.get_path("scripts"))
+executable_path_string = fspath(scripts_path.joinpath("pyqt5-tools"))
 
 vars_to_print = [
     *pyqt_plugins.utilities.diagnostic_variables_to_print,
@@ -57,7 +59,10 @@ def test_designer_creates_test_widget(tmp_path, environment):
 
     with pytest.raises(subprocess.TimeoutExpired):
         subprocess.run(
-            [fspath(qt_tools.application_path('designer'))],
+            [
+                executable_path_string,
+                'designer',
+            ],
             check=True,
             env=environment,
             timeout=40,
@@ -121,7 +126,9 @@ def test_qmltestrunner_paints_test_item(tmp_path, environment):
 
     subprocess.run(
         [
-            fspath(qt_tools.application_path('qmltestrunner')),
+            executable_path_string,
+            'qmltestrunner',
+            '--',
             '-input',
             qml_test_path,
         ],
@@ -139,11 +146,9 @@ def test_qmltestrunner_paints_test_item(tmp_path, environment):
 def test_installuic_does_not_fail(environment):
     pyqt_plugins.utilities.print_environment_variables(environment, *vars_to_print)
 
-    scripts_path = pathlib.Path(sysconfig.get_path("scripts"))
-
     subprocess.run(
         [
-            fspath(scripts_path.joinpath("pyqt{major}-tools".format(major=major))),
+            executable_path_string,
             'installuic',
         ],
         check=True,

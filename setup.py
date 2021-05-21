@@ -66,12 +66,11 @@ setuptools.setup(
     classifiers=[
         # complete classifier list: https://pypi.org/pypi?%3Aaction=list_classifiers
         'Development Status :: 4 - Beta',
-        'Environment :: Win32 (MS Windows)',
-        'Environment :: X11 Applications :: Qt',
         'Intended Audience :: Developers',
         "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
-        'Operating System :: Microsoft :: Windows',
         'Operating System :: POSIX :: Linux',
+        'Operating System :: MacOS :: MacOS X',
+        'Operating System :: Microsoft :: Windows',
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',

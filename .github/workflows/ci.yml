@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - e*
     tags:
       - v*
   pull_request:
@@ -132,8 +133,9 @@ jobs:
       PYQT_VERSION: ${{ matrix.qt.pyqt_version }}
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v1
+      - uses: actions/checkout@v1
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
       - name: Set up Python ${{ matrix.python.name }}-${{ matrix.bitness.name }}
         if: matrix.os.python_platform != 'linux'
         uses: actions/setup-python@v2
@@ -200,9 +202,9 @@ jobs:
             python_platform: win32
             vs_path: C:/Program Files (x86)/Microsoft Visual Studio/2019/Enterprise/VC/Auxiliary/Build/vcvars64.bat
             matrix: windows
-#          - name: macOS
-#            runs-on: macos-latest
-#            python_platform: darwin
+          - name: macOS
+            runs-on: macos-latest
+            python_platform: darwin
         python:
           - name: 3.5
             tox: py35
@@ -318,10 +320,10 @@ jobs:
               name: x32
             os:
               matrix: linux
-#           - bitness:
-#               name: x32
-#             os:
-#               name: macOS
+          - bitness:
+              name: x32
+            os:
+              name: macOS
           - python:
               name: 3.9
             qt:
@@ -351,6 +353,18 @@ jobs:
             os:
               matrix: windows
           - python:
+              matrix: miniconda3
+            os:
+              name: macOS
+          - os:
+              name: macOS
+            qt:
+              pyqt_version: 5.14.0
+          - os:
+              name: macOS
+            qt:
+              pyqt_version: 5.14.1
+          - python:
               name: 3.5
             qt:
               major: 6
@@ -360,17 +374,14 @@ jobs:
               name: Windows
             qt:
               major: 6
-#          - python:
-#              matrix: miniconda3
-#            os:
-#              name: macOS
     env:
       QT_VERSION: ${{ matrix.qt.qt_version }}
       PYQT_VERSION: ${{ matrix.qt.pyqt_version }}
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v1
+      - uses: actions/checkout@v1
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
       - name: Download
         uses: actions/download-artifact@v1
         with:
@@ -430,8 +441,9 @@ jobs:
     needs:
       - test
     steps:
-      - name: Checkout
-        uses: actions/checkout@v1
+      - uses: actions/checkout@v1
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
       - name: Download all wheels
         uses: actions/download-artifact@v1
         with:
