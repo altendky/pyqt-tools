@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - e*
     tags:
       - v*
   pull_request:
@@ -87,8 +88,9 @@ jobs:
       PYQT_VERSION: ${{ matrix.qt.pyqt_version }}
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v1
+      - uses: actions/checkout@v1
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
       - name: Set up Python ${{ matrix.python.name }}-${{ matrix.bitness.name }}
         if: matrix.os.python_platform != 'linux'
         uses: actions/setup-python@v2
@@ -267,8 +269,9 @@ jobs:
       PYQT_VERSION: ${{ matrix.qt.pyqt_version }}
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v1
+      - uses: actions/checkout@v1
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
       - name: Download
         uses: actions/download-artifact@v1
         with:
@@ -328,8 +331,9 @@ jobs:
     needs:
       - test
     steps:
-      - name: Checkout
-        uses: actions/checkout@v1
+      - uses: actions/checkout@v1
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
       - name: Download all wheels
         uses: actions/download-artifact@v1
         with:
