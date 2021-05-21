@@ -35,7 +35,7 @@ pyqt_plugins_wrapper_range = ['2', '3']
 use_pyqt_plugins_url = False
 
 if use_pyqt_plugins_url:
-    pyqt_plugins_url = ' @ git+https://github.com/altendky/pyqt-plugins'
+    pyqt_plugins_url = ' @ git+https://github.com/altendky/pyqt-plugins@main'
     pyqt_plugins_version_specifier = ''
 else:
     pyqt_plugins_url = ''
@@ -62,12 +62,11 @@ setuptools.setup(
     classifiers=[
         # complete classifier list: https://pypi.org/pypi?%3Aaction=list_classifiers
         'Development Status :: 4 - Beta',
-        'Environment :: Win32 (MS Windows)',
-        'Environment :: X11 Applications :: Qt',
         'Intended Audience :: Developers',
         "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
-        'Operating System :: Microsoft :: Windows',
         'Operating System :: POSIX :: Linux',
+        'Operating System :: MacOS :: MacOS X',
+        'Operating System :: Microsoft :: Windows',
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',

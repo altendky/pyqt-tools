@@ -145,11 +145,12 @@ def designer(
         *pyqt5_plugins.utilities.diagnostic_variables_to_print,
     )
 
-    command = [
-        pyqt5_plugins.utilities.fspath(qt5_tools.application_path('designer')),
-        *extras,
-        *ctx.args,
-    ]
+    command_elements = qt5_tools.create_command_elements(
+        name='designer',
+        sys_platform=sys.platform,
+    )
+
+    command = [*command_elements, *extras, *ctx.args]
 
     return subprocess.call(command, env=env)
 
@@ -214,11 +215,12 @@ def qmlscene(
         *pyqt5_plugins.utilities.diagnostic_variables_to_print,
     )
 
-    command = [
-        pyqt5_plugins.utilities.fspath(qt5_tools.application_path('qmlscene')),
-        *extras,
-        *ctx.args,
-    ]
+    command_elements = qt5_tools.create_command_elements(
+        name='qmlscene',
+        sys_platform=sys.platform,
+    )
+
+    command = [*command_elements, *extras, *ctx.args]
 
     return subprocess.call(command, env=env)
 
@@ -276,10 +278,11 @@ def qmltestrunner(
         *pyqt5_plugins.utilities.diagnostic_variables_to_print,
     )
 
-    command = [
-        pyqt5_plugins.utilities.fspath(qt5_tools.application_path('qmltestrunner')),
-        *extras,
-        *ctx.args,
-    ]
+    command_elements = qt5_tools.create_command_elements(
+        name='qmltestrunner',
+        sys_platform=sys.platform,
+    )
+
+    command = [*command_elements, *extras, *ctx.args]
 
     return subprocess.call(command, env=env)
