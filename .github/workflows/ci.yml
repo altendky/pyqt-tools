@@ -140,23 +140,23 @@ jobs:
       fail-fast: false
       matrix:
         os:
-          - name: Linux
-            runs-on: ubuntu-latest
-            python_platform: linux
-            container:
-              2.7: docker://python:2.7-buster
-              3.5: docker://python:3.5-buster
-              3.6: docker://python:3.6-buster
-              3.7: docker://python:3.7-buster
-              3.8: docker://python:3.8-buster
-              3.9: docker://python:3.9-buster
-              miniconda3: docker://continuumio/miniconda3
-            matrix: linux
-          - name: Windows
-            runs-on: windows-latest
-            python_platform: win32
-            vs_path: C:/Program Files (x86)/Microsoft Visual Studio/2019/Enterprise/VC/Auxiliary/Build/vcvars64.bat
-            matrix: windows
+#          - name: Linux
+#            runs-on: ubuntu-latest
+#            python_platform: linux
+#            container:
+#              2.7: docker://python:2.7-buster
+#              3.5: docker://python:3.5-buster
+#              3.6: docker://python:3.6-buster
+#              3.7: docker://python:3.7-buster
+#              3.8: docker://python:3.8-buster
+#              3.9: docker://python:3.9-buster
+#              miniconda3: docker://continuumio/miniconda3
+#            matrix: linux
+#          - name: Windows
+#            runs-on: windows-latest
+#            python_platform: win32
+#            vs_path: C:/Program Files (x86)/Microsoft Visual Studio/2019/Enterprise/VC/Auxiliary/Build/vcvars64.bat
+#            matrix: windows
           - name: macOS
             runs-on: macos-latest
             python_platform: darwin
