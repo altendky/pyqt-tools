@@ -22,7 +22,7 @@ _import_it('pyqt_plugins', 'utilities')
 fspath = getattr(os, 'fspath', str)
 
 scripts_path = pathlib.Path(sysconfig.get_path("scripts"))
-executable_path_string = fspath(scripts_path.joinpath("pyqt5-tools"))
+executable_path_string = fspath(scripts_path.joinpath("pyqt{}-tools".format(major)))
 
 vars_to_print = [
     *pyqt_plugins.utilities.diagnostic_variables_to_print,
