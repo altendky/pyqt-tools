@@ -4,11 +4,15 @@ sys.stderr.flush()
 import traceback
 sys.stderr.write('exampleqmlitemplugin.py debug: : just imported traceback\n')
 sys.stderr.flush()
-from PyQt5 import QtQml
+
+from .. import _import_it
+
+QtQml = _import_it('PyQt', 'QtQml')
 sys.stderr.write('exampleqmlitemplugin.py debug: : just imported QtQml\n')
 sys.stderr.flush()
 
-import pyqt5_plugins.examples.exampleqmlitem
+pyqt_plugins = _import_it('pyqt_plugins')
+_import_it('pyqt_plugins', 'examples', 'exampleqmlitem')
 sys.stderr.write('exampleqmlitemplugin.py debug: : just imported pyqt5_tools.examples.exampleqmlitem\n')
 sys.stderr.flush()
 
@@ -19,7 +23,7 @@ class ExampleQmlItemPlugin(QtQml.QQmlExtensionPlugin):
         sys.stderr.flush()
         try:
             QtQml.qmlRegisterType(
-                pyqt5_plugins.examples.exampleqmlitem.ExampleQmlItem,
+                pyqt_plugins.examples.exampleqmlitem.ExampleQmlItem,
                 'examples',
                 1,
                 0,

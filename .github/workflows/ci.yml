@@ -38,22 +38,63 @@ jobs:
             action: 3.8
             docker: 3.8
         qt:
-          - pyqt_version: 5.14.0
+          - name: 5.14.0
+            pyqt_version: 5.14.0
             qt_version: 5.14.0
-          - pyqt_version: 5.14.1
+            major: 5
+          - name: 5.14.1
+            pyqt_version: 5.14.1
             qt_version: 5.14.1
-          - pyqt_version: 5.14.2
+            major: 5
+          - name: 5.14.2
+            pyqt_version: 5.14.2
             qt_version: 5.14.2
-          - pyqt_version: 5.15.0
+            major: 5
+          - name: 5.15.0
+            pyqt_version: 5.15.0
             qt_version: 5.15.0
-          - pyqt_version: 5.15.1
+            major: 5
+          - name: 5.15.1
+            pyqt_version: 5.15.1
             qt_version: 5.15.1
-          - pyqt_version: 5.15.2
+            major: 5
+          - name: 5.15.2
+            pyqt_version: 5.15.2
             qt_version: 5.15.2
-          - pyqt_version: 5.15.3
+            major: 5
+          - name: 5.15.3
+            pyqt_version: 5.15.3
             qt_version: 5.15.2
-          - pyqt_version: 5.15.4
+            major: 5
+          - name: 5.15.4
+            pyqt_version: 5.15.4
             qt_version: 5.15.2
+            major: 5
+#          - name: 6.0.0
+#            pyqt_version: 6.0.0
+#            qt_version: 6.0.0
+#            major: 6
+          - name: 6.0.1
+            pyqt_version: 6.0.1
+            qt_version: 6.0.1
+            major: 6
+          - name: 6.0.2
+            pyqt_version: 6.0.2
+            qt_version: 6.0.2
+            major: 6
+          - name: 6.0.3
+            pyqt_version: 6.0.3
+            qt_version: 6.0.3
+            major: 6
+# no PyQt6==6.0.4
+#          - name: 6.0.4
+#            pyqt_version: 6.0.4
+#            qt_version: 6.0.4
+#            major: 6
+          - name: 6.1.0
+            pyqt_version: 6.1.0
+            qt_version: 6.1.0
+            major: 6
         bitness:
           - name: x64
             action: x64
@@ -83,6 +124,10 @@ jobs:
               name: 3.5
             qt:
               pyqt_version: 5.15.4
+          - python:
+              name: 3.5
+            qt:
+              major: 6
     env:
       QT_VERSION: ${{ matrix.qt.qt_version }}
       PYQT_VERSION: ${{ matrix.qt.pyqt_version }}
@@ -123,7 +168,7 @@ jobs:
       - name: Archive individual wheel
         uses: actions/upload-artifact@v1
         with:
-          name: ${{ matrix.qt.pyqt_version }}
+          name: ${{ matrix.qt.name }}
           path: dist/
       - name: Archive all wheels
         uses: actions/upload-artifact@v1
@@ -131,7 +176,7 @@ jobs:
           name: all_wheels
           path: dist/
   test:
-    name: Test ${{ matrix.os.name }} ${{ matrix.python.name }}-${{ matrix.bitness.name }} ${{ matrix.qt.pyqt_version }}
+    name: Test ${{ matrix.os.name }} ${{ matrix.python.name }}-${{ matrix.bitness.name }} ${{ matrix.qt.name }}
     runs-on: ${{ matrix.os.runs-on }}
     container: ${{ matrix.os.container[matrix.python.docker] }}
     needs:
@@ -192,22 +237,77 @@ jobs:
             docker: miniconda3
             matrix: miniconda3
         qt:
-          - pyqt_version: 5.14.0
+          - name: 5.14.0
+            pyqt_version: 5.14.0
             qt_version: 5.14.0
-          - pyqt_version: 5.14.1
+            major: 5
+            tox: qt5
+          - name: 5.14.1
+            pyqt_version: 5.14.1
             qt_version: 5.14.1
-          - pyqt_version: 5.14.2
+            major: 5
+            tox: qt5
+          - name: 5.14.2
+            pyqt_version: 5.14.2
             qt_version: 5.14.2
-          - pyqt_version: 5.15.0
+            major: 5
+            tox: qt5
+          - name: 5.15.0
+            pyqt_version: 5.15.0
             qt_version: 5.15.0
-          - pyqt_version: 5.15.1
+            major: 5
+            tox: qt5
+          - name: 5.15.1
+            pyqt_version: 5.15.1
             qt_version: 5.15.1
-          - pyqt_version: 5.15.2
+            major: 5
+            tox: qt5
+          - name: 5.15.2
+            pyqt_version: 5.15.2
             qt_version: 5.15.2
-          - pyqt_version: 5.15.3
+            major: 5
+            tox: qt5
+          - name: 5.15.3
+            pyqt_version: 5.15.3
             qt_version: 5.15.2
-          - pyqt_version: 5.15.4
+            major: 5
+            tox: qt5
+          - name: 5.15.4
+            pyqt_version: 5.15.4
             qt_version: 5.15.2
+            major: 5
+            tox: qt5
+#          - name: 6.0.0
+#            pyqt_version: 6.0.0
+#            qt_version: 6.0.0
+#            major: 6
+#            tox: qt6
+          - name: 6.0.1
+            pyqt_version: 6.0.1
+            qt_version: 6.0.1
+            major: 6
+            tox: qt6
+          - name: 6.0.2
+            pyqt_version: 6.0.2
+            qt_version: 6.0.2
+            major: 6
+            tox: qt6
+          - name: 6.0.3
+            pyqt_version: 6.0.3
+            qt_version: 6.0.3
+            major: 6
+            tox: qt6
+# no PyQt6==6.0.4
+#          - name: 6.0.4
+#            pyqt_version: 6.0.4
+#            qt_version: 6.0.4
+#            major: 6
+#            tox: qt6
+          - name: 6.1.0
+            pyqt_version: 6.1.0
+            qt_version: 6.1.0
+            major: 6
+            tox: qt6
         bitness:
           - name: x32
             action: x86
@@ -264,6 +364,16 @@ jobs:
               name: macOS
             qt:
               pyqt_version: 5.14.1
+          - python:
+              name: 3.5
+            qt:
+              major: 6
+          - bitness:
+              name: x32
+            os:
+              name: Windows
+            qt:
+              major: 6
     env:
       QT_VERSION: ${{ matrix.qt.qt_version }}
       PYQT_VERSION: ${{ matrix.qt.pyqt_version }}
@@ -275,7 +385,7 @@ jobs:
       - name: Download
         uses: actions/download-artifact@v1
         with:
-          name: ${{ matrix.qt.pyqt_version }}
+          name: ${{ matrix.qt.name }}
           path: dist/
       - name: Set up Python ${{ matrix.python.name }}-${{ matrix.bitness.name }}
         if: matrix.os.matrix != 'linux'
@@ -323,7 +433,7 @@ jobs:
           arch: ${{ matrix.bitness.ilammy }}
       - name: Test
         run: |
-          tox -e ${{ matrix.python.tox }} --installpkg ${{ env['WHEEL_PATH'] }}
+          tox -e ${{ matrix.python.tox }}-${{ matrix.qt.tox }} --installpkg ${{ env['WHEEL_PATH'] }}
   maybe_publish:
     name: Maybe Publish
     runs-on: ubuntu-latest
