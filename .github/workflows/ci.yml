@@ -16,7 +16,6 @@ jobs:
   build:
     name: Build ${{ matrix.os.name }} ${{ matrix.python.name }}-${{ matrix.bitness.name }} ${{ matrix.qt.pyqt_version }}
     runs-on: ${{ matrix.os.runs-on }}
-    container: ${{ format(matrix.os.container, matrix.python.docker) }}
     strategy:
       fail-fast: false
       matrix:
@@ -24,7 +23,6 @@ jobs:
           - name: Linux
             runs-on: ubuntu-latest
             python_platform: linux
-            container: docker://python:{0}-buster
 #          - name: Windows
 #            runs-on: windows-latest
 #            python_platform: win32
@@ -178,7 +176,6 @@ jobs:
   test:
     name: Test ${{ matrix.os.name }} ${{ matrix.python.name }}-${{ matrix.bitness.name }} ${{ matrix.qt.name }}
     runs-on: ${{ matrix.os.runs-on }}
-    container: ${{ matrix.os.container[matrix.python.docker] }}
     needs:
       - build
     strategy:
@@ -188,14 +185,6 @@ jobs:
           - name: Linux
             runs-on: ubuntu-latest
             python_platform: linux
-            container:
-              2.7: docker://python:2.7-buster
-              3.5: docker://python:3.5-buster
-              3.6: docker://python:3.6-buster
-              3.7: docker://python:3.7-buster
-              3.8: docker://python:3.8-buster
-              3.9: docker://python:3.9-buster
-              miniconda3: docker://continuumio/miniconda3
             matrix: linux
           - name: Windows
             runs-on: windows-latest
@@ -437,7 +426,6 @@ jobs:
   maybe_publish:
     name: Maybe Publish
     runs-on: ubuntu-latest
-    container: docker://python:3.8-buster
     needs:
       - test
     steps:
