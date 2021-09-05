@@ -175,7 +175,7 @@ Special Thanks
 .. |MacStadium| image:: https://uploads-ssl.webflow.com/5ac3c046c82724970fc60918/5c019d917bba312af7553b49_MacStadium-developerlogo.png
    :alt: MacStadium
    :target: https://www.macstadium.com/
+   :height: 100
 
 Thanks to MacStadium for providing me with a macOS system to develop and test
-out the final pyqt5-tools platform.  This is still 'in work'.  See
-`issue #12`_.
+out the final pyqt-tools platform.
