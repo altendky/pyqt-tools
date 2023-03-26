@@ -32,10 +32,10 @@ pyqt_tools_version = '{}.{}'.format(pyqt_version, pyqt_tools_wrapper_version)
 pyqt_plugins_wrapper_range = ['2.2', '3']
 
 # Must be False for release.  PyPI won't let you upload with a URL dependency.
-use_pyqt_plugins_url = False
+use_pyqt_plugins_url = True
 
 if use_pyqt_plugins_url:
-    pyqt_plugins_url = ' @ git+https://github.com/altendky/pyqt-plugins@main'
+    pyqt_plugins_url = ' @ git+https://github.com/altendky/pyqt-plugins@maybe'
     pyqt_plugins_version_specifier = ''
 else:
     pyqt_plugins_url = ''
@@ -84,7 +84,7 @@ setuptools.setup(
     package_dir={import_name: 'src/pyqt_tools'},
     version=pyqt_tools_version,
     include_package_data=True,
-    python_requires=">=3.5",
+    python_requires=">=3.8",
     install_requires=[
         'click',
         'pyqt{}=={}'.format(pyqt_major_version, pyqt_version),
