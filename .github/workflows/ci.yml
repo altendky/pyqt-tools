@@ -47,6 +47,13 @@ jobs:
             matrix: 5.15.2
             major: 5
             tox: qt5
+          - name: 6.3.1
+            pyqt_version: 6.3.1
+            qt_version: 6.3.2
+            env: 6.3.1
+            matrix: 6.3.1
+            major: 6
+            tox: qt6
           - name: 6.4.2
             pyqt_version: 6.4.2
             qt_version: 6.4.2
@@ -151,6 +158,11 @@ jobs:
             vs_path: C:/Program Files (x86)/Microsoft Visual Studio/2019/Enterprise/VC/Auxiliary/Build/vcvars64.bat
             matrix: windows
         python:
+          - name: '3.7'
+            tox: py37
+            action: '3.7'
+            docker: '3.7'
+            matrix: '3.7'
           - name: '3.8'
             tox: py38
             action: '3.8'
@@ -184,6 +196,13 @@ jobs:
             matrix: 5.15.2
             major: 5
             tox: qt5
+          - name: 6.4.2
+            pyqt_version: 6.3.1
+            qt_version: 6.3.2
+            env: 6.3.1
+            matrix: 6.3.1
+            major: 6
+            tox: qt6
           - name: 6.4.2
             pyqt_version: 6.4.2
             qt_version: 6.4.2
