@@ -274,7 +274,7 @@ jobs:
           apt-get update --yes
           apt-get install --yes libgl1-mesa-dev libdbus-1-3 libxkbcommon-x11-0 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-randr0 libxcb-render-util0 libxcb-xinerama0 libxcb-xfixes0 xvfb x11-utils
       - uses: altendky/QTBUG-88688-libxcb-util@v3
-        if: matrix.python.matrix != 'miniconda'
+        if: matrix.python.matrix != 'miniconda3'
       - name: Set up MSVC
         uses: ilammy/msvc-dev-cmd@v1
         if: matrix.os.python_platform == 'win32'
