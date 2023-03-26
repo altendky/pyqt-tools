@@ -134,12 +134,10 @@ jobs:
             runs-on: ubuntu-latest
             python_platform: linux
             container:
-              2.7: docker://python:2.7-buster
-              3.5: docker://python:3.5-buster
-              3.6: docker://python:3.6-buster
-              3.7: docker://python:3.7-buster
-              3.8: docker://python:3.8-buster
-              3.9: docker://python:3.9-buster
+              '3.8': docker://python:3.8-buster
+              '3.9': docker://python:3.9-buster
+              '3.10': docker://python:3.10-buster
+              '3.11': docker://python:3.11-buster
               miniconda3: docker://continuumio/miniconda3
             matrix: linux
           - name: Windows
@@ -167,6 +165,10 @@ jobs:
             tox: py311
             action: '3.11'
             docker: '3.11'
+          - name: Miniconda
+            tox: py38
+            action: miniconda3
+            docker: miniconda3
         qt:
           - name: 5.15.2
             pyqt_version: 5.15.9
