@@ -172,7 +172,7 @@ jobs:
             docker: '3.11'
             matrix: '3.11'
           - name: Miniconda
-            tox: py38
+            tox: py310
             action: miniconda3
             docker: miniconda3
             matrix: miniconda3
