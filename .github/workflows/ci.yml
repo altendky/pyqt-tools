@@ -142,6 +142,7 @@ jobs:
             runs-on: ubuntu-latest
             python_platform: linux
             container:
+              '3.7': docker://python:3.7-buster
               '3.8': docker://python:3.8-buster
               '3.9': docker://python:3.9-buster
               '3.10': docker://python:3.10-buster
@@ -196,7 +197,7 @@ jobs:
             matrix: 5.15.2
             major: 5
             tox: qt5
-          - name: 6.4.2
+          - name: 6.3.1
             pyqt_version: 6.3.1
             qt_version: 6.3.2
             env: 6.3.1
