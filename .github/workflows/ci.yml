@@ -40,24 +40,21 @@ jobs:
             docker: '3.10'
             matrix: '3.10'
         qt:
-          - name: 5.15.2
+          - name: 5.15.9
             pyqt_version: 5.15.9
             qt_version: 5.15.2
-            env: 5.15.2
-            matrix: 5.15.2
+            matrix: 5.15.9
             major: 5
             tox: qt5
           - name: 6.3.1
             pyqt_version: 6.3.1
             qt_version: 6.3.2
-            env: 6.3.1
             matrix: 6.3.1
             major: 6
             tox: qt6
           - name: 6.4.2
             pyqt_version: 6.4.2
-            qt_version: 6.4.2
-            env: 6.4.2
+            qt_version: 6.4.3
             matrix: 6.4.2
             major: 6
             tox: qt6
@@ -190,11 +187,11 @@ jobs:
             docker: miniconda3
             matrix: miniconda3
         qt:
-          - name: 5.15.2
+          - name: 5.15.9
             pyqt_version: 5.15.9
             qt_version: 5.15.2
             env: 5.15.2
-            matrix: 5.15.2
+            matrix: 5.15.9
             major: 5
             tox: qt5
           - name: 6.3.1
@@ -206,7 +203,7 @@ jobs:
             tox: qt6
           - name: 6.4.2
             pyqt_version: 6.4.2
-            qt_version: 6.4.2
+            qt_version: 6.4.3
             env: 6.4.2
             matrix: 6.4.2
             major: 6
