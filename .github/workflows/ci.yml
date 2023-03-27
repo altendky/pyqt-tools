@@ -303,7 +303,7 @@ jobs:
   maybe_publish:
     name: Maybe Publish
     runs-on: ubuntu-latest
-    container: docker://python:3.8-buster
+    container: docker://python:3.10-buster
     needs:
       - test
     steps:
