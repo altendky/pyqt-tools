@@ -105,6 +105,7 @@ jobs:
           pip list
           pip freeze --all
           python -c "import sysconfig; print('Py_ENABLE_SHARED -> {}'.format(sysconfig.get_config_var('Py_ENABLE_SHARED')))"
+          python -c 'import sys; print("sys.maxsize:", sys.maxsize, sys.maxsize > 2**32)'
       - name: Install Linux build dependencies
         if: matrix.os.python_platform == 'linux'
         run: |
@@ -271,6 +272,7 @@ jobs:
           pip list
           pip freeze --all
           python -c "import sysconfig; print('Py_ENABLE_SHARED -> {}'.format(sysconfig.get_config_var('Py_ENABLE_SHARED')))"
+          python -c 'import sys; print("sys.maxsize:", sys.maxsize, sys.maxsize > 2**32)'
       - name: Set WHEEL_PATH
         shell: python
         run: |
