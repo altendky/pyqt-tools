@@ -9,8 +9,9 @@ on:
       - v*
   pull_request:
 
-env:
-  PIP_NO_PYTHON_VERSION_WARNING: 1
+concurrency:
+  group: ${{ github.ref }}-${{ github.workflow }}-${{ github.event_name }}-${{ github.event_name != 'pull_request' && github.sha || '' }}
+  cancel-in-progress: true
 
 jobs:
   build:
@@ -33,99 +34,47 @@ jobs:
 #            runs-on: macos-latest
 #            python_platform: darwin
         python:
-          - name: 3.8
-            tox: py38
-            action: 3.8
-            docker: 3.8
+          - name: '3.10'
+            tox: py310
+            action: '3.10'
+            docker: '3.10'
+            matrix: '3.10'
         qt:
-          - name: 5.14.0
-            pyqt_version: 5.14.0
-            qt_version: 5.14.0
-            major: 5
-          - name: 5.14.1
-            pyqt_version: 5.14.1
-            qt_version: 5.14.1
-            major: 5
-          - name: 5.14.2
-            pyqt_version: 5.14.2
-            qt_version: 5.14.2
-            major: 5
-          - name: 5.15.0
-            pyqt_version: 5.15.0
-            qt_version: 5.15.0
-            major: 5
-          - name: 5.15.1
-            pyqt_version: 5.15.1
-            qt_version: 5.15.1
-            major: 5
-          - name: 5.15.2
-            pyqt_version: 5.15.2
+          - name: 5.15.9
+            pyqt_version: 5.15.9
             qt_version: 5.15.2
+            matrix: 5.15.9
             major: 5
-          - name: 5.15.3
-            pyqt_version: 5.15.3
-            qt_version: 5.15.2
-            major: 5
-          - name: 5.15.4
-            pyqt_version: 5.15.4
-            qt_version: 5.15.2
-            major: 5
-#          - name: 6.0.0
-#            pyqt_version: 6.0.0
-#            qt_version: 6.0.0
-#            major: 6
-          - name: 6.0.1
-            pyqt_version: 6.0.1
-            qt_version: 6.0.1
+            tox: qt5
+          - name: 6.3.1
+            pyqt_version: 6.3.1
+            qt_version: 6.3.2
+            matrix: 6.3.1
             major: 6
-          - name: 6.0.2
-            pyqt_version: 6.0.2
-            qt_version: 6.0.2
+            tox: qt6
+          - name: 6.4.2
+            pyqt_version: 6.4.2
+            qt_version: 6.4.3
+            matrix: 6.4.2
             major: 6
-          - name: 6.0.3
-            pyqt_version: 6.0.3
-            qt_version: 6.0.3
-            major: 6
-# no PyQt6==6.0.4
-#          - name: 6.0.4
-#            pyqt_version: 6.0.4
-#            qt_version: 6.0.4
-#            major: 6
-          - name: 6.1.0
-            pyqt_version: 6.1.0
-            qt_version: 6.1.0
-            major: 6
+            tox: qt6
         bitness:
           - name: x64
             action: x64
             ilammy: x64
         exclude:
-          - python:
-              name: 3.9
-            qt:
-              pyqt_version: 5.14.0
-          - python:
-              name: 3.9
-            qt:
-              pyqt_version: 5.14.1
-          - python:
-              name: 3.9
-            qt:
-              pyqt_version: 5.14.2
-          - python:
-              name: 3.9
-            qt:
-              pyqt_version: 5.15.0
-          - python:
-              name: 3.5
-            qt:
-              pyqt_version: 5.15.3
-          - python:
-              name: 3.5
-            qt:
-              pyqt_version: 5.15.4
-          - python:
-              name: 3.5
+          - bitness:
+              name: x32
+            os:
+              name: Linux
+          - bitness:
+              name: x32
+            os:
+              name: macOS
+          - bitness:
+              name: x32
+            os:
+              name: Windows
             qt:
               major: 6
     env:
@@ -133,45 +82,47 @@ jobs:
       PYQT_VERSION: ${{ matrix.qt.pyqt_version }}
 
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v3
         with:
           ref: ${{ github.event.pull_request.head.sha }}
       - name: Set up Python ${{ matrix.python.name }}-${{ matrix.bitness.name }}
         if: matrix.os.python_platform != 'linux'
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python.action }}
           architecture: ${{ matrix.bitness.action }}
       - name: pip/setuptools/tox
         run: |
           python -m pip install --upgrade pip setuptools wheel
-          pip install tox pep517
+          pip install 'tox<4' pep517
       - name: Report info
         shell: bash
         run: |
+          git config --global --add safe.directory $GITHUB_WORKSPACE
           git show --quiet HEAD
           python --version --version
           pip --version
           pip list
           pip freeze --all
           python -c "import sysconfig; print('Py_ENABLE_SHARED -> {}'.format(sysconfig.get_config_var('Py_ENABLE_SHARED')))"
+          python -c 'import sys; print("sys.maxsize:", sys.maxsize, sys.maxsize > 2**32)'
       - name: Install Linux build dependencies
         if: matrix.os.python_platform == 'linux'
         run: |
           apt-get update --yes
-          apt-get install --yes libgl1-mesa-dev libdbus-1-3 libxkbcommon-x11-0 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-randr0 libxcb-render-util0 libxcb-xinerama0 libxcb-xfixes0
+          apt-get install --yes libgl1-mesa-dev libdbus-1-3 libxkbcommon-x11-0 libxcb-cursor0 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-randr0 libxcb-render-util0 libxcb-xinerama0 libxcb-xfixes0
       - uses: altendky/QTBUG-88688-libxcb-util@v3
       - name: Build wheel
         shell: bash
         run: |
           python -m pep517.build --binary --out-dir dist/ .
       - name: Archive individual wheel
-        uses: actions/upload-artifact@v1
+        uses: actions/upload-artifact@v3
         with:
           name: ${{ matrix.qt.name }}
           path: dist/
       - name: Archive all wheels
-        uses: actions/upload-artifact@v1
+        uses: actions/upload-artifact@v3
         with:
           name: all_wheels
           path: dist/
@@ -189,123 +140,74 @@ jobs:
             runs-on: ubuntu-latest
             python_platform: linux
             container:
-              2.7: docker://python:2.7-buster
-              3.5: docker://python:3.5-buster
-              3.6: docker://python:3.6-buster
-              3.7: docker://python:3.7-buster
-              3.8: docker://python:3.8-buster
-              3.9: docker://python:3.9-buster
+              '3.7': docker://python:3.7-buster
+              '3.8': docker://python:3.8-buster
+              '3.9': docker://python:3.9-buster
+              '3.10': docker://python:3.10-buster
+              '3.11': docker://python:3.11-buster
               miniconda3: docker://continuumio/miniconda3
             matrix: linux
+          - name: macOS
+            runs-on: macos-latest
+            python_platform: darwin
+            matrix: macos
           - name: Windows
             runs-on: windows-latest
             python_platform: win32
             vs_path: C:/Program Files (x86)/Microsoft Visual Studio/2019/Enterprise/VC/Auxiliary/Build/vcvars64.bat
             matrix: windows
-          - name: macOS
-            runs-on: macos-latest
-            python_platform: darwin
         python:
-          - name: 3.5
-            tox: py35
-            action: 3.5
-            docker: 3.5
-            matrix: cpython3.5
-          - name: 3.6
-            tox: py36
-            action: 3.6
-            docker: 3.6
-            matrix: cpython3.6
-          - name: 3.7
+          - name: '3.7'
             tox: py37
-            action: 3.7
-            docker: 3.7
-            matrix: cpython3.7
-          - name: 3.8
+            action: '3.7'
+            docker: '3.7'
+            matrix: '3.7'
+          - name: '3.8'
             tox: py38
-            action: 3.8
-            docker: 3.8
-            matrix: cpython3.8
-          - name: 3.9
+            action: '3.8'
+            docker: '3.8'
+            matrix: '3.8'
+          - name: '3.9'
             tox: py39
-            action: 3.9
-            docker: 3.9
-            matrix: cpython3.9
-          - name: Miniconda
-            tox: py38
-            action: miniconda3
-            docker: miniconda3
-            matrix: miniconda3
+            action: '3.9'
+            docker: '3.9'
+            matrix: '3.9'
+          - name: '3.10'
+            tox: py310
+            action: '3.10'
+            docker: '3.10'
+            matrix: '3.10'
+          - name: '3.11'
+            tox: py311
+            action: '3.11'
+            docker: '3.11'
+            matrix: '3.11'
+# https://github.com/altendky/pyqt-tools/issues/116
+#          - name: Miniconda
+#            tox: py310
+#            action: miniconda3
+#            docker: miniconda3
+#            matrix: miniconda3
         qt:
-          - name: 5.14.0
-            pyqt_version: 5.14.0
-            qt_version: 5.14.0
-            major: 5
-            tox: qt5
-          - name: 5.14.1
-            pyqt_version: 5.14.1
-            qt_version: 5.14.1
-            major: 5
-            tox: qt5
-          - name: 5.14.2
-            pyqt_version: 5.14.2
-            qt_version: 5.14.2
-            major: 5
-            tox: qt5
-          - name: 5.15.0
-            pyqt_version: 5.15.0
-            qt_version: 5.15.0
-            major: 5
-            tox: qt5
-          - name: 5.15.1
-            pyqt_version: 5.15.1
-            qt_version: 5.15.1
-            major: 5
-            tox: qt5
-          - name: 5.15.2
-            pyqt_version: 5.15.2
+          - name: 5.15.9
+            pyqt_version: 5.15.9
             qt_version: 5.15.2
+            env: 5.15.2
+            matrix: 5.15.9
             major: 5
             tox: qt5
-          - name: 5.15.3
-            pyqt_version: 5.15.3
-            qt_version: 5.15.2
-            major: 5
-            tox: qt5
-          - name: 5.15.4
-            pyqt_version: 5.15.4
-            qt_version: 5.15.2
-            major: 5
-            tox: qt5
-#          - name: 6.0.0
-#            pyqt_version: 6.0.0
-#            qt_version: 6.0.0
-#            major: 6
-#            tox: qt6
-          - name: 6.0.1
-            pyqt_version: 6.0.1
-            qt_version: 6.0.1
+          - name: 6.3.1
+            pyqt_version: 6.3.1
+            qt_version: 6.3.2
+            env: 6.3.1
+            matrix: 6.3.1
             major: 6
             tox: qt6
-          - name: 6.0.2
-            pyqt_version: 6.0.2
-            qt_version: 6.0.2
-            major: 6
-            tox: qt6
-          - name: 6.0.3
-            pyqt_version: 6.0.3
-            qt_version: 6.0.3
-            major: 6
-            tox: qt6
-# no PyQt6==6.0.4
-#          - name: 6.0.4
-#            pyqt_version: 6.0.4
-#            qt_version: 6.0.4
-#            major: 6
-#            tox: qt6
-          - name: 6.1.0
-            pyqt_version: 6.1.0
-            qt_version: 6.1.0
+          - name: 6.4.2
+            pyqt_version: 6.4.2
+            qt_version: 6.4.3
+            env: 6.4.2
+            matrix: 6.4.2
             major: 6
             tox: qt6
         bitness:
@@ -319,35 +221,17 @@ jobs:
           - bitness:
               name: x32
             os:
-              matrix: linux
+              name: Linux
           - bitness:
               name: x32
             os:
               name: macOS
-          - python:
-              name: 3.9
+          - bitness:
+              name: x32
+            os:
+              name: Windows
             qt:
-              pyqt_version: 5.14.0
-          - python:
-              name: 3.9
-            qt:
-              pyqt_version: 5.14.1
-          - python:
-              name: 3.9
-            qt:
-              pyqt_version: 5.14.2
-          - python:
-              name: 3.9
-            qt:
-              pyqt_version: 5.15.0
-          - python:
-              name: 3.5
-            qt:
-              pyqt_version: 5.15.3
-          - python:
-              name: 3.5
-            qt:
-              pyqt_version: 5.15.4
+              major: 6
           - python:
               matrix: miniconda3
             os:
@@ -355,57 +239,41 @@ jobs:
           - python:
               matrix: miniconda3
             os:
-              name: macOS
-          - os:
-              name: macOS
-            qt:
-              pyqt_version: 5.14.0
-          - os:
-              name: macOS
-            qt:
-              pyqt_version: 5.14.1
-          - python:
-              name: 3.5
-            qt:
-              major: 6
-          - bitness:
-              name: x32
-            os:
-              name: Windows
-            qt:
-              major: 6
+              matrix: macos
     env:
       QT_VERSION: ${{ matrix.qt.qt_version }}
       PYQT_VERSION: ${{ matrix.qt.pyqt_version }}
 
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v3
         with:
           ref: ${{ github.event.pull_request.head.sha }}
       - name: Download
-        uses: actions/download-artifact@v1
+        uses: actions/download-artifact@v3
         with:
           name: ${{ matrix.qt.name }}
           path: dist/
       - name: Set up Python ${{ matrix.python.name }}-${{ matrix.bitness.name }}
         if: matrix.os.matrix != 'linux'
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python.action }}
           architecture: ${{ matrix.bitness.action }}
       - name: pip/setuptools/tox
         run: |
           python -m pip install --upgrade pip setuptools
-          pip install tox
+          pip install 'tox<4'
       - name: Report info
         shell: bash
         run: |
+          git config --global --add safe.directory $GITHUB_WORKSPACE
           git show --quiet HEAD
           python --version --version
           pip --version
           pip list
           pip freeze --all
           python -c "import sysconfig; print('Py_ENABLE_SHARED -> {}'.format(sysconfig.get_config_var('Py_ENABLE_SHARED')))"
+          python -c 'import sys; print("sys.maxsize:", sys.maxsize, sys.maxsize > 2**32)'
       - name: Set WHEEL_PATH
         shell: python
         run: |
@@ -424,8 +292,9 @@ jobs:
         if: matrix.os.matrix == 'linux'
         run: |
           apt-get update --yes
-          apt-get install --yes libgl1-mesa-dev libdbus-1-3 libxkbcommon-x11-0 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-randr0 libxcb-render-util0 libxcb-xinerama0 libxcb-xfixes0 xvfb x11-utils
+          apt-get install --yes g++ make libgl1-mesa-dri libgl1-mesa-dev libdbus-1-3 libxkbcommon-x11-0 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-randr0 libxcb-render-util0 libxcb-xinerama0 libxcb-xfixes0 xvfb x11-utils
       - uses: altendky/QTBUG-88688-libxcb-util@v3
+        if: matrix.python.matrix != 'miniconda3'
       - name: Set up MSVC
         uses: ilammy/msvc-dev-cmd@v1
         if: matrix.os.python_platform == 'win32'
@@ -437,15 +306,18 @@ jobs:
   maybe_publish:
     name: Maybe Publish
     runs-on: ubuntu-latest
-    container: docker://python:3.8-buster
+    container: docker://python:3.10-buster
     needs:
       - test
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v3
         with:
           ref: ${{ github.event.pull_request.head.sha }}
+      - name: trust the git repo
+        run: |
+          git config --global --add safe.directory $GITHUB_WORKSPACE
       - name: Download all wheels
-        uses: actions/download-artifact@v1
+        uses: actions/download-artifact@v3
         with:
           name: all_wheels
           path: dist/

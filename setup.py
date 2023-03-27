@@ -49,6 +49,16 @@ else:
 with open('README.rst') as f:
     readme = f.read()
 
+if pyqt_major_version == '5':
+    replacements = [
+        ["qt6", "qt5"],
+        ["Qt6", "Qt5"],
+        ["Qt6", "Qt 5"],
+        ["6.4", "5.15"],
+    ]
+    for a, b in replacements:
+        readme = readme.replace(a, b)
+
 
 distribution_name = "pyqt{}-tools".format(pyqt_major_version)
 import_name = distribution_name.replace('-', '_')
@@ -84,7 +94,7 @@ setuptools.setup(
     package_dir={import_name: 'src/pyqt_tools'},
     version=pyqt_tools_version,
     include_package_data=True,
-    python_requires=">=3.5",
+    python_requires=">=3.7",
     install_requires=[
         'click',
         'pyqt{}=={}'.format(pyqt_major_version, pyqt_version),
