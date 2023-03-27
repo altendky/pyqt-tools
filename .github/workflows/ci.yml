@@ -312,6 +312,9 @@ jobs:
       - uses: actions/checkout@v3
         with:
           ref: ${{ github.event.pull_request.head.sha }}
+      - name: trust the git repo
+        run: |
+          git config --global --add safe.directory $GITHUB_WORKSPACE
       - name: Download all wheels
         uses: actions/download-artifact@v3
         with:
