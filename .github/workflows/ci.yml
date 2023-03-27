@@ -182,11 +182,12 @@ jobs:
             action: '3.11'
             docker: '3.11'
             matrix: '3.11'
-          - name: Miniconda
-            tox: py310
-            action: miniconda3
-            docker: miniconda3
-            matrix: miniconda3
+# https://github.com/altendky/pyqt-tools/issues/116
+#          - name: Miniconda
+#            tox: py310
+#            action: miniconda3
+#            docker: miniconda3
+#            matrix: miniconda3
         qt:
           - name: 5.15.9
             pyqt_version: 5.15.9
