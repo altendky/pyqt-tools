@@ -64,8 +64,8 @@ Note:
 Usage
 -----
 
-A program is provided available as ``Scripts/pyqt6-tools.exe``.  There are
-subcommands provided for each of Designer, QML Scene, and the QML Test Runner.
+A program is provided available as ``Scripts/pyqt6-tools.exe`` or ``python -m pyqt6_tools``.
+There are subcommands provided for each of Designer, QML Scene, and the QML Test Runner.
 These wrapper commands provide additional functionality related to launching
 the underlying programs.  A larger set of Qt application are available as
 subcommands of the ``Scripts/qt6-tools.exe`` program.  In both cases, passing
