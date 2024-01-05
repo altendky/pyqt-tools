@@ -64,8 +64,8 @@ Note:
 Usage
 -----
 
-A program is provided available as ``Scripts/pyqt6-tools.exe`` or ``python -m pyqt6_tools``.
-There are subcommands provided for each of Designer, QML Scene, and the QML Test Runner.
+A program is provided available as ``Scripts/pyqt6-tools.exe``.  There are
+subcommands provided for each of Designer, QML Scene, and the QML Test Runner.
 These wrapper commands provide additional functionality related to launching
 the underlying programs.  A larger set of Qt application are available as
 subcommands of the ``Scripts/qt6-tools.exe`` program.  In both cases, passing
@@ -80,6 +80,12 @@ working directory to find a ``.env`` file and loads it if found.  If found, the
 environment variable ``DOT_ENV_DIRECTORY`` will be set to the directory
 containing the ``.env`` file.  With this extra variable you can specify paths
 relative to the ``.env`` location.
+
+There alternative ways to call ``Scripts/pyqt6-tools.exe``, ``python -m pyqt6_tools``
+works the same way but allows you to choose the version of python to run the tools
+with. On Windows if you create a shortcut to `pyqt6-tools.exe`, it will show a
+command prompt that stays open for the duration of the launched application. You
+can address this by using ``Scripts/pyqt6-toolsw.exe`` or ``pythonw -m pyqt6_tools``.
 
 .. code-block:: powershell
 
