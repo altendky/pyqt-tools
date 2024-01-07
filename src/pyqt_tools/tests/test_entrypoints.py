@@ -23,15 +23,19 @@ _import_it('pyqt_plugins', 'utilities')
 fspath = getattr(os, 'fspath', str)
 
 scripts_path = pathlib.Path(sysconfig.get_path("scripts"))
-# Use parametrize to test each method for launching pyqt-tools in a subprocess
-executable_paths = (
-    "executable_cmd",
-    [
+
+@pytest.fixture(
+    name="executable_cmd",
+    params=[
         [fspath(scripts_path.joinpath("pyqt{}-tools".format(major)))],
         [fspath(scripts_path.joinpath("pyqt{}-toolsw".format(major)))],
         [sys.executable, "-m", "pyqt{}_tools".format(major)],
-    ]
+    ],
+    ids=lambda cmd: pathlib.Path(cmd[0]).name,
 )
+def executable_cmd_fixture(request):
+    return request.param
+
 
 vars_to_print = [
     *pyqt_plugins.utilities.diagnostic_variables_to_print,
@@ -49,7 +53,6 @@ def environment_fixture():
     return environment
 
 
-@pytest.mark.parametrize(*executable_paths)
 def test_designer_creates_test_widget(tmp_path, environment, executable_cmd):
     file_path = tmp_path/'tigger'
     environment[pyqt_plugins.tests.testbutton.test_path_env_var] = fspath(file_path)
@@ -69,7 +72,10 @@ def test_designer_creates_test_widget(tmp_path, environment, executable_cmd):
 
     with pytest.raises(subprocess.TimeoutExpired):
         subprocess.run(
-            executable_cmd + ['designer'],
+            [
+                *executable_cmd,
+                'designer',
+            ],
             check=True,
             env=environment,
             timeout=40,
@@ -133,7 +139,6 @@ def test_qmlscene_paints_test_item(tmp_path, environment):
     reason="accepting failure until we figure out the problem".format(string_version),
     strict=True,
 )
-@pytest.mark.parametrize(*executable_paths)
 def test_qmltestrunner_paints_test_item(tmp_path, environment, executable_cmd):
     file_path = tmp_path/'piglet'
     environment[pyqt_plugins.examples.exampleqmlitem.test_path_env_var] = fspath(file_path)
@@ -145,7 +150,8 @@ def test_qmltestrunner_paints_test_item(tmp_path, environment, executable_cmd):
     pyqt_plugins.utilities.print_environment_variables(environment, *vars_to_print)
 
     subprocess.run(
-        executable_cmd + [
+        [
+            *executable_cmd,
             'qmltestrunner',
             '--',
             '-input',
@@ -162,12 +168,14 @@ def test_qmltestrunner_paints_test_item(tmp_path, environment, executable_cmd):
     )
 
 
-@pytest.mark.parametrize(*executable_paths)
 def test_installuic_does_not_fail(environment, executable_cmd):
     pyqt_plugins.utilities.print_environment_variables(environment, *vars_to_print)
 
     subprocess.run(
-        executable_cmd + ['installuic'],
+        [
+            *executable_cmd,
+            'installuic',
+        ],
         check=True,
         env=environment,
         timeout=40,
