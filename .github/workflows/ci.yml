@@ -249,7 +249,7 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha }}
       - name: Download
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4.1.7
         with:
           name: ${{ matrix.qt.name }}
           path: dist/
@@ -317,7 +317,7 @@ jobs:
         run: |
           git config --global --add safe.directory $GITHUB_WORKSPACE
       - name: Download all wheels
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4.1.7
         with:
           name: all_wheels
           path: dist/
