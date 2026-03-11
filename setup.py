@@ -55,6 +55,7 @@ if pyqt_major_version == '5':
         ["Qt6", "Qt5"],
         ["Qt6", "Qt 5"],
         ["6.4", "5.15"],
+        ["pyuic6", "pyuic5"],
     ]
     for a, b in replacements:
         readme = readme.replace(a, b)
@@ -108,6 +109,9 @@ setuptools.setup(
     entry_points={
         'console_scripts': [
             'pyqt{major}-tools = pyqt{major}_tools.entrypoints:main'.format(major=pyqt_major_version),
+        ],
+        'gui_scripts': [
+            'pyqt{major}-toolsw = pyqt{major}_tools.entrypoints:main'.format(major=pyqt_major_version),
         ]
     }
 )
