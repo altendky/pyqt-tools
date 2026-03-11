@@ -58,6 +58,12 @@ jobs:
             matrix: 6.4.2
             major: 6
             tox: qt6
+          - name: 6.5.0
+            pyqt_version: 6.5.0
+            qt_version: 6.5.0
+            matrix: 6.5.0
+            major: 6
+            tox: qt6
         bitness:
           - name: x64
             action: x64
@@ -210,6 +216,13 @@ jobs:
             matrix: 6.4.2
             major: 6
             tox: qt6
+          - name: 6.5.0
+            pyqt_version: 6.5.0
+            qt_version: 6.5.0
+            env: 6.5.0
+            matrix: 6.5.0
+            major: 6
+            tox: qt6
         bitness:
           - name: x32
             action: x86
@@ -325,8 +338,9 @@ jobs:
         run: |
           pip install --upgrade twine
       - name: Maybe publish
+        if: github.event_name == 'push' && github.ref_type == 'tag'
         run: |
-          python twineontag.py
+          twine upload --non-interactive --skip-existing --verbose --disable-progress-bar dist/*.whl
         env:
           TWINE_USERNAME: ${{ secrets.TWINE_USERNAME }}
           TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD }}
