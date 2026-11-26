@@ -126,6 +126,7 @@ jobs:
       - uses: ./.github/actions/setup
         with:
           python-version: ${{ matrix.python }}
+          venv: 'true'
       - uses: actions/download-artifact@v4
         with:
           name: qt-applications-${{ matrix.platform.name }}-qt${{ matrix.qt.qt }}
@@ -224,6 +225,7 @@ jobs:
       - uses: ./.github/actions/setup
         with:
           python-version: ${{ matrix.python }}
+          venv: 'true'
       - uses: actions/download-artifact@v4
         with:
           name: qt-applications-${{ matrix.platform.name }}-qt${{ matrix.qt.qt }}
@@ -332,6 +334,7 @@ jobs:
       - uses: ./.github/actions/setup
         with:
           python-version: ${{ matrix.python }}
+          venv: 'true'
       - uses: actions/download-artifact@v4
         with:
           name: qt-applications-${{ matrix.platform.name }}-qt${{ matrix.qt.qt }}
@@ -430,6 +433,7 @@ jobs:
       - uses: ./.github/actions/setup
         with:
           python-version: ${{ matrix.python }}
+          venv: 'true'
       - uses: actions/download-artifact@v4
         with:
           name: qt-applications-${{ matrix.platform.name }}-qt${{ matrix.qt.qt }}
