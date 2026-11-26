@@ -1,6 +1,6 @@
 import os
 import pathlib
-import pkg_resources
+import importlib.metadata
 import sys
 import sysconfig
 
@@ -8,7 +8,7 @@ from ._version import get_versions
 __version__ = get_versions()['version']
 del get_versions
 
-major = int(pkg_resources.get_distribution(__name__.partition('.')[0]).version.partition(".")[0])
+major = int(importlib.metadata.version(__name__.partition('.')[0]).partition(".")[0])
 
 
 # TODO: CAMPid 0970432108721340872130742130870874321

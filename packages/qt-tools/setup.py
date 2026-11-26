@@ -73,9 +73,6 @@ setuptools.setup(
     install_requires=[
         local_backend.qt_applications_requirement,
         'click',
-        # TODO: forcing since we use pkg_resources, though we should stop using that as it is deprecated
-        # setuptools 82 removed pkg_resources
-        "setuptools<82",
     ],
     entry_points={
         'console_scripts': ['qt{major}-tools = qt{major}_tools.entrypoints:main'.format(major=qt_major_version)],

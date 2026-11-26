@@ -8,9 +8,9 @@ import pytest
 
 # TODO: CAMPid 0970432108721340872130742130870874321
 import importlib
-import pkg_resources
+import importlib.metadata
 
-string_version = pkg_resources.get_distribution(__name__.partition('.')[0]).version
+string_version = importlib.metadata.version(__name__.partition('.')[0])
 version = tuple(
     int(segment)
     for segment in string_version.split('.')[:3]

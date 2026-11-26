@@ -1,6 +1,6 @@
 # TODO: CAMPid 0970432108721340872130742130870874321
 import importlib
-import pkg_resources
+import importlib.metadata
 
 major = None
 

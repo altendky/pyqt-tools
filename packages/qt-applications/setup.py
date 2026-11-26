@@ -127,11 +127,6 @@ setuptools.setup(
         'Topic :: Software Development',
         'Topic :: Utilities',
     ],
-    install_requires=[
-        # TODO: forcing since we use pkg_resources, though we should stop using that as it is deprecated
-        # setuptools 82 removed pkg_resources
-        "setuptools<82",
-    ],
     cmdclass={'bdist_wheel': BdistWheel, 'build_py': _build.BuildPy},
     distclass=Dist,
     packages=[package.replace('qt_applications', import_name) for package in setuptools.find_packages('src')],
