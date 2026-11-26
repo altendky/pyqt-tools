@@ -1,13 +1,9 @@
-name: CI
+name: Old qt-tools CI
 
+# Disabled after combining the repositories.  These workflows still assume the
+# package is at the repository root and will be replaced by a single CI workflow.
 on:
-  push:
-    branches:
-      - main
-      - e*
-    tags:
-      - v*
-  pull_request:
+  workflow_dispatch:
 
 concurrency:
   group: ${{ github.ref }}-${{ github.workflow }}-${{ github.event_name }}-${{ github.event_name != 'pull_request' && github.sha || '' }}
