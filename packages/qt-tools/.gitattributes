@@ -1,1 +1,1 @@
-src/qttools/_version.py export-subst
+src/qt_tools/_version.py export-subst
