@@ -39,6 +39,7 @@ jobs:
       python: ${{ steps.config.outputs.python }}
       build_python: ${{ steps.config.outputs.build_python }}
       platforms: ${{ steps.config.outputs.platforms }}
+      exclude: ${{ steps.config.outputs.exclude }}
     steps:
       - uses: actions/checkout@v4
       - id: config
@@ -49,6 +50,7 @@ jobs:
             echo "python=$(jq --compact-output .python "$config")"
             echo "build_python=$(jq --raw-output '.["build-python"]' "$config")"
             echo "platforms=$(jq --compact-output .platforms "$config")"
+            echo "exclude=$(jq --compact-output '.exclude // []' "$config")"
           } | tee -a "$GITHUB_OUTPUT"
 
   qt-applications-build:
@@ -60,6 +62,7 @@ jobs:
       fail-fast: false
       matrix:
         platform: ${{ fromJSON(needs.config.outputs.platforms) }}
+        exclude: ${{ fromJSON(needs.config.outputs.exclude) }}
         qt: ${{ fromJSON(needs.config.outputs.qt) }}
     env:
       QT_VERSION: ${{ matrix.qt.qt }}
@@ -114,6 +117,7 @@ jobs:
       fail-fast: false
       matrix:
         platform: ${{ fromJSON(needs.config.outputs.platforms) }}
+        exclude: ${{ fromJSON(needs.config.outputs.exclude) }}
         qt: ${{ fromJSON(needs.config.outputs.qt) }}
         python: ${{ fromJSON(needs.config.outputs.python) }}
     env:
@@ -213,6 +217,7 @@ jobs:
       fail-fast: false
       matrix:
         platform: ${{ fromJSON(needs.config.outputs.platforms) }}
+        exclude: ${{ fromJSON(needs.config.outputs.exclude) }}
         qt: ${{ fromJSON(needs.config.outputs.qt) }}
         python: ${{ fromJSON(needs.config.outputs.python) }}
     env:
@@ -251,6 +256,7 @@ jobs:
       fail-fast: false
       matrix:
         platform: ${{ fromJSON(needs.config.outputs.platforms) }}
+        exclude: ${{ fromJSON(needs.config.outputs.exclude) }}
         qt: ${{ fromJSON(needs.config.outputs.qt) }}
         python: ${{ fromJSON(needs.config.outputs.python) }}
     env:
@@ -321,6 +327,7 @@ jobs:
       fail-fast: false
       matrix:
         platform: ${{ fromJSON(needs.config.outputs.platforms) }}
+        exclude: ${{ fromJSON(needs.config.outputs.exclude) }}
         qt: ${{ fromJSON(needs.config.outputs.qt) }}
         python: ${{ fromJSON(needs.config.outputs.python) }}
     env:
@@ -420,6 +427,7 @@ jobs:
       fail-fast: false
       matrix:
         platform: ${{ fromJSON(needs.config.outputs.platforms) }}
+        exclude: ${{ fromJSON(needs.config.outputs.exclude) }}
         qt: ${{ fromJSON(needs.config.outputs.qt) }}
         python: ${{ fromJSON(needs.config.outputs.python) }}
     env:
