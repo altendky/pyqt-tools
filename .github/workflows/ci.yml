@@ -40,6 +40,7 @@ jobs:
       build_python: ${{ steps.config.outputs.build_python }}
       platforms: ${{ steps.config.outputs.platforms }}
       exclude: ${{ steps.config.outputs.exclude }}
+      pyqt_exclude: ${{ steps.config.outputs.pyqt_exclude }}
     steps:
       - uses: actions/checkout@v4
       - id: config
@@ -51,6 +52,8 @@ jobs:
             echo "build_python=$(jq --raw-output '.["build-python"]' "$config")"
             echo "platforms=$(jq --compact-output .platforms "$config")"
             echo "exclude=$(jq --compact-output '.exclude // []' "$config")"
+            # PyQt jobs also skip combinations PyQt itself does not support.
+            echo "pyqt_exclude=$(jq --compact-output '(.exclude // []) + (.["pyqt-exclude"] // [])' "$config")"
           } | tee -a "$GITHUB_OUTPUT"
 
   qt-applications-build:
@@ -256,7 +259,7 @@ jobs:
       fail-fast: false
       matrix:
         platform: ${{ fromJSON(needs.config.outputs.platforms) }}
-        exclude: ${{ fromJSON(needs.config.outputs.exclude) }}
+        exclude: ${{ fromJSON(needs.config.outputs.pyqt_exclude) }}
         qt: ${{ fromJSON(needs.config.outputs.qt) }}
         python: ${{ fromJSON(needs.config.outputs.python) }}
     env:
@@ -327,7 +330,7 @@ jobs:
       fail-fast: false
       matrix:
         platform: ${{ fromJSON(needs.config.outputs.platforms) }}
-        exclude: ${{ fromJSON(needs.config.outputs.exclude) }}
+        exclude: ${{ fromJSON(needs.config.outputs.pyqt_exclude) }}
         qt: ${{ fromJSON(needs.config.outputs.qt) }}
         python: ${{ fromJSON(needs.config.outputs.python) }}
     env:
@@ -427,7 +430,7 @@ jobs:
       fail-fast: false
       matrix:
         platform: ${{ fromJSON(needs.config.outputs.platforms) }}
-        exclude: ${{ fromJSON(needs.config.outputs.exclude) }}
+        exclude: ${{ fromJSON(needs.config.outputs.pyqt_exclude) }}
         qt: ${{ fromJSON(needs.config.outputs.qt) }}
         python: ${{ fromJSON(needs.config.outputs.python) }}
     env:

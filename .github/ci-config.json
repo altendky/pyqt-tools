@@ -13,5 +13,8 @@
   ],
   "exclude": [
     {"platform": {"name": "macos-arm64"}, "qt": {"major": "5"}}
+  ],
+  "pyqt-exclude": [
+    {"qt": {"major": "5"}, "python": "3.15"}
   ]
 }
