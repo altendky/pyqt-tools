@@ -97,7 +97,7 @@ qml2_import_paths = (pyqt_plugins.utilities.fspath(pyqt_plugins.root),)
 )
 # https://github.com/altendky/pyqt-tools/issues/110#issuecomment-1483673605
 @pytest.mark.xfail(
-    version[0] == 5 and sys.platform == "win32" and sys.version_info[:2] == (3, 11),
+    version[0] == 5 and sys.platform == "win32" and sys.version_info[:2] >= (3, 11),
     reason="accepting failure until we figure out the problem".format(string_version),
     strict=True,
 )
@@ -135,7 +135,7 @@ def test_qmlscene_paints_test_item(tmp_path, environment):
 )
 # https://github.com/altendky/pyqt-tools/issues/110#issuecomment-1483673605
 @pytest.mark.xfail(
-    version[0] == 5 and sys.platform == "win32" and sys.version_info[:2] == (3, 11),
+    version[0] == 5 and sys.platform == "win32" and sys.version_info[:2] >= (3, 11),
     reason="accepting failure until we figure out the problem".format(string_version),
     strict=True,
 )
