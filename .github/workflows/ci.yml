@@ -1,0 +1,492 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - qt-applications-v*
+      - qt-tools-v*
+      - pyqt-plugins-v*
+      - pyqt-tools-v*
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+env:
+  # Change to discard all cached wheels.
+  CACHE_VERSION: v1
+
+# Packages depend on each other in this order:
+#   qt-applications -> qt-tools -> pyqt-plugins -> pyqt-tools
+# Wheels built earlier in the run are passed along as artifacts and pinned with
+# pip constraints so tests and builds use them instead of releases from PyPI.
+# Built wheels are cached keyed on the package sources, except for tag builds
+# which always build fresh so the release versions are correct.
+
+jobs:
+  config:
+    name: Config
+    runs-on: ubuntu-latest
+    outputs:
+      qt: ${{ steps.config.outputs.qt }}
+      python: ${{ steps.config.outputs.python }}
+      build_python: ${{ steps.config.outputs.build_python }}
+      platforms: ${{ steps.config.outputs.platforms }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: config
+        run: |
+          config=.github/ci-config.json
+          {
+            echo "qt=$(jq --compact-output .qt "$config")"
+            echo "python=$(jq --compact-output .python "$config")"
+            echo "build_python=$(jq --raw-output '.["build-python"]' "$config")"
+            echo "platforms=$(jq --compact-output .platforms "$config")"
+          } | tee -a "$GITHUB_OUTPUT"
+
+  qt-applications-build:
+    name: qt-applications build ${{ matrix.platform.name }} Qt ${{ matrix.qt.qt }}
+    needs: config
+    runs-on: ${{ matrix.platform.runs-on }}
+    container: ${{ matrix.platform.container && format(matrix.platform.container, needs.config.outputs.build_python) || '' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        platform: ${{ fromJSON(needs.config.outputs.platforms) }}
+        qt: ${{ fromJSON(needs.config.outputs.qt) }}
+    env:
+      QT_VERSION: ${{ matrix.qt.qt }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - id: key
+        shell: bash
+        run: echo "key=${CACHE_VERSION}-qt-applications-${{ matrix.platform.name }}-qt${{ matrix.qt.qt }}-${{ hashFiles('packages/qt-applications/**') }}" >> "$GITHUB_OUTPUT"
+      - id: cache
+        if: github.ref_type != 'tag'
+        uses: actions/cache/restore@v4
+        with:
+          path: packages/qt-applications/dist
+          key: ${{ steps.key.outputs.key }}
+      - if: steps.cache.outputs.cache-hit != 'true'
+        uses: ./.github/actions/setup
+        with:
+          python-version: ${{ needs.config.outputs.build_python }}
+      - if: steps.cache.outputs.cache-hit != 'true' && runner.os == 'Windows'
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: x64
+      - name: Build wheel
+        if: steps.cache.outputs.cache-hit != 'true'
+        # Default shell so Git Bash's link does not shadow the MSVC linker.
+        run: python -m build --wheel --outdir packages/qt-applications/dist packages/qt-applications
+      - if: steps.cache.outputs.cache-hit != 'true' && github.ref_type != 'tag'
+        uses: actions/cache/save@v4
+        with:
+          path: packages/qt-applications/dist
+          key: ${{ steps.key.outputs.key }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: qt-applications-${{ matrix.platform.name }}-qt${{ matrix.qt.qt }}
+          path: packages/qt-applications/dist/*.whl
+          if-no-files-found: error
+
+  qt-applications-test:
+    name: qt-applications test ${{ matrix.platform.name }} Python ${{ matrix.python }} Qt ${{ matrix.qt.qt }}
+    needs:
+      - config
+      - qt-applications-build
+    runs-on: ${{ matrix.platform.runs-on }}
+    container: ${{ matrix.platform.container && format(matrix.platform.container, matrix.python) || '' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        platform: ${{ fromJSON(needs.config.outputs.platforms) }}
+        qt: ${{ fromJSON(needs.config.outputs.qt) }}
+        python: ${{ fromJSON(needs.config.outputs.python) }}
+    env:
+      QT_VERSION: ${{ matrix.qt.qt }}
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
+        with:
+          python-version: ${{ matrix.python }}
+      - uses: actions/download-artifact@v4
+        with:
+          name: qt-applications-${{ matrix.platform.name }}-qt${{ matrix.qt.qt }}
+          path: wheelhouse
+      - name: Install
+        run: |
+          python .github/scripts/constraints.py wheelhouse | tee constraints.txt
+          python -m pip install --find-links wheelhouse --constraint constraints.txt qt${{ matrix.qt.major }}-applications pytest pytest-faulthandler ${{ runner.os == 'Linux' && 'pytest-xvfb' || '' }}
+          python -m pip freeze --all
+      - name: Test
+        run: python -m pytest --capture=no --verbose --pyargs qt${{ matrix.qt.major }}_applications.tests
+
+  qt-tools-build:
+    name: qt-tools build Qt ${{ matrix.qt.qt }}
+    needs:
+      - config
+      - qt-applications-build
+    runs-on: ubuntu-latest
+    container: python:${{ needs.config.outputs.build_python }}-bookworm
+    strategy:
+      fail-fast: false
+      matrix:
+        qt: ${{ fromJSON(needs.config.outputs.qt) }}
+    env:
+      QT_VERSION: ${{ matrix.qt.qt }}
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - id: key
+        # qt-tools inspects the qt-applications wheel while building.
+        run: echo "key=${CACHE_VERSION}-qt-tools-qt${{ matrix.qt.qt }}-${{ hashFiles('packages/qt-applications/**', 'packages/qt-tools/**') }}" >> "$GITHUB_OUTPUT"
+      - id: cache
+        if: github.ref_type != 'tag'
+        uses: actions/cache/restore@v4
+        with:
+          path: packages/qt-tools/dist
+          key: ${{ steps.key.outputs.key }}
+      - if: steps.cache.outputs.cache-hit != 'true'
+        uses: ./.github/actions/setup
+        with:
+          python-version: ${{ needs.config.outputs.build_python }}
+      - if: steps.cache.outputs.cache-hit != 'true'
+        uses: actions/download-artifact@v4
+        with:
+          name: qt-applications-linux-x86_64-qt${{ matrix.qt.qt }}
+          path: wheelhouse
+      - name: Build wheel
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: |
+          python .github/scripts/constraints.py wheelhouse | tee constraints.txt
+          export PIP_FIND_LINKS="$PWD/wheelhouse"
+          export PIP_CONSTRAINT="$PWD/constraints.txt"
+          export PIP_BUILD_CONSTRAINT="$PWD/constraints.txt"
+          python -m build --wheel --outdir packages/qt-tools/dist packages/qt-tools
+      - if: steps.cache.outputs.cache-hit != 'true' && github.ref_type != 'tag'
+        uses: actions/cache/save@v4
+        with:
+          path: packages/qt-tools/dist
+          key: ${{ steps.key.outputs.key }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: qt-tools-qt${{ matrix.qt.qt }}
+          path: packages/qt-tools/dist/*.whl
+          if-no-files-found: error
+
+  qt-tools-test:
+    name: qt-tools test ${{ matrix.platform.name }} Python ${{ matrix.python }} Qt ${{ matrix.qt.qt }}
+    needs:
+      - config
+      - qt-applications-build
+      - qt-tools-build
+    runs-on: ${{ matrix.platform.runs-on }}
+    container: ${{ matrix.platform.container && format(matrix.platform.container, matrix.python) || '' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        platform: ${{ fromJSON(needs.config.outputs.platforms) }}
+        qt: ${{ fromJSON(needs.config.outputs.qt) }}
+        python: ${{ fromJSON(needs.config.outputs.python) }}
+    env:
+      QT_VERSION: ${{ matrix.qt.qt }}
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
+        with:
+          python-version: ${{ matrix.python }}
+      - uses: actions/download-artifact@v4
+        with:
+          name: qt-applications-${{ matrix.platform.name }}-qt${{ matrix.qt.qt }}
+          path: wheelhouse
+      - uses: actions/download-artifact@v4
+        with:
+          name: qt-tools-qt${{ matrix.qt.qt }}
+          path: wheelhouse
+      - name: Install
+        run: |
+          python .github/scripts/constraints.py wheelhouse | tee constraints.txt
+          python -m pip install --find-links wheelhouse --constraint constraints.txt qt${{ matrix.qt.major }}-tools pytest pytest-faulthandler ${{ runner.os == 'Linux' && 'pytest-xvfb' || '' }}
+          python -m pip freeze --all
+      - name: Test
+        run: python -m pytest --capture=no --verbose --pyargs qt${{ matrix.qt.major }}_tools.tests
+
+  pyqt-plugins-build:
+    name: pyqt-plugins build ${{ matrix.platform.name }} Python ${{ matrix.python }} PyQt ${{ matrix.qt.pyqt }}
+    needs: config
+    runs-on: ${{ matrix.platform.runs-on }}
+    container: ${{ matrix.platform.container && format(matrix.platform.container, matrix.python) || '' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        platform: ${{ fromJSON(needs.config.outputs.platforms) }}
+        qt: ${{ fromJSON(needs.config.outputs.qt) }}
+        python: ${{ fromJSON(needs.config.outputs.python) }}
+    env:
+      QT_VERSION: ${{ matrix.qt.qt }}
+      PYQT_VERSION: ${{ matrix.qt.pyqt }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - id: key
+        shell: bash
+        run: echo "key=${CACHE_VERSION}-pyqt-plugins-${{ matrix.platform.name }}-py${{ matrix.python }}-qt${{ matrix.qt.qt }}-pyqt${{ matrix.qt.pyqt }}-${{ hashFiles('packages/pyqt-plugins/**') }}" >> "$GITHUB_OUTPUT"
+      - id: cache
+        if: github.ref_type != 'tag'
+        uses: actions/cache/restore@v4
+        with:
+          path: packages/pyqt-plugins/dist
+          key: ${{ steps.key.outputs.key }}
+      - if: steps.cache.outputs.cache-hit != 'true'
+        uses: ./.github/actions/setup
+        with:
+          python-version: ${{ matrix.python }}
+      - if: steps.cache.outputs.cache-hit != 'true' && runner.os == 'Windows'
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: x64
+      - name: Build wheel
+        if: steps.cache.outputs.cache-hit != 'true'
+        # Default shell so Git Bash's link does not shadow the MSVC linker.
+        run: python -m build --wheel --outdir packages/pyqt-plugins/dist packages/pyqt-plugins
+      - name: Rename to manylinux2014 tag
+        if: steps.cache.outputs.cache-hit != 'true' && runner.os == 'Linux'
+        shell: python
+        run: |
+          import pathlib
+
+          dist = pathlib.Path('packages/pyqt-plugins/dist')
+          [wheel] = dist.glob('*.whl')
+
+          # this is cheap...
+          retagged = wheel.parent / wheel.name.replace('linux', 'manylinux2014')
+          wheel.rename(retagged)
+      - if: steps.cache.outputs.cache-hit != 'true' && github.ref_type != 'tag'
+        uses: actions/cache/save@v4
+        with:
+          path: packages/pyqt-plugins/dist
+          key: ${{ steps.key.outputs.key }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: pyqt-plugins-${{ matrix.platform.name }}-py${{ matrix.python }}-qt${{ matrix.qt.qt }}-pyqt${{ matrix.qt.pyqt }}
+          path: packages/pyqt-plugins/dist/*.whl
+          if-no-files-found: error
+
+  pyqt-plugins-test:
+    name: pyqt-plugins test ${{ matrix.platform.name }} Python ${{ matrix.python }} PyQt ${{ matrix.qt.pyqt }}
+    needs:
+      - config
+      - qt-applications-build
+      - qt-tools-build
+      - pyqt-plugins-build
+    runs-on: ${{ matrix.platform.runs-on }}
+    container: ${{ matrix.platform.container && format(matrix.platform.container, matrix.python) || '' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        platform: ${{ fromJSON(needs.config.outputs.platforms) }}
+        qt: ${{ fromJSON(needs.config.outputs.qt) }}
+        python: ${{ fromJSON(needs.config.outputs.python) }}
+    env:
+      QT_VERSION: ${{ matrix.qt.qt }}
+      PYQT_VERSION: ${{ matrix.qt.pyqt }}
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
+        with:
+          python-version: ${{ matrix.python }}
+      - uses: actions/download-artifact@v4
+        with:
+          name: qt-applications-${{ matrix.platform.name }}-qt${{ matrix.qt.qt }}
+          path: wheelhouse
+      - uses: actions/download-artifact@v4
+        with:
+          name: qt-tools-qt${{ matrix.qt.qt }}
+          path: wheelhouse
+      - uses: actions/download-artifact@v4
+        with:
+          name: pyqt-plugins-${{ matrix.platform.name }}-py${{ matrix.python }}-qt${{ matrix.qt.qt }}-pyqt${{ matrix.qt.pyqt }}
+          path: wheelhouse
+      - name: Install
+        run: |
+          python .github/scripts/constraints.py wheelhouse | tee constraints.txt
+          python -m pip install --find-links wheelhouse --constraint constraints.txt pyqt${{ matrix.qt.major }}-plugins pytest pytest-faulthandler ${{ runner.os == 'Linux' && 'pytest-xvfb' || '' }}
+          python -m pip freeze --all
+      - name: Test
+        run: |
+          python -c 'import PyQt${{ matrix.qt.major }}.sip; print(PyQt${{ matrix.qt.major }}.sip)'
+          python -m pytest --capture=no --verbose --pyargs pyqt${{ matrix.qt.major }}_plugins.tests
+
+  pyqt-tools-build:
+    name: pyqt-tools build PyQt ${{ matrix.qt.pyqt }}
+    needs: config
+    runs-on: ubuntu-latest
+    container: python:${{ needs.config.outputs.build_python }}-bookworm
+    strategy:
+      fail-fast: false
+      matrix:
+        qt: ${{ fromJSON(needs.config.outputs.qt) }}
+    env:
+      QT_VERSION: ${{ matrix.qt.qt }}
+      PYQT_VERSION: ${{ matrix.qt.pyqt }}
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - id: key
+        run: echo "key=${CACHE_VERSION}-pyqt-tools-qt${{ matrix.qt.qt }}-pyqt${{ matrix.qt.pyqt }}-${{ hashFiles('packages/pyqt-tools/**') }}" >> "$GITHUB_OUTPUT"
+      - id: cache
+        if: github.ref_type != 'tag'
+        uses: actions/cache/restore@v4
+        with:
+          path: packages/pyqt-tools/dist
+          key: ${{ steps.key.outputs.key }}
+      - if: steps.cache.outputs.cache-hit != 'true'
+        uses: ./.github/actions/setup
+        with:
+          python-version: ${{ needs.config.outputs.build_python }}
+      - name: Build wheel
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: python -m build --wheel --outdir packages/pyqt-tools/dist packages/pyqt-tools
+      - if: steps.cache.outputs.cache-hit != 'true' && github.ref_type != 'tag'
+        uses: actions/cache/save@v4
+        with:
+          path: packages/pyqt-tools/dist
+          key: ${{ steps.key.outputs.key }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: pyqt-tools-qt${{ matrix.qt.qt }}-pyqt${{ matrix.qt.pyqt }}
+          path: packages/pyqt-tools/dist/*.whl
+          if-no-files-found: error
+
+  pyqt-tools-test:
+    name: pyqt-tools test ${{ matrix.platform.name }} Python ${{ matrix.python }} PyQt ${{ matrix.qt.pyqt }}
+    needs:
+      - config
+      - qt-applications-build
+      - qt-tools-build
+      - pyqt-plugins-build
+      - pyqt-tools-build
+    runs-on: ${{ matrix.platform.runs-on }}
+    container: ${{ matrix.platform.container && format(matrix.platform.container, matrix.python) || '' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        platform: ${{ fromJSON(needs.config.outputs.platforms) }}
+        qt: ${{ fromJSON(needs.config.outputs.qt) }}
+        python: ${{ fromJSON(needs.config.outputs.python) }}
+    env:
+      QT_VERSION: ${{ matrix.qt.qt }}
+      PYQT_VERSION: ${{ matrix.qt.pyqt }}
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
+        with:
+          python-version: ${{ matrix.python }}
+      - uses: actions/download-artifact@v4
+        with:
+          name: qt-applications-${{ matrix.platform.name }}-qt${{ matrix.qt.qt }}
+          path: wheelhouse
+      - uses: actions/download-artifact@v4
+        with:
+          name: qt-tools-qt${{ matrix.qt.qt }}
+          path: wheelhouse
+      - uses: actions/download-artifact@v4
+        with:
+          name: pyqt-plugins-${{ matrix.platform.name }}-py${{ matrix.python }}-qt${{ matrix.qt.qt }}-pyqt${{ matrix.qt.pyqt }}
+          path: wheelhouse
+      - uses: actions/download-artifact@v4
+        with:
+          name: pyqt-tools-qt${{ matrix.qt.qt }}-pyqt${{ matrix.qt.pyqt }}
+          path: wheelhouse
+      - name: Install
+        run: |
+          python .github/scripts/constraints.py wheelhouse | tee constraints.txt
+          python -m pip install --find-links wheelhouse --constraint constraints.txt pyqt${{ matrix.qt.major }}-tools pytest pytest-faulthandler ${{ runner.os == 'Linux' && 'pytest-xvfb' || '' }}
+          python -m pip freeze --all
+      - name: Test
+        run: |
+          python -c 'import PyQt${{ matrix.qt.major }}.sip; print(PyQt${{ matrix.qt.major }}.sip)'
+          python -m pytest --capture=no --verbose --pyargs pyqt${{ matrix.qt.major }}_tools.tests
+
+  publish:
+    name: Publish
+    if: github.event_name == 'push' && github.ref_type == 'tag'
+    needs:
+      - qt-applications-test
+      - qt-tools-test
+      - pyqt-plugins-test
+      - pyqt-tools-test
+    runs-on: ubuntu-latest
+    environment: pypi
+    permissions:
+      id-token: write
+    steps:
+      - id: package
+        name: Select package from tag
+        run: |
+          case "$GITHUB_REF_NAME" in
+            qt-applications-v*|qt-tools-v*|pyqt-plugins-v*|pyqt-tools-v*) ;;
+            *) echo "Unrecognized tag: $GITHUB_REF_NAME"; exit 1 ;;
+          esac
+          echo "name=${GITHUB_REF_NAME%-v*}" >> "$GITHUB_OUTPUT"
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: ${{ steps.package.outputs.name }}-*
+          merge-multiple: true
+          path: dist
+      - run: ls -l dist
+      - uses: pypa/gh-action-pypi-publish@release/v1
+
+  all:
+    name: All
+    if: always()
+    needs:
+      - config
+      - qt-applications-build
+      - qt-applications-test
+      - qt-tools-build
+      - qt-tools-test
+      - pyqt-plugins-build
+      - pyqt-plugins-test
+      - pyqt-tools-build
+      - pyqt-tools-test
+      - publish
+    runs-on: ubuntu-latest
+    steps:
+      - name: Require all jobs to succeed
+        env:
+          RESULTS: ${{ toJSON(needs.*.result) }}
+        run: |
+          echo "$RESULTS"
+          [ "${{ contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled') }}" = false ]
