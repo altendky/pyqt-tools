@@ -41,7 +41,7 @@ def get_config():
     cfg = VersioneerConfig()
     cfg.VCS = "git"
     cfg.style = "pep440-post"
-    cfg.tag_prefix = "v"
+    cfg.tag_prefix = "qt-applications-v"
     cfg.parentdir_prefix = "None"
     cfg.versionfile_source = "src/qt_applications/_version.py"
     cfg.verbose = False

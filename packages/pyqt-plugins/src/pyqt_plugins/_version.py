@@ -41,7 +41,7 @@ def get_config():
     cfg = VersioneerConfig()
     cfg.VCS = "git"
     cfg.style = "pep440-post"
-    cfg.tag_prefix = "v"
+    cfg.tag_prefix = "pyqt-plugins-v"
     cfg.parentdir_prefix = "None"
     cfg.versionfile_source = "src/pyqt_plugins/_version.py"
     cfg.verbose = False
