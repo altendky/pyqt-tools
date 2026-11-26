@@ -1,0 +1,3 @@
+recursive-include src/qt_applications *
+include versioneer.py
+include src/qt_applications/_version.py
