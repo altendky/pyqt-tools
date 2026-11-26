@@ -7,7 +7,7 @@
   "build-python": "3.11",
   "platforms": [
     {"name": "linux-x86_64", "runs-on": "ubuntu-latest", "container": "python:{0}-bookworm"},
-    {"name": "windows-x86_64", "runs-on": "windows-latest", "container": ""},
+    {"name": "windows-x86_64", "runs-on": "windows-2022", "container": ""},
     {"name": "macos-x86_64", "runs-on": "macos-15-intel", "container": ""}
   ]
 }
