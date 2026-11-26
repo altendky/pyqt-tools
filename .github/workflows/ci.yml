@@ -21,7 +21,7 @@ permissions:
 
 env:
   # Change to discard all cached wheels.
-  CACHE_VERSION: v1
+  CACHE_VERSION: v2
 
 # Packages depend on each other in this order:
 #   qt-applications -> qt-tools -> pyqt-plugins -> pyqt-tools
@@ -306,6 +306,17 @@ jobs:
           # this is cheap...
           retagged = wheel.parent / wheel.name.replace('linux', 'manylinux2014')
           wheel.rename(retagged)
+      - name: Retag to the built architecture
+        if: steps.cache.outputs.cache-hit != 'true' && runner.os == 'macOS'
+        # The universal2 Python tags the wheel universal2, but the plugin is
+        # only built for the runner's architecture.
+        shell: bash
+        run: |
+          python -m pip install wheel
+          wheel=$(echo packages/pyqt-plugins/dist/*.whl)
+          platform=$(basename "$wheel" .whl | rev | cut -d- -f1 | rev)
+          python -m wheel tags --remove --platform-tag "${platform/universal2/$(uname -m)}" "$wheel"
+          ls packages/pyqt-plugins/dist
       - if: steps.cache.outputs.cache-hit != 'true' && github.ref_type != 'tag'
         uses: actions/cache/save@v4
         with:
