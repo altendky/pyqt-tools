@@ -15,7 +15,8 @@ get_requires_for_build_sdist = (
 
 requirements = {
    'attrs': '',
-   'aqtinstall': '',
+   # Unreleased, for Qt 6.11+ on Windows: https://github.com/miurahr/aqtinstall/pull/1000
+   'aqtinstall': ' @ git+https://github.com/miurahr/aqtinstall@4c759852b1108cc801d8e24979136b895b5155d4',
    # != 0.10.0 for https://github.com/miurahr/py7zr/issues/252
    'py7zr': '!= 0.10.0',
    'importlib-metadata': '',
