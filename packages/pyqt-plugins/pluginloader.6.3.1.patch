@@ -1,0 +1,135 @@
+diff --git a/designer/pluginloader.cpp b/designer/pluginloader.cpp
+index 1247d0d..cb0fd42 100644
+--- a/designer/pluginloader.cpp
++++ b/designer/pluginloader.cpp
+@@ -25,6 +25,7 @@
+ 
+ #include <stdlib.h>
+ 
++#include <QDebug>
+ #include <QtGlobal>
+ #include <QtPlugin>
+ #include <QCoreApplication>
+@@ -36,6 +37,114 @@
+ 
+ #include "../qpy/QtDesigner/qpydesignercustomwidgetplugin.h"
+ 
++#include "excepthook.c"
++
++
++void setupExceptHookDialog(void)
++{
++    qDebug() << "Preparing to import module";
++    qDebug() << PyBytes_AS_STRING(PyUnicode_AsEncodedString(PyObject_Str(PySys_GetObject("path")), "utf-8", "error 1?"));
++    // https://stackoverflow.com/a/42853449/228539
++    PyObject *pyModule = PyModule_New(moduleName);
++    // Set properties on the new module object
++    PyModule_AddStringConstant(pyModule, "__file__", "");
++    PyObject *localDict = PyModule_GetDict(pyModule);   // Returns a borrowed reference: no need to Py_DECREF() it once we are done
++    PyObject *builtins = PyEval_GetBuiltins();  // Returns a borrowed reference: no need to Py_DECREF() it once we are done
++    PyDict_SetItemString(localDict, "__builtins__", builtins);
++
++    qDebug() << "About to import module";
++
++    // Define code in the newly created module
++    PyObject *pyValue = PyRun_String(moduleCode, Py_file_input, localDict, localDict);
++    qDebug() << "Code just run";
++    if (pyValue == NULL)
++    {
++        qDebug() << "An error occurred while importing the module";
++
++        char * full_backtrace = NULL;
++
++        if (PyErr_Occurred() != NULL) {
++            qDebug() << "PyErr_Occurred() != NULL";
++            PyObject *ptype, *pvalue, *ptraceback;
++            PyObject *pystr, *module_name, *pyth_module, *pyth_func;
++            char *str;
++            char *error_description;
++
++            PyErr_Fetch(&ptype, &pvalue, &ptraceback);
++            qDebug() << "ptype == NULL : " << (ptype == NULL);
++            qDebug() << "pvalue == NULL : " << (pvalue == NULL);
++            qDebug() << "ptraceback == NULL : " << (ptraceback == NULL);
++            pystr = PyObject_Str(pvalue);
++            qDebug() << "pystr == NULL : " << (pystr == NULL);
++            pystr = PyUnicode_AsEncodedString(pystr, "utf-8", "error 1?");
++            qDebug() << "pystr == NULL : " << (pystr == NULL);
++            str = PyBytes_AS_STRING(pystr);
++            qDebug() << "str == NULL : " << (str == NULL);
++            if (str != NULL)
++            {
++                qDebug() << "str: " << str;
++            }
++            Py_DECREF(pystr);
++            error_description = strdup(str);
++            qDebug() << "error_description == NULL : " << (error_description == NULL);
++            if (error_description != NULL)
++            {
++                qDebug() << "error_description: " << error_description;
++            }
++
++            /* See if we can get a full traceback */
++            module_name = PyUnicode_Decode("traceback", 9, "utf-8", "error 2?");
++            pyth_module = PyImport_Import(module_name);
++            Py_DECREF(module_name);
++
++            qDebug() << "pyth_module == NULL : " << (pyth_module == NULL);
++            if (pyth_module == NULL) {
++                full_backtrace = NULL;
++                return;
++            }
++
++            pyth_func = PyObject_GetAttrString(pyth_module, "format_exception");
++            if (pyth_func && PyCallable_Check(pyth_func))
++            {
++                qDebug() << "pyth_func && PyCallable_Check(pyth_func)";
++                PyObject *pyth_val;
++
++                pyth_val = PyObject_CallFunctionObjArgs(pyth_func, ptype, pvalue, ptraceback, Py_None, Py_True, NULL);
++                qDebug() << "pyth_val == NULL : " << (pyth_val == NULL);
++
++                pystr = PyObject_Str(pyth_val);
++                qDebug() << "pystr == NULL : " << (pystr == NULL);
++
++                pystr = PyUnicode_AsEncodedString(pystr, "utf-8", "error 3?");
++                qDebug() << "pystr == NULL : " << (pystr == NULL);
++
++                str = PyBytes_AS_STRING(pystr);
++                qDebug() << "str == NULL : " << (str == NULL);
++
++                Py_DECREF(pystr);
++                full_backtrace = strdup(str);
++                Py_DECREF(pyth_val);
++            }
++        }
++
++        if (full_backtrace != NULL)
++        {
++            qDebug() << "About to print backtrace";
++            qDebug() << full_backtrace;
++        }
++        else
++        {
++            qDebug() << "Backtrace was NULL";
++        }
++    }
++    else
++    {
++        qDebug() << "About to decref";
++        Py_DECREF(pyValue);
++    }
++
++    qDebug() << "Done importing module";
++}
+ 
+ // Construct the collection of Python widgets.
+ PyCustomWidgets::PyCustomWidgets(QObject *parent) : QObject(parent),
+@@ -164,6 +273,7 @@ PyCustomWidgets::PyCustomWidgets(QObject *parent) : QObject(parent),
+         PyGILState_STATE gil_state = PyGILState_Ensure();
+ #endif
+ 
++        setupExceptHookDialog();
+         bool fatal = importPlugins(dir, plugins);
+ 
+ #if defined(WITH_THREAD)
