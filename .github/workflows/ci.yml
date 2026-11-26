@@ -85,7 +85,7 @@ jobs:
         with:
           python-version: ${{ needs.config.outputs.build_python }}
       - if: steps.cache.outputs.cache-hit != 'true' && runner.os == 'Windows'
-        uses: ilammy/msvc-dev-cmd@v1
+        uses: ilammy/msvc-dev-cmd@0b201ec74fa43914dc39ae48a89fd1d8cb592756 # v1.13.0
         with:
           arch: x64
       - name: Build wheel
@@ -278,7 +278,7 @@ jobs:
         with:
           python-version: ${{ matrix.python }}
       - if: steps.cache.outputs.cache-hit != 'true' && runner.os == 'Windows'
-        uses: ilammy/msvc-dev-cmd@v1
+        uses: ilammy/msvc-dev-cmd@0b201ec74fa43914dc39ae48a89fd1d8cb592756 # v1.13.0
         with:
           arch: x64
       - name: Build wheel
@@ -486,8 +486,28 @@ jobs:
           pattern: ${{ steps.package.outputs.name }}-*
           merge-multiple: true
           path: dist
-      - run: ls -l dist
-      - uses: pypa/gh-action-pypi-publish@release/v1
+      - name: Check wheel versions match the tag
+        run: |
+          shopt -s nullglob
+          version="${GITHUB_REF_NAME#*-v}"
+          wheels=(dist/*.whl)
+          if [ "${#wheels[@]}" -eq 0 ]; then
+            echo "No wheels found for $GITHUB_REF_NAME"
+            exit 1
+          fi
+          status=0
+          for wheel in "${wheels[@]}"; do
+            wheel_version=$(basename "$wheel" | cut -d- -f2)
+            case "$wheel_version" in
+              *."$version") echo "OK: $wheel" ;;
+              *) echo "Version $wheel_version does not match tag $GITHUB_REF_NAME: $wheel"; status=1 ;;
+            esac
+          done
+          exit "$status"
+      - uses: pypa/gh-action-pypi-publish@7245906fb61fa33a13554f9d5fb856fe61758086 # v1.14.3
+        with:
+          # Allow re-running a publish that failed partway through.
+          skip-existing: true
 
   all:
     name: All
