@@ -105,7 +105,8 @@ setuptools.setup(
         'Programming Language :: Python :: 3.12',
         'Programming Language :: Python :: 3.13',
         'Programming Language :: Python :: 3.14',
-        'Programming Language :: Python :: 3.15',
+        # PyQt5 doesn't build on Python 3.15.
+        *(['Programming Language :: Python :: 3.15'] if qt_major_version != '5' else []),
         'Topic :: Software Development',
         'Topic :: Utilities',
     ],
