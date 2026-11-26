@@ -22,7 +22,9 @@ def show(exc_type, exc_value, exc_traceback):
     message = ''.join(
         traceback.format_exception(exc_type, exc_value, exc_traceback),
     )
-    sys.stderr.write(message)
+    # Designer on Windows has no stderr, so sys.stderr is None.
+    if sys.stderr is not None:
+        sys.stderr.write(message)
 
     dialog(
         parent=None,
