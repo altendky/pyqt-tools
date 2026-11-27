@@ -114,9 +114,9 @@ def write_subcommands(
 ) -> None:
     with entry_points_py.open('a', encoding='utf-8', newline='\n') as f:
         f.write(textwrap.dedent('''\
-        
+
             # ----  start of generated wrapper entry points
-        
+
         '''))
 
         for application in sorted(applications, key=lambda a: a.name):

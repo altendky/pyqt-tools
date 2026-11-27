@@ -1,0 +1,11 @@
+rules:
+  self-repository:
+    ignore:
+      # actionlint v1.7.12 rejects self-repository references.
+      # Migrate and remove this exception when actionlint supports them.
+      - ci.yml
+  unpinned-images:
+    ignore:
+      # The Linux build and test containers are python:<version>-bookworm for
+      # each Python in .github/ci-config.json, which a digest can't express.
+      - ci.yml

@@ -751,7 +751,7 @@ class Configuration:
             qt_architecture = 'clang_64'
         elif platform == 'win32':
             # TODO: change the actual storage
-            
+
             if qt_version_ints >= (6, 8):
                 year = '2022'
             elif qt_version_ints >= (5, 15):
