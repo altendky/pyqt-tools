@@ -1,0 +1,46 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-added-large-files
+      - id: check-case-conflict
+      - id: check-json
+      - id: check-merge-conflict
+      - id: check-symlinks
+      - id: check-toml
+      - id: check-yaml
+      - id: destroyed-symlinks
+      - id: fix-byte-order-marker
+      - id: mixed-line-ending
+
+  - repo: https://github.com/DavidAnson/markdownlint-cli2
+    rev: v0.24.2
+    hooks:
+      - id: markdownlint-cli2
+
+  - repo: https://github.com/rhysd/actionlint
+    rev: v1.7.12
+    hooks:
+      - id: actionlint
+
+  - repo: https://github.com/zizmorcore/zizmor-pre-commit
+    rev: v1.33.1
+    hooks:
+      - id: zizmor
+        args: [--offline, --no-progress, --min-severity=low]
+
+  - repo: https://github.com/Mergifyio/mergify-pre-commit
+    rev: 1.1.0
+    hooks:
+      - id: validate-mergify-config
+
+  - repo: local
+    hooks:
+      - id: mise-lock
+        name: mise lock
+        entry: mise install --locked --dry-run
+        language: system
+        files: ^mise\.(toml|lock)$
+        pass_filenames: false
