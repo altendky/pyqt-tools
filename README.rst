@@ -23,10 +23,13 @@ separately, for both Qt 5 and Qt 6.
      - The PyQt Designer and QML plugins
    * - `packages/pyqt-tools`_
      - pyqt5-tools, pyqt6-tools
-     - Wrappers for Designer and QML tools with the PyQt plugins enabled
+     - Wrappers for Designer and QML tools, with the PyQt plugins enabled by
+       the optional ``plugins`` extra
 
-Each package depends on the one listed above it.  Most users want pyqt5-tools
-or pyqt6-tools; see `packages/pyqt-tools`_ for installation and usage.
+Each package depends on the one listed above it, except that pyqt-tools
+depends on pyqt-plugins only through its ``plugins`` extra.  Most users want
+pyqt5-tools or pyqt6-tools; see `packages/pyqt-tools`_ for installation and
+usage.
 
 These packages were previously developed in the separate qt-applications,
 qt-tools, and pyqt-plugins repositories, whose full histories were merged in

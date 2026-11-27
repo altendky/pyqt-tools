@@ -519,14 +519,25 @@ jobs:
         with:
           name: pyqt-tools-qt${{ matrix.qt.qt }}-pyqt${{ matrix.qt.pyqt }}
           path: wheelhouse
-      - name: Install
+      # Test first without the plugins extra, then add it to the same
+      # environment and test again.
+      - name: Install without the plugins extra
         run: |
           python .github/scripts/constraints.py wheelhouse | tee constraints.txt
           python -m pip install --find-links wheelhouse --constraint constraints.txt pyqt${{ matrix.qt.major }}-tools pytest pytest-faulthandler ${{ runner.os == 'Linux' && 'pytest-xvfb' || '' }}
           python -m pip freeze --all
-      - name: Test
+          python -c 'import importlib.util; assert importlib.util.find_spec("pyqt${{ matrix.qt.major }}_plugins") is None, "pyqt-plugins is installed"'
+      - name: Test without the plugins extra
         run: |
           python -c 'import PyQt${{ matrix.qt.major }}.sip; print(PyQt${{ matrix.qt.major }}.sip)'
+          python -m pytest --capture=no --verbose --pyargs pyqt${{ matrix.qt.major }}_tools.tests
+      - name: Install the plugins extra
+        run: |
+          python -m pip install --find-links wheelhouse --constraint constraints.txt 'pyqt${{ matrix.qt.major }}-tools[plugins]'
+          python -m pip freeze --all
+          python -c 'import pyqt${{ matrix.qt.major }}_plugins'
+      - name: Test with the plugins extra
+        run: |
           python -m pytest --capture=no --verbose --pyargs pyqt${{ matrix.qt.major }}_tools.tests
 
   publish:

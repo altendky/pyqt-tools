@@ -37,6 +37,14 @@ pyqt_plugins_version_specifier = pyqt_plugins_version_format.format(
     wrapper=pyqt_plugins_wrapper_range,
 )
 
+qt_tools_wrapper_range = ['1.2', '2']
+
+qt_tools_version_format = '>={qt}.{wrapper[0]}, <{qt}.{wrapper[1]}'
+qt_tools_version_specifier = qt_tools_version_format.format(
+    qt=qt_version,
+    wrapper=qt_tools_wrapper_range,
+)
+
 
 with open('README.rst') as f:
     readme = f.read()
@@ -92,12 +100,20 @@ setuptools.setup(
     install_requires=[
         'click',
         'pyqt{}=={}'.format(pyqt_major_version, pyqt_version),
-        'pyqt{}-plugins{}'.format(
-            pyqt_major_version,
-            pyqt_plugins_version_specifier,
-        ),
         'python-dotenv',
+        'qt{}-tools{}'.format(
+            pyqt_major_version,
+            qt_tools_version_specifier,
+        ),
     ],
+    extras_require={
+        'plugins': [
+            'pyqt{}-plugins{}'.format(
+                pyqt_major_version,
+                pyqt_plugins_version_specifier,
+            ),
+        ],
+    },
     entry_points={
         'console_scripts': [
             'pyqt{major}-tools = pyqt{major}_tools.entrypoints:main'.format(major=pyqt_major_version),
