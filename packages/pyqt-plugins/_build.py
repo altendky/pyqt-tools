@@ -19,7 +19,6 @@ import typing
 import attr
 import hyperlink
 import lddwrap
-import patch
 import requests
 import setuptools.command.build_py
 import tenacity
@@ -661,9 +660,6 @@ def build(configuration: Configuration):
                 path=fspath(configuration.pyqt_source_path),
             )
 
-    checkpoint('Patch PyQt')
-    patch_pyqt(configuration, qt_paths)
-
     checkpoint('Build PyQt')
     build_path = build_pyqt(configuration, qt_paths)
 
@@ -841,17 +837,6 @@ def windeployqt_list_source(
     ]
 
     return paths
-
-
-def patch_pyqt(configuration, qt_paths):
-    # TODO: gee golly get this figured out properly and configured etc
-    patch_path = (
-        pathlib.Path(__file__).resolve().parent
-        / 'pluginloader.{}.patch'.format(configuration.pyqt_version)
-    )
-
-    patchset = patch.fromfile(fspath(patch_path))
-    patchset.apply(strip=1)
 
 
 def build_pyqt(configuration, qt_paths):

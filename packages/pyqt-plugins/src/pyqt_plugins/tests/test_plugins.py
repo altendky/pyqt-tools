@@ -1,3 +1,4 @@
+import json
 import os
 import pathlib
 import subprocess
@@ -33,7 +34,10 @@ def import_it(*segments):
 
 qt_tools = import_it("qt_tools")
 pyqt_plugins = import_it("pyqt_plugins")
+import_it("pyqt_plugins", "badplugin")
 import_it("pyqt_plugins", "examples", "exampleqmlitem")
+import_it("pyqt_plugins", "excepthook")
+import_it("pyqt_plugins", "tests", "exceptiondialog")
 import_it("pyqt_plugins", "tests", "testbutton")
 import_it("pyqt_plugins", "tests", "testbuttonplugin")
 import_it("pyqt_plugins", "utilities")
@@ -45,6 +49,7 @@ fspath = getattr(os, 'fspath', str)
 vars_to_print = [
     *pyqt_plugins.utilities.diagnostic_variables_to_print,
     pyqt_plugins.examples.exampleqmlitem.test_path_env_var,
+    pyqt_plugins.tests.exceptiondialog.test_path_env_var,
     pyqt_plugins.tests.testbutton.test_path_env_var,
 ]
 
@@ -118,6 +123,41 @@ def test_designer_creates_test_widget(tmp_path, environment):
     )
 
     assert contents == pyqt_plugins.tests.testbutton.test_file_contents
+
+
+def test_designer_shows_exception_dialog(tmp_path, environment):
+    file_path = tmp_path/'kanga'
+    environment[pyqt_plugins.tests.exceptiondialog.test_path_env_var] = fspath(file_path)
+
+    def directory(module):
+        return fspath(pathlib.Path(module.__file__).parent)
+
+    environment.update(pyqt_plugins.utilities.add_to_env_var_path_list(
+        env=environment,
+        name='PYQTDESIGNERPATH',
+        before=[
+            directory(pyqt_plugins.excepthook),
+            directory(pyqt_plugins.tests.exceptiondialog),
+            directory(pyqt_plugins.badplugin),
+        ],
+        after=[''],
+    ))
+
+    pyqt_plugins.utilities.print_environment_variables(environment, *vars_to_print)
+
+    command_elements = qt_tools.create_command_elements(
+        name='designer',
+        sys_platform=sys.platform,
+    )
+
+    contents = json.loads(run_for_file(
+        command_elements,
+        env=environment,
+        file_path=file_path,
+    ))
+
+    assert contents['hook'] == pyqt_plugins.__name__ + '.exceptiondialog.show'
+    assert 'This exception is being intentionally raised' in contents['text']
 
 
 qml2_import_paths = (pyqt_plugins.utilities.fspath(pyqt_plugins.root),)

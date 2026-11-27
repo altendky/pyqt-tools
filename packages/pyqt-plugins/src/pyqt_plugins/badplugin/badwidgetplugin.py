@@ -1,5 +1,11 @@
-from .. import import_it
-from .. import major
+import importlib
+import pathlib
+
+# Designer imports this file as a top-level module, so find the package it is
+# part of from its location.
+pyqt_plugins = importlib.import_module(pathlib.Path(__file__).resolve().parent.parent.name)
+import_it = pyqt_plugins.import_it
+major = pyqt_plugins.major
 
 QtDesigner = import_it("PyQt", "QtDesigner")
 
