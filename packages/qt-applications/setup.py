@@ -112,7 +112,7 @@ setuptools.setup(
     description="The collection of Qt tools easily installable in Python",
     long_description=readme,
     long_description_content_type='text/x-rst',
-    url='https://github.com/altendky/qt-applications',
+    url='https://github.com/altendky/pyqt-tools',
     author="Kyle Altendorf",
     author_email='sda@fstab.net',
     license='LGPLv3',

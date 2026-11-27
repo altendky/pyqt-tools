@@ -56,9 +56,9 @@ Note:
     some Qt application helpers in qt6-tools_, and the applications are in
     qt6-applications_.
 
-.. _pyqt6-plugins: https://github.com/altendky/pyqt-plugins
-.. _qt6-tools: https://github.com/altendky/qt-tools
-.. _qt6-applications: https://github.com/altendky/qt-applications
+.. _pyqt6-plugins: https://github.com/altendky/pyqt-tools/tree/main/packages/pyqt-plugins
+.. _qt6-tools: https://github.com/altendky/pyqt-tools/tree/main/packages/qt-tools
+.. _qt6-applications: https://github.com/altendky/pyqt-tools/tree/main/packages/qt-applications
 
 -----
 Usage
