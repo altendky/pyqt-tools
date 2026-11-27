@@ -4,9 +4,9 @@ import pathlib
 # TODO: CAMPid 0970432108721340872130742130870874321
 def import_it(*segments):
     import importlib
-    import pkg_resources
+    import importlib.metadata
 
-    major = int(pkg_resources.get_distribution(__name__).version.partition(".")[0])
+    major = int(importlib.metadata.version(__name__).partition(".")[0])
 
     m = {
         "pyqt_tools": "pyqt{major}_tools".format(major=major),

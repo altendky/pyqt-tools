@@ -1,8 +1,8 @@
 # TODO: CAMPid 0970432108721340872130742130870874321
 import importlib
-import pkg_resources
+import importlib.metadata
 
-major = int(pkg_resources.get_distribution(__name__.partition('.')[0]).version.partition(".")[0])
+major = int(importlib.metadata.version(__name__.partition('.')[0]).partition(".")[0])
 
 
 def import_it(*segments):

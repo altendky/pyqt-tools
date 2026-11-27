@@ -19,7 +19,6 @@ import typing
 import attr
 import hyperlink
 import lddwrap
-import patch
 import requests
 import setuptools.command.build_py
 import tenacity
@@ -364,17 +363,22 @@ class Configuration:
     def build(cls, environment, build_path, package_path):
         platform = sys.platform
         qt_version = environment['QT_VERSION']
+        qt_version_ints = tuple(int(s) for s in qt_version.split('.'))
 
         if platform == 'linux':
             qt_compiler = 'gcc_64'
             qt_architecture = 'gcc_64'
+            if qt_version_ints >= (6, 7):
+                qt_architecture = f'linux_{qt_architecture}'
         elif platform == 'darwin':
             qt_compiler = 'clang_64'
             qt_architecture = 'clang_64'
         elif platform == 'win32':
             # TODO: change the actual storage
             
-            if tuple(int(s) for s in qt_version.split('.')) >= (5, 15):
+            if qt_version_ints >= (6, 8):
+                year = '2022'
+            elif qt_version_ints >= (5, 15):
                 year = '2019'
             else:
                 year = '2017'
@@ -656,9 +660,6 @@ def build(configuration: Configuration):
                 path=fspath(configuration.pyqt_source_path),
             )
 
-    checkpoint('Patch PyQt')
-    patch_pyqt(configuration, qt_paths)
-
     checkpoint('Build PyQt')
     build_path = build_pyqt(configuration, qt_paths)
 
@@ -836,17 +837,6 @@ def windeployqt_list_source(
     ]
 
     return paths
-
-
-def patch_pyqt(configuration, qt_paths):
-    # TODO: gee golly get this figured out properly and configured etc
-    patch_path = (
-        pathlib.Path(__file__).resolve().parent
-        / 'pluginloader.{}.patch'.format(configuration.pyqt_version)
-    )
-
-    patchset = patch.fromfile(fspath(patch_path))
-    patchset.apply(strip=1)
 
 
 def build_pyqt(configuration, qt_paths):

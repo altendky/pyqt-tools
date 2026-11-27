@@ -53,11 +53,11 @@ setuptools.setup(
         'Operating System :: MacOS :: MacOS X',
         'Operating System :: Microsoft :: Windows',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.9',
-        'Programming Language :: Python :: 3.10',
         'Programming Language :: Python :: 3.11',
         'Programming Language :: Python :: 3.12',
         'Programming Language :: Python :: 3.13',
+        'Programming Language :: Python :: 3.14',
+        'Programming Language :: Python :: 3.15',
         'Topic :: Software Development',
         'Topic :: Utilities',
     ],
@@ -69,13 +69,10 @@ setuptools.setup(
     package_dir={import_name: 'src/qt_tools'},
     version=qt_tools_version,
     include_package_data=True,
-    python_requires=">=3.9",
+    python_requires=">=3.11",
     install_requires=[
         local_backend.qt_applications_requirement,
         'click',
-        # TODO: forcing since we use pkg_resources, though we should stop using that as it is deprecated
-        # setuptools 82 removed pkg_resources
-        "setuptools<82",
     ],
     entry_points={
         'console_scripts': ['qt{major}-tools = qt{major}_tools.entrypoints:main'.format(major=qt_major_version)],

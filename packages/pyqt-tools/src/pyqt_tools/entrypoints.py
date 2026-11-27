@@ -16,6 +16,7 @@ qt_tools = _import_it('qt_tools')
 pyqt_plugins = _import_it('pyqt_plugins')
 _import_it('pyqt_plugins', 'utilities')
 _import_it('pyqt_plugins', 'badplugin')
+_import_it('pyqt_plugins', 'excepthook')
 _import_it('pyqt_plugins', 'examplebuttonplugin')
 _import_it('pyqt_plugins', 'examples')
 _import_it('pyqt_plugins', 'examples', 'exampleqmlitem')
@@ -29,6 +30,9 @@ example_path = str(
 )
 bad_path = str(
     pathlib.Path(pyqt_plugins.badplugin.__file__).parent,
+)
+excepthook_path = str(
+    pathlib.Path(pyqt_plugins.excepthook.__file__).parent,
 )
 
 pyqt_root = pathlib.Path(PyQt.__file__).parent
@@ -140,7 +144,8 @@ def designer(
     env.update(pyqt_plugins.utilities.add_to_env_var_path_list(
         env=env,
         name='PYQTDESIGNERPATH',
-        before=widget_paths,
+        # First, so that exceptions from all the other plugins get a dialog.
+        before=[excepthook_path, *widget_paths],
         after=[''],
     ))
 

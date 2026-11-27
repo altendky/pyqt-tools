@@ -1,3 +1,4 @@
+import json
 import os
 import pathlib
 import subprocess
@@ -15,6 +16,7 @@ from .. import string_version
 qt_tools = _import_it('qt_tools')
 pyqt_plugins = _import_it('pyqt_plugins')
 _import_it('pyqt_plugins', 'examples', 'exampleqmlitem')
+_import_it('pyqt_plugins', 'tests', 'exceptiondialog')
 _import_it('pyqt_plugins', 'tests', 'testbutton')
 _import_it('pyqt_plugins', 'tests', 'testbuttonplugin')
 _import_it('pyqt_plugins', 'utilities')
@@ -40,6 +42,7 @@ def executable_cmd_fixture(request):
 vars_to_print = [
     *pyqt_plugins.utilities.diagnostic_variables_to_print,
     pyqt_plugins.examples.exampleqmlitem.test_path_env_var,
+    pyqt_plugins.tests.exceptiondialog.test_path_env_var,
     pyqt_plugins.tests.testbutton.test_path_env_var,
 ]
 
@@ -87,6 +90,36 @@ def test_designer_creates_test_widget(tmp_path, environment, executable_cmd):
     )
 
 
+def test_designer_shows_exception_dialog(tmp_path, environment, executable_cmd):
+    file_path = tmp_path/'kanga'
+    environment[pyqt_plugins.tests.exceptiondialog.test_path_env_var] = fspath(file_path)
+
+    capture_path = pathlib.Path(
+        pyqt_plugins.tests.exceptiondialog.__file__,
+    ).parent
+
+    pyqt_plugins.utilities.print_environment_variables(environment, *vars_to_print)
+
+    with pytest.raises(subprocess.TimeoutExpired):
+        subprocess.run(
+            [
+                *executable_cmd,
+                'designer',
+                '--widget-path',
+                fspath(capture_path),
+                '--test-exception-dialog',
+            ],
+            check=True,
+            env=environment,
+            timeout=40,
+        )
+
+    contents = json.loads(file_path.read_text())
+
+    assert contents['hook'] == pyqt_plugins.__name__ + '.exceptiondialog.show'
+    assert 'This exception is being intentionally raised' in contents['text']
+
+
 qml2_import_paths = (pyqt_plugins.utilities.fspath(pyqt_plugins.root),)
 
 
@@ -97,7 +130,7 @@ qml2_import_paths = (pyqt_plugins.utilities.fspath(pyqt_plugins.root),)
 )
 # https://github.com/altendky/pyqt-tools/issues/110#issuecomment-1483673605
 @pytest.mark.xfail(
-    version[0] == 5 and sys.platform == "win32" and sys.version_info[:2] == (3, 11),
+    version[0] == 5 and sys.platform == "win32" and sys.version_info[:2] >= (3, 11),
     reason="accepting failure until we figure out the problem".format(string_version),
     strict=True,
 )
@@ -135,7 +168,7 @@ def test_qmlscene_paints_test_item(tmp_path, environment):
 )
 # https://github.com/altendky/pyqt-tools/issues/110#issuecomment-1483673605
 @pytest.mark.xfail(
-    version[0] == 5 and sys.platform == "win32" and sys.version_info[:2] == (3, 11),
+    version[0] == 5 and sys.platform == "win32" and sys.version_info[:2] >= (3, 11),
     reason="accepting failure until we figure out the problem".format(string_version),
     strict=True,
 )

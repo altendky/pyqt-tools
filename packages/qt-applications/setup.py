@@ -41,11 +41,18 @@ else:
             python, abi, _ = super().get_tag()
             python = 'py3'
             abi = 'none'
+            # Qt 6.12 binaries need glibc 2.34 and macOS 14.
+            newer_qt = tuple(int(s) for s in qt_version.split('.')) >= (6, 12)
             if sys.platform == 'linux':
-                plat = 'manylinux_2_17_x86_64'
+                if newer_qt:
+                    plat = 'manylinux_2_34_x86_64'
+                else:
+                    plat = 'manylinux_2_17_x86_64'
             elif sys.platform == 'darwin':
                 if qt_major_version == '5':
                     plat = 'macosx_10_14_x86_64'
+                elif newer_qt:
+                    plat = 'macosx_14_0_universal2'
                 elif qt_major_version == '6':
                     plat = 'macosx_10_14_universal2'
             elif sys.platform == 'win32':
@@ -119,18 +126,13 @@ setuptools.setup(
         'Operating System :: MacOS :: MacOS X',
         'Operating System :: Microsoft :: Windows',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.9',
-        'Programming Language :: Python :: 3.10',
         'Programming Language :: Python :: 3.11',
         'Programming Language :: Python :: 3.12',
         'Programming Language :: Python :: 3.13',
+        'Programming Language :: Python :: 3.14',
+        'Programming Language :: Python :: 3.15',
         'Topic :: Software Development',
         'Topic :: Utilities',
-    ],
-    install_requires=[
-        # TODO: forcing since we use pkg_resources, though we should stop using that as it is deprecated
-        # setuptools 82 removed pkg_resources
-        "setuptools<82",
     ],
     cmdclass={'bdist_wheel': BdistWheel, 'build_py': _build.BuildPy},
     distclass=Dist,
@@ -138,5 +140,5 @@ setuptools.setup(
     package_dir={import_name: 'src/qt_applications'},
     version=qt_applications_version,
     include_package_data=True,
-    python_requires=">=3.9",
+    python_requires=">=3.11",
 )

@@ -4,10 +4,10 @@ import subprocess
 import sys
 import sysconfig
 
-import pkg_resources
+import importlib.metadata
 import pytest
 
-major = int(pkg_resources.get_distribution(__name__.partition(".")[0]).version.partition(".")[0])
+major = int(importlib.metadata.version(__name__.partition(".")[0]).partition(".")[0])
 
 
 m = {

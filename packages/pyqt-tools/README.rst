@@ -34,14 +34,14 @@ Installation
 
 .. code-block:: powershell
 
-  yourenv/Scripts/pip.exe install pyqt6-tools~=6.4
+  yourenv/Scripts/pip.exe install pyqt6-tools~=6.12
 
 You will generally install pyqt6-tools using ``pip install``.  In most cases
 you should be using virtualenv_ or venv_ to create isolated environments to
 install your dependencies in.  The above command assumes an env in the
-directory ``yourenv``.  The ``~=6.4`` specifies a `release compatible with`_
-6.4 which will be the latest version of pyqt6-tools built for PyQt6_ 6.4. If
-you are using a different PyQt6 version, specify it instead of 6.4.  PyPI
+directory ``yourenv``.  The ``~=6.12`` specifies a `release compatible with`_
+6.12 which will be the latest version of pyqt6-tools built for PyQt6_ 6.12. If
+you are using a different PyQt6 version, specify it instead of 6.12.  PyPI
 keeps a list of `all available versions`_.
 
 .. _virtualenv: https://virtualenv.pypa.io/en/stable/

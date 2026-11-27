@@ -1,9 +1,8 @@
 [build-system]
 requires = [
    "attrs",
-   # >= 1.0.0b1 for Qt6 support
-   "aqtinstall >= 1.0.0b1; python_version >= '3.6'",
-   "aqtinstall; python_version < '3.6'",
+   # Unreleased, for Qt 6.11+ on Windows: https://github.com/miurahr/aqtinstall/pull/1000
+   "aqtinstall @ git+https://github.com/miurahr/aqtinstall@4c759852b1108cc801d8e24979136b895b5155d4",
    # != 0.10.0 for https://github.com/miurahr/py7zr/issues/252
    "py7zr != 0.10.0",
    "importlib-metadata",

@@ -21,7 +21,7 @@ permissions:
 
 env:
   # Change to discard all cached wheels.
-  CACHE_VERSION: v1
+  CACHE_VERSION: v2
 
 # Packages depend on each other in this order:
 #   qt-applications -> qt-tools -> pyqt-plugins -> pyqt-tools
@@ -39,6 +39,8 @@ jobs:
       python: ${{ steps.config.outputs.python }}
       build_python: ${{ steps.config.outputs.build_python }}
       platforms: ${{ steps.config.outputs.platforms }}
+      exclude: ${{ steps.config.outputs.exclude }}
+      pyqt_exclude: ${{ steps.config.outputs.pyqt_exclude }}
     steps:
       - uses: actions/checkout@v4
       - id: config
@@ -49,6 +51,9 @@ jobs:
             echo "python=$(jq --compact-output .python "$config")"
             echo "build_python=$(jq --raw-output '.["build-python"]' "$config")"
             echo "platforms=$(jq --compact-output .platforms "$config")"
+            echo "exclude=$(jq --compact-output '.exclude // []' "$config")"
+            # PyQt jobs also skip combinations PyQt itself does not support.
+            echo "pyqt_exclude=$(jq --compact-output '(.exclude // []) + (.["pyqt-exclude"] // [])' "$config")"
           } | tee -a "$GITHUB_OUTPUT"
 
   qt-applications-build:
@@ -60,6 +65,7 @@ jobs:
       fail-fast: false
       matrix:
         platform: ${{ fromJSON(needs.config.outputs.platforms) }}
+        exclude: ${{ fromJSON(needs.config.outputs.exclude) }}
         qt: ${{ fromJSON(needs.config.outputs.qt) }}
     env:
       QT_VERSION: ${{ matrix.qt.qt }}
@@ -114,6 +120,7 @@ jobs:
       fail-fast: false
       matrix:
         platform: ${{ fromJSON(needs.config.outputs.platforms) }}
+        exclude: ${{ fromJSON(needs.config.outputs.exclude) }}
         qt: ${{ fromJSON(needs.config.outputs.qt) }}
         python: ${{ fromJSON(needs.config.outputs.python) }}
     env:
@@ -213,6 +220,7 @@ jobs:
       fail-fast: false
       matrix:
         platform: ${{ fromJSON(needs.config.outputs.platforms) }}
+        exclude: ${{ fromJSON(needs.config.outputs.exclude) }}
         qt: ${{ fromJSON(needs.config.outputs.qt) }}
         python: ${{ fromJSON(needs.config.outputs.python) }}
     env:
@@ -251,6 +259,7 @@ jobs:
       fail-fast: false
       matrix:
         platform: ${{ fromJSON(needs.config.outputs.platforms) }}
+        exclude: ${{ fromJSON(needs.config.outputs.pyqt_exclude) }}
         qt: ${{ fromJSON(needs.config.outputs.qt) }}
         python: ${{ fromJSON(needs.config.outputs.python) }}
     env:
@@ -297,6 +306,17 @@ jobs:
           # this is cheap...
           retagged = wheel.parent / wheel.name.replace('linux', 'manylinux2014')
           wheel.rename(retagged)
+      - name: Retag to the built architecture
+        if: steps.cache.outputs.cache-hit != 'true' && runner.os == 'macOS'
+        # The universal2 Python tags the wheel universal2, but the plugin is
+        # only built for the runner's architecture.
+        shell: bash
+        run: |
+          python -m pip install wheel
+          wheel=$(echo packages/pyqt-plugins/dist/*.whl)
+          platform=$(basename "$wheel" .whl | rev | cut -d- -f1 | rev)
+          python -m wheel tags --remove --platform-tag "${platform/universal2/$(uname -m)}" "$wheel"
+          ls packages/pyqt-plugins/dist
       - if: steps.cache.outputs.cache-hit != 'true' && github.ref_type != 'tag'
         uses: actions/cache/save@v4
         with:
@@ -321,6 +341,7 @@ jobs:
       fail-fast: false
       matrix:
         platform: ${{ fromJSON(needs.config.outputs.platforms) }}
+        exclude: ${{ fromJSON(needs.config.outputs.pyqt_exclude) }}
         qt: ${{ fromJSON(needs.config.outputs.qt) }}
         python: ${{ fromJSON(needs.config.outputs.python) }}
     env:
@@ -420,6 +441,7 @@ jobs:
       fail-fast: false
       matrix:
         platform: ${{ fromJSON(needs.config.outputs.platforms) }}
+        exclude: ${{ fromJSON(needs.config.outputs.pyqt_exclude) }}
         qt: ${{ fromJSON(needs.config.outputs.qt) }}
         python: ${{ fromJSON(needs.config.outputs.python) }}
     env:
