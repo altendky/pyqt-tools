@@ -71,6 +71,7 @@ jobs:
       platforms: ${{ steps.config.outputs.platforms }}
       exclude: ${{ steps.config.outputs.exclude }}
       pyqt_exclude: ${{ steps.config.outputs.pyqt_exclude }}
+      other_pythons: ${{ steps.config.outputs.other_pythons }}
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
@@ -86,6 +87,7 @@ jobs:
             echo "exclude=$(jq --compact-output '.exclude // []' "$config")"
             # PyQt jobs also skip combinations PyQt itself does not support.
             echo "pyqt_exclude=$(jq --compact-output '(.exclude // []) + (.["pyqt-exclude"] // [])' "$config")"
+            echo "other_pythons=$(jq --compact-output '.["other-pythons"]' "$config")"
           } | tee -a "$GITHUB_OUTPUT"
 
   qt-applications-build:
@@ -422,6 +424,86 @@ jobs:
           python -c 'import PyQt${{ matrix.qt.major }}.sip; print(PyQt${{ matrix.qt.major }}.sip)'
           python -m pytest --capture=no --verbose --pyargs pyqt${{ matrix.qt.major }}_plugins.tests
 
+  # The plugins load the Python library at runtime, so also test the Linux
+  # wheels with Pythons installed somewhere other than the build image's
+  # /usr/local.
+  pyqt-plugins-test-other-python:
+    name: pyqt-plugins test linux-x86_64 ${{ matrix.other.name }} Python ${{ matrix.other.python }} PyQt ${{ matrix.qt.pyqt }}
+    needs:
+      - config
+      - qt-applications-build
+      - qt-tools-build
+      - pyqt-plugins-build
+    runs-on: ubuntu-latest
+    container: ${{ matrix.other.container }}
+    strategy:
+      fail-fast: false
+      matrix:
+        qt: ${{ fromJSON(needs.config.outputs.qt) }}
+        other: ${{ fromJSON(needs.config.outputs.other_pythons) }}
+    env:
+      QT_VERSION: ${{ matrix.qt.qt }}
+      PYQT_VERSION: ${{ matrix.qt.pyqt }}
+      PYTHON: ${{ matrix.other.python }}
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Install packages
+        env:
+          OTHER: ${{ matrix.other.name }}
+        # Libraries Qt needs that the python:<version>-bookworm images already
+        # have.  Ubuntu's Python needs libpython for its shared library.
+        run: |
+          apt-get update --yes
+          apt-get install --yes ca-certificates git libfontconfig1 libglib2.0-0 libgssapi-krb5-2
+          if [ "$OTHER" = ubuntu ]; then
+            apt-get install --yes "python$PYTHON" "python$PYTHON-venv" "libpython$PYTHON"
+          fi
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
+      - if: matrix.other.name == 'uv'
+        uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
+        with:
+          enable-cache: false
+      - name: Create virtualenv
+        env:
+          OTHER: ${{ matrix.other.name }}
+        run: |
+          if [ "$OTHER" = uv ]; then
+            uv python install "$PYTHON"
+            python=$(uv python find --managed-python "$PYTHON")
+          else
+            python=$(command -v "python$PYTHON")
+          fi
+          "$python" -m venv "$GITHUB_WORKSPACE/venv"
+          echo "$GITHUB_WORKSPACE/venv/bin" >> "$GITHUB_PATH"
+      - uses: ./.github/actions/setup
+        with:
+          python-version: ${{ matrix.other.python }}
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: qt-applications-linux-x86_64-qt${{ matrix.qt.qt }}
+          path: wheelhouse
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: qt-tools-qt${{ matrix.qt.qt }}
+          path: wheelhouse
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: pyqt-plugins-linux-x86_64-py${{ matrix.other.python }}-qt${{ matrix.qt.qt }}-pyqt${{ matrix.qt.pyqt }}
+          path: wheelhouse
+      - name: Install
+        run: |
+          python .github/scripts/constraints.py wheelhouse | tee constraints.txt
+          python -m pip install --find-links wheelhouse --constraint constraints.txt pyqt${{ matrix.qt.major }}-plugins pytest pytest-faulthandler pytest-xvfb
+          python -m pip freeze --all
+      - name: Test
+        run: |
+          python -c 'import sys, sysconfig; print(sys.base_prefix, sysconfig.get_config_var("LIBDIR"))'
+          python -m pytest --capture=no --verbose --pyargs pyqt${{ matrix.qt.major }}_plugins.tests
+
   pyqt-tools-build:
     name: pyqt-tools build PyQt ${{ matrix.qt.pyqt }}
     needs: config
@@ -591,6 +673,7 @@ jobs:
       - qt-tools-test
       - pyqt-plugins-build
       - pyqt-plugins-test
+      - pyqt-plugins-test-other-python
       - pyqt-tools-build
       - pyqt-tools-test
       - publish

@@ -44,6 +44,10 @@ directory ``yourenv``.  The ``~=6.12`` specifies a `release compatible with`_
 you are using a different PyQt6 version, specify it instead of 6.12.  PyPI
 keeps a list of `all available versions`_.
 
+On Linux the Designer and QML plugins load Python's shared library,
+``libpython3.X.so.1.0``, so they don't work with a Python built without one.
+Debian and Ubuntu provide it for their Pythons in the ``libpython3.X`` package.
+
 .. _virtualenv: https://virtualenv.pypa.io/en/stable/
 .. _venv: https://docs.python.org/3/library/venv.html
 .. _PyQt6: https://pypi.org/project/PyQt6/
