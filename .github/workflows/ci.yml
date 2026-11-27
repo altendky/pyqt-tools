@@ -112,7 +112,7 @@ jobs:
         run: |
           git config --global --add safe.directory "$GITHUB_WORKSPACE"
           tag=$(git describe --tags --abbrev=0 --match 'qt-applications-v[0-9]*')
-          echo "key=${CACHE_VERSION}-${tag}-${{ matrix.platform.name }}-qt${{ matrix.qt.qt }}-${{ hashFiles('packages/qt-applications/**') }}" >> "$GITHUB_OUTPUT"
+          echo "key=${CACHE_VERSION}-${tag}-${{ matrix.platform.name }}-qt${{ matrix.qt.qt }}-${{ hashFiles('packages/qt-applications/**', '.github/scripts/platform_tag.py') }}" >> "$GITHUB_OUTPUT"
       - id: cache
         if: github.ref_type != 'tag'
         uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
@@ -131,6 +131,12 @@ jobs:
         if: steps.cache.outputs.cache-hit != 'true'
         # Default shell so Git Bash's link does not shadow the MSVC linker.
         run: python -m build --wheel --outdir packages/qt-applications/dist packages/qt-applications
+      - name: Retag with the platform the binaries need
+        if: steps.cache.outputs.cache-hit != 'true' && runner.os != 'Windows'
+        shell: bash
+        run: |
+          python -m pip install wheel pyelftools macholib
+          python .github/scripts/platform_tag.py packages/qt-applications/dist/*.whl
       - if: steps.cache.outputs.cache-hit != 'true' && github.ref_type != 'tag'
         uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
         with:
@@ -317,7 +323,7 @@ jobs:
         run: |
           git config --global --add safe.directory "$GITHUB_WORKSPACE"
           tag=$(git describe --tags --abbrev=0 --match 'pyqt-plugins-v[0-9]*')
-          echo "key=${CACHE_VERSION}-${tag}-${PLATFORM}-py${PYTHON}-qt${QT_VERSION}-pyqt${PYQT_VERSION}-${{ hashFiles('packages/pyqt-plugins/**') }}" >> "$GITHUB_OUTPUT"
+          echo "key=${CACHE_VERSION}-${tag}-${PLATFORM}-py${PYTHON}-qt${QT_VERSION}-pyqt${PYQT_VERSION}-${{ hashFiles('packages/pyqt-plugins/**', '.github/scripts/platform_tag.py') }}" >> "$GITHUB_OUTPUT"
       - id: cache
         if: github.ref_type != 'tag'
         uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
@@ -336,18 +342,14 @@ jobs:
         if: steps.cache.outputs.cache-hit != 'true'
         # Default shell so Git Bash's link does not shadow the MSVC linker.
         run: python -m build --wheel --outdir packages/pyqt-plugins/dist packages/pyqt-plugins
-      - name: Rename to manylinux2014 tag
+      - name: Retag with the glibc the binaries need
         if: steps.cache.outputs.cache-hit != 'true' && runner.os == 'Linux'
-        shell: python
+        # Only the plugin's own libraries count.  The exact PyQt-Qt and
+        # qt-tools pins carry the needs of the Qt libraries they load.
+        shell: bash
         run: |
-          import pathlib
-
-          dist = pathlib.Path('packages/pyqt-plugins/dist')
-          [wheel] = dist.glob('*.whl')
-
-          # this is cheap...
-          retagged = wheel.parent / wheel.name.replace('linux', 'manylinux2014')
-          wheel.rename(retagged)
+          python -m pip install wheel pyelftools macholib
+          python .github/scripts/platform_tag.py packages/pyqt-plugins/dist/*.whl
       - name: Retag to the built architecture
         if: steps.cache.outputs.cache-hit != 'true' && runner.os == 'macOS'
         # The universal2 Python tags the wheel universal2, but the plugin is
@@ -356,8 +358,15 @@ jobs:
         run: |
           python -m pip install wheel
           wheel=$(echo packages/pyqt-plugins/dist/*.whl)
+          architecture=$(uname -m)
           platform=$(basename "$wheel" .whl | rev | cut -d- -f1 | rev)
-          python -m wheel tags --remove --platform-tag "${platform/universal2/$(uname -m)}" "$wheel"
+          platform=${platform/universal2/$architecture}
+          # Apple Silicon Macs start at macOS 11, so pip never accepts an older
+          # arm64 tag.
+          if [ "$architecture" = arm64 ] && [ "$(echo "$platform" | cut -d_ -f2)" -lt 11 ]; then
+            platform=macosx_11_0_arm64
+          fi
+          python -m wheel tags --remove --platform-tag "$platform" "$wheel"
           ls packages/pyqt-plugins/dist
       - if: steps.cache.outputs.cache-hit != 'true' && github.ref_type != 'tag'
         uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
