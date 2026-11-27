@@ -1,0 +1,47 @@
+name: Renovate
+
+on:
+  schedule:
+    # 08:00 and 20:00 UTC: 4 AM/PM EDT, 3 AM/PM EST.
+    - cron: "0 8,20 * * *"
+  workflow_dispatch:
+    inputs:
+      debug:
+        description: Enable debug logging
+        required: false
+        default: false
+        type: boolean
+
+permissions: {}
+
+concurrency:
+  group: renovate
+  cancel-in-progress: false
+
+jobs:
+  renovate:
+    if: github.repository == 'altendky/pyqt-tools' && vars.RENOVATE_CLIENT_ID != ''
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/create-github-app-token@f418cff399f7aef4c2f0ad47e25ca7a6abbdd6fc # v3
+        id: app-token
+        with:
+          client-id: ${{ vars.RENOVATE_CLIENT_ID }}
+          private-key: ${{ secrets.RENOVATE_APP_PRIVATE_KEY }}
+          permission-contents: write
+          permission-issues: write
+          permission-pull-requests: write
+          permission-statuses: write
+          permission-workflows: write
+      - uses: renovatebot/github-action@7b402fe76b7bc4273576663a09be2f0f85266e2f # v47.0.0
+        with:
+          token: ${{ steps.app-token.outputs.token }}
+          docker-user: 12021:0
+          renovate-version: 45-full
+        env:
+          RENOVATE_REPOSITORIES: '["${{ github.repository }}"]'
+          RENOVATE_ALLOWED_COMMANDS: >-
+            ["^env MISE_LOCKED=0 mise install --yes python$",
+            "^env MISE_LOCKED=0 mise lock --yes --platform linux-x64,linux-x64-musl,linux-arm64,linux-arm64-musl,macos-x64,macos-arm64,windows-x64$"]
+          RENOVATE_ALLOWED_UNSAFE_EXECUTIONS: '["mise"]'
+          LOG_LEVEL: ${{ inputs.debug && 'debug' || 'info' }}

@@ -1,0 +1,40 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["config:recommended", "helpers:pinGitHubActionDigests"],
+  "rebaseWhen": "conflicted",
+  // Qt, PyQt and the Python matrix are chosen in .github/ci-config.json and
+  // the package sources, and are updated deliberately rather than by Renovate.
+  "enabledManagers": ["github-actions", "mise", "pre-commit"],
+  "ignorePaths": [
+    "**/node_modules/**",
+    "**/bower_components/**",
+    "**/vendor/**",
+    "**/examples/**",
+    "**/__tests__/**",
+    "**/test/**",
+    "**/tests/**",
+    "**/__fixtures__/**",
+    "**/.mise/locks/**"
+  ],
+  "mise": { "managerFilePatterns": ["/^mise\\.toml$/"] },
+  "pre-commit": { "enabled": true },
+  "packageRules": [
+    {
+      "description": "Keep the tooling Python on the selected minor release.",
+      "matchManagers": ["mise"],
+      "matchDepNames": ["python"],
+      "allowedVersions": "/^3\\.14(?:\\.|$)/"
+    },
+    {
+      "matchManagers": ["mise"],
+      "postUpgradeTasks": {
+        "commands": [
+          "env MISE_LOCKED=0 mise install --yes python",
+          "env MISE_LOCKED=0 mise lock --yes --platform linux-x64,linux-x64-musl,linux-arm64,linux-arm64-musl,macos-x64,macos-arm64,windows-x64"
+        ],
+        "fileFilters": ["mise.lock", ".mise/locks/**"],
+        "executionMode": "branch"
+      }
+    }
+  ]
+}
