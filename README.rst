@@ -37,7 +37,12 @@ paths, for example ``git log -- packages/qt-tools/setup.py setup.py``.
 Licensing differs between packages; see the ``COPYING`` file in each package
 directory.
 
+Releases are made through pull requests opened with ``mise run release``, for
+example ``mise run release qt-tools=1.4``.  CI then tags, publishes, and opens a
+pull request for the next development versions.  See `docs/release.md`_.
+
 .. _`packages/qt-applications`: packages/qt-applications
 .. _`packages/qt-tools`: packages/qt-tools
 .. _`packages/pyqt-plugins`: packages/pyqt-plugins
 .. _`packages/pyqt-tools`: packages/pyqt-tools
+.. _`docs/release.md`: docs/release.md
