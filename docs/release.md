@@ -21,8 +21,14 @@ pyqt-plugins, pyqt-tools.  Each release is tested with the upstream wheels
 built from the same commit, but users get the upstream packages from PyPI.  So
 a package can only be released if every upstream package is either released
 in the same commit or unchanged since its last release.  Its version file
-doesn't count as a change.  For qt-applications and pyqt-plugins,
-`.github/scripts/platform_tag.py` does count.
+doesn't count as a change.  `.github/ci-config.json`, which chooses the Qt and
+PyQt versions, counts for every package, and
+`.github/scripts/platform_tag.py` counts for qt-applications and pyqt-plugins.
+
+The release tags from before the four repositories were merged have the
+files at the repository root, so every package counts as changed since them.
+The first release must therefore include every upstream package of each
+package it releases.
 
 ## Prepare a release
 
@@ -53,7 +59,8 @@ All of this is in `.github/workflows/ci.yml`, using `scripts/release.py`.
 
 1. **Tag.**  When `all` passes on `main`, the `tag-release` job tags each
    package whose version is a release that has no tag yet.  It refuses if the
-   run is no longer for the current `main`, never moves or replaces a tag, and
+   run is no longer for the current `main`, unless it is finishing tags it
+   already started at that commit.  It never moves or replaces a tag, and it
    checks the release order again.  It uses the `altendky-release` GitHub App
    (`RELEASE_APP_ID` and `RELEASE_APP_PRIVATE_KEY`), because tags created with
    `GITHUB_TOKEN` don't start workflow runs.
@@ -85,8 +92,10 @@ A green `all` on a tag run doesn't mean the release is done; check the
 Each step can be repeated without changing what an earlier attempt finished.
 
 - **`tag-release` failed.**  Re-run the failed job.  Tags already at the
-  commit are kept, and the missing ones are created.  If `main` has moved on,
-  the job refuses to tag the old commit; instead, run the CI workflow on
+  commit are kept, and the missing ones are created at the same commit, even
+  if `main` has moved on since.  Until they are, `tag-release` on later
+  commits refuses to tag.  If it failed before creating any tag and `main` has
+  moved on, it refuses to tag the old commit; instead, run the CI workflow on
   `main` (`gh workflow run ci.yml --ref main`), which tags the new `main` if
   the versions are still unreleased.
 - **The publishing run says tags are missing.**  Some tags weren't created.

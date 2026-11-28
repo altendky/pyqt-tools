@@ -116,6 +116,7 @@ class GitTestCase(unittest.TestCase):
             self.write(f"packages/{package}/setup.py", f"# {package}\n")
             self.set_version(package, "1.0.dev0")
         self.write(".github/scripts/platform_tag.py", "# platform tags\n")
+        self.write(".github/ci-config.json", "{}\n")
         self.commit("Initial")
 
     def git(self, *args):
@@ -193,6 +194,13 @@ class ReleaseOrderTests(GitTestCase):
             self.check({"pyqt-tools"})
         with self.assertRaisesRegex(ReleaseError, "qt-tools needs qt-applications"):
             self.check({"qt-tools"})
+
+    def test_ci_config(self):
+        self.write(".github/ci-config.json", '{"qt": "changed"}\n')
+        self.commit("Change Qt")
+        with self.assertRaisesRegex(ReleaseError, "pyqt-tools needs qt-applications"):
+            self.check({"pyqt-tools"})
+        self.check(PACKAGES)
 
     def test_unreleased_upstream(self):
         self.git("tag", "--delete", "qt-applications-v1.0")
@@ -408,6 +416,24 @@ class TagTests(GitTestCase):
         with self.assertRaisesRegex(ReleaseError, "stale"):
             release.tag_releases(self.root, github, self.environ)
         self.assertEqual(github.created, [])
+
+    def test_finishes_a_started_batch_after_main_moves(self):
+        github = FakeGitHub(self.root, {"heads/main": "newer", "tags/pyqt-tools-v1.1": self.head})
+        release.tag_releases(self.root, github, self.environ)
+        self.assertEqual(github.created, ["tags/pyqt-plugins-v1.1", "tags/qt-applications-v1.1"])
+
+    def test_refuses_while_an_earlier_batch_is_incomplete(self):
+        self.git("tag", "pyqt-tools-v1.1")
+        self.write("README", "later\n")
+        self.environ["GITHUB_SHA"] = later = self.commit("Later")
+        github = FakeGitHub(self.root, {"heads/main": later, "tags/pyqt-tools-v1.1": self.head})
+        with self.assertRaisesRegex(ReleaseError, f"pyqt-tools-v1.1 at {self.head} still need"):
+            release.tag_releases(self.root, github, self.environ)
+        self.assertEqual(github.created, [])
+        # Finishing the earlier commit's tags lets later commits tag again.
+        self.git("tag", "pyqt-plugins-v1.1", self.head)
+        self.git("tag", "qt-applications-v1.1", self.head)
+        self.assertEqual(release.tag_releases(self.root, github, self.environ), [])
 
     def test_never_replaces_a_tag(self):
         github = FakeGitHub(self.root, {"heads/main": self.head, "tags/pyqt-tools-v1.1": "elsewhere"})

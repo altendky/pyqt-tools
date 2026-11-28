@@ -691,6 +691,7 @@ jobs:
     runs-on: ubuntu-latest
     environment: pypi
     permissions:
+      contents: read
       id-token: write
     env:
       RELEASES: ${{ needs.release-plan.outputs.releases }}

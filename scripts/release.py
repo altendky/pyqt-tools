@@ -36,10 +36,13 @@ ROOT = pathlib.Path(__file__).resolve().parents[1]
 REPOSITORY = "altendky/pyqt-tools"
 # Dependency order: each package depends on those before it.
 PACKAGES = ("qt-applications", "qt-tools", "pyqt-plugins", "pyqt-tools")
-# Files outside a package's directory that change its wheels.
+# Files outside a package's directory that change its wheels.  The CI config
+# chooses the Qt and PyQt versions, which start every wheel version and pin.
 EXTRA_SOURCES = {
-    "qt-applications": (".github/scripts/platform_tag.py",),
-    "pyqt-plugins": (".github/scripts/platform_tag.py",),
+    "qt-applications": (".github/ci-config.json", ".github/scripts/platform_tag.py"),
+    "qt-tools": (".github/ci-config.json",),
+    "pyqt-plugins": (".github/ci-config.json", ".github/scripts/platform_tag.py"),
+    "pyqt-tools": (".github/ci-config.json",),
 }
 NUMBER = r"(?:0|[1-9][0-9]*)"
 VERSION = re.compile(rf"(?P<release>{NUMBER}(?:\.{NUMBER})*)(?:\.dev(?P<dev>{NUMBER}))?")
@@ -242,7 +245,7 @@ def check_release_order(root, tags, head, releasing):
         raise ReleaseError("Release order (#140):\n  " + "\n  ".join(problems))
 
 
-def pending_releases(root, tags, head):
+def pending_releases(root, tags, head, *, verbose=True):
     """Packages whose version at head is a release not tagged at another commit.
 
     The result is in dependency order and depends only on head and on tags
@@ -257,7 +260,8 @@ def pending_releases(root, tags, head):
         release = Release(package, version)
         target = tags.get(release.tag)
         if target is not None and target != head:
-            print(f"{release.tag} was already released at {target}; not releasing it again")
+            if verbose:
+                print(f"{release.tag} was already released at {target}; not releasing it again")
             continue
         releases.append(release)
     return releases
@@ -405,8 +409,6 @@ def tag_releases(root, github, environ):
     if environ.get("GITHUB_REF") != "refs/heads/main":
         raise ReleaseError("Tagging requires a main run")
     sha = environ.get("GITHUB_SHA", "")
-    if github.ref("heads/main") != sha:
-        raise ReleaseError("This run is no longer for the current main; refusing to tag a stale commit")
     require_checkout(root, sha)
     tags = local_tags(root)
     releases = pending_releases(root, tags, sha)
@@ -418,17 +420,45 @@ def tag_releases(root, github, environ):
     for release in releases:
         if remote[release.tag] not in (None, sha):
             raise ReleaseError(f"{release.tag} already identifies {remote[release.tag]}; leaving it unchanged")
+    # Once one of these tags exists, the rest belong at the same commit even
+    # if main has moved on, or the tags already made would never publish.
+    started = any(remote[r.tag] == sha for r in releases)
+    if not started:
+        check_earlier_batches(root, tags, sha)
     # The most upstream tag goes last.  Its run publishes them all, so the
     # others must exist when it starts.
     for release in reversed(releases):
         if remote[release.tag] == sha:
             print(f"{release.tag} already identifies {sha}")
             continue
-        if github.ref("heads/main") != sha:
-            raise ReleaseError("Main advanced while tagging; refusing to tag a stale commit")
+        if not started and github.ref("heads/main") != sha:
+            raise ReleaseError("This run is no longer for the current main; refusing to tag a stale commit")
         github.create_ref(f"tags/{release.tag}", sha)
+        started = True
         print(f"Created {release.tag} at {sha}")
     return releases
+
+
+def check_earlier_batches(root, tags, sha):
+    """Refuse to tag while an earlier commit's tags are incomplete.
+
+    Tagging here would publish part of that commit's release from this one.
+    """
+    for commit in sorted({target for tag, target in tags.items() if parse_tag(tag) and target != sha}):
+        if not is_ancestor(root, commit, sha):
+            continue
+        try:
+            releases = pending_releases(root, tags, commit, verbose=False)
+        except ReleaseError:
+            # Older than the version files, so not tagged by this script.
+            continue
+        tagged = [r for r in releases if tags.get(r.tag) == commit]
+        missing = [r.tag for r in releases if tags.get(r.tag) != commit]
+        if tagged and missing:
+            raise ReleaseError(
+                f"{', '.join(r.tag for r in tagged)} at {commit} still need {', '.join(missing)}; "
+                "re-run that commit's tag-release job first",
+            )
 
 
 # CI: wheels and GitHub Releases
