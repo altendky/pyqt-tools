@@ -10,6 +10,7 @@ import shlex
 import shutil
 import subprocess
 import sys
+import sysconfig
 import tarfile
 import tempfile
 import textwrap
@@ -839,7 +840,50 @@ def windeployqt_list_source(
     return paths
 
 
+def configure_python_library(configuration):
+    # The Designer and QML plugins load the Python library by the name in
+    # PyQt-builder's py-pylib-shlib option.  It defaults to an absolute path on
+    # the build machine, such as /usr/local/lib/libpython3.14 in the
+    # python:3.x-bookworm images, which other Python installs don't have.  Use
+    # the library's soname instead.  The plugins also link against libpython,
+    # so the dynamic loader has already found and loaded it under that name,
+    # using LD_LIBRARY_PATH from create_environment() or the system search
+    # path, by the time the plugin loads it again by name.
+    #
+    # macOS isn't changed.  There the plugins link the Python framework by its
+    # absolute install name, such as
+    # /Library/Frameworks/Python.framework/Versions/3.14/Python from
+    # actions/setup-python, so they only load with a python.org framework
+    # Python of the same version and changing this name alone wouldn't help.
+    if configuration.platform != 'linux':
+        return
+
+    if not sysconfig.get_config_var('Py_ENABLE_SHARED'):
+        raise Exception(
+            'The PyQt plugins need a Python built with a shared library',
+        )
+
+    soname = sysconfig.get_config_var('INSTSONAME')
+    pyproject_path = configuration.pyqt_source_path / 'pyproject.toml'
+    pyproject = pyproject_path.read_text()
+
+    section = '[tool.sip.project]'
+    if section in pyproject:
+        raise Exception(
+            '{} already has {}, add the option to it'.format(
+                pyproject_path,
+                section,
+            ),
+        )
+
+    pyproject_path.write_text(
+        '{}\n{}\npy-pylib-shlib = "{}"\n'.format(pyproject, section, soname),
+    )
+
+
 def build_pyqt(configuration, qt_paths):
+    configure_python_library(configuration)
+
     sip_module_path = (configuration.pyqt_source_path / 'sip')
     module_names = [
         path.name

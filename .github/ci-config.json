@@ -16,5 +16,9 @@
   ],
   "pyqt-exclude": [
     {"qt": {"major": "5"}, "python": "3.15"}
+  ],
+  "other-pythons": [
+    {"name": "uv", "python": "3.13", "container": "debian:bookworm-slim"},
+    {"name": "ubuntu", "python": "3.14", "container": "ubuntu:26.04"}
   ]
 }
