@@ -14,6 +14,8 @@ from .. import string_version
 
 
 qt_tools = _import_it('qt_tools')
+# These tests need pyqt-plugins, which comes with the plugins extra.
+pytest.importorskip('pyqt{}_plugins'.format(major))
 pyqt_plugins = _import_it('pyqt_plugins')
 _import_it('pyqt_plugins', 'examples', 'exampleqmlitem')
 _import_it('pyqt_plugins', 'tests', 'exceptiondialog')
