@@ -5,3 +5,11 @@ locked = true
 python = "3.14.10"
 uv = "0.13.10"
 "pipx:pre-commit" = "4.7.0"
+
+[tasks.release]
+description = "Open a signed release PR: mise run release qt-tools=1.4 [package=version ...]"
+run = "python scripts/release.py prepare"
+
+[tasks.release-test]
+description = "Test the release script"
+run = "python -m unittest discover --start-directory scripts"

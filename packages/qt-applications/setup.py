@@ -1,6 +1,7 @@
 import itertools
 import os
 import pathlib
+import runpy
 import sys
 
 here = pathlib.Path(__file__).parent
@@ -16,7 +17,6 @@ import _build
 sys.path.pop(0)
 
 import setuptools
-import versioneer
 
 try:
     import wheel.bdist_wheel
@@ -60,7 +60,7 @@ def pad_version(v, segment_count=3):
 qt_version = pad_version(os.environ.setdefault('QT_VERSION', '6.1.0'))
 qt_major_version = qt_version.partition('.')[0]
 
-qt_applications_wrapper_version = versioneer.get_versions()['version']
+qt_applications_wrapper_version = runpy.run_path('src/qt_applications/_version.py')['__version__']
 qt_applications_version = '{}.{}'.format(qt_version, qt_applications_wrapper_version)
 
 

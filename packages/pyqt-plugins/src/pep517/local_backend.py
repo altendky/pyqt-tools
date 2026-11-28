@@ -28,7 +28,6 @@ requirements = {
    'setuptools': '',
    'sip': '',
    'tenacity': '',
-   'versioneer': '== 0.29',
    'wheel': '',
 }
 

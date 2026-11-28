@@ -27,8 +27,14 @@ env:
 #   qt-applications -> qt-tools -> pyqt-plugins -> pyqt-tools
 # Wheels built earlier in the run are passed along as artifacts and pinned with
 # pip constraints so tests and builds use them instead of releases from PyPI.
-# Built wheels are cached keyed on the package sources, except for tag builds
-# which always build fresh so the release versions are correct.
+# Built wheels are cached keyed on the package sources, which include each
+# package's version file, except for tag builds which publish and so always
+# build fresh.
+#
+# Releases: after main's `all` passes, tag-release tags each new package
+# version.  The run for the most upstream tag at that commit publishes every
+# package tagged there; the other tag runs build nothing.  See
+# docs/release.md.
 
 jobs:
   mise:
@@ -60,9 +66,31 @@ jobs:
           path: ~/.cache/pre-commit
           key: pre-commit-${{ runner.os }}-${{ hashFiles('.pre-commit-config.yaml', 'mise.toml', 'mise.lock', '.mise/locks/**') }}
       - run: pre-commit run --all-files --show-diff-on-failure
+      - name: Release script tests
+        run: mise run release-test
+
+  release-plan:
+    name: Release plan
+    runs-on: ubuntu-latest
+    outputs:
+      build: ${{ steps.plan.outputs.build }}
+      publish: ${{ steps.plan.outputs.publish }}
+      packages: ${{ steps.plan.outputs.packages }}
+      releases: ${{ steps.plan.outputs.releases }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          # Tag runs compare with earlier release tags.
+          fetch-depth: ${{ github.ref_type == 'tag' && '0' || '1' }}
+      - id: plan
+        run: python3 scripts/release.py plan
 
   config:
     name: Config
+    needs: release-plan
+    # Skips everything in tag runs that another tag run publishes for.
+    if: needs.release-plan.outputs.build == 'true'
     runs-on: ubuntu-latest
     outputs:
       qt: ${{ steps.config.outputs.qt }}
@@ -107,14 +135,10 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-          fetch-depth: 0
       - id: key
         shell: bash
-        # The version comes from the latest tag, so a new tag must rebuild.
         run: |
-          git config --global --add safe.directory "$GITHUB_WORKSPACE"
-          tag=$(git describe --tags --abbrev=0 --match 'qt-applications-v[0-9]*')
-          echo "key=${CACHE_VERSION}-${tag}-${{ matrix.platform.name }}-qt${{ matrix.qt.qt }}-${{ hashFiles('packages/qt-applications/**', '.github/scripts/platform_tag.py') }}" >> "$GITHUB_OUTPUT"
+          echo "key=${CACHE_VERSION}-${{ matrix.platform.name }}-qt${{ matrix.qt.qt }}-${{ hashFiles('packages/qt-applications/**', '.github/scripts/platform_tag.py') }}" >> "$GITHUB_OUTPUT"
       - id: cache
         if: github.ref_type != 'tag'
         uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
@@ -209,15 +233,10 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-          fetch-depth: 0
       - id: key
-        # The version comes from the latest tag, so a new tag must rebuild.
         # qt-tools also inspects the qt-applications wheel while building.
         run: |
-          git config --global --add safe.directory "$GITHUB_WORKSPACE"
-          tag=$(git describe --tags --abbrev=0 --match 'qt-tools-v[0-9]*')
-          upstream=$(git describe --tags --abbrev=0 --match 'qt-applications-v[0-9]*')
-          echo "key=${CACHE_VERSION}-${tag}-${upstream}-qt${{ matrix.qt.qt }}-${{ hashFiles('packages/qt-applications/**', 'packages/qt-tools/**') }}" >> "$GITHUB_OUTPUT"
+          echo "key=${CACHE_VERSION}-qt${{ matrix.qt.qt }}-${{ hashFiles('packages/qt-applications/**', 'packages/qt-tools/**') }}" >> "$GITHUB_OUTPUT"
       - id: cache
         if: github.ref_type != 'tag'
         uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
@@ -315,17 +334,13 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-          fetch-depth: 0
       - id: key
         shell: bash
         env:
           PLATFORM: ${{ matrix.platform.name }}
           PYTHON: ${{ matrix.python }}
-        # The version comes from the latest tag, so a new tag must rebuild.
         run: |
-          git config --global --add safe.directory "$GITHUB_WORKSPACE"
-          tag=$(git describe --tags --abbrev=0 --match 'pyqt-plugins-v[0-9]*')
-          echo "key=${CACHE_VERSION}-${tag}-${PLATFORM}-py${PYTHON}-qt${QT_VERSION}-pyqt${PYQT_VERSION}-${{ hashFiles('packages/pyqt-plugins/**', '.github/scripts/platform_tag.py') }}" >> "$GITHUB_OUTPUT"
+          echo "key=${CACHE_VERSION}-${PLATFORM}-py${PYTHON}-qt${QT_VERSION}-pyqt${PYQT_VERSION}-${{ hashFiles('packages/pyqt-plugins/**', '.github/scripts/platform_tag.py') }}" >> "$GITHUB_OUTPUT"
       - id: cache
         if: github.ref_type != 'tag'
         uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
@@ -532,13 +547,9 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-          fetch-depth: 0
       - id: key
-        # The version comes from the latest tag, so a new tag must rebuild.
         run: |
-          git config --global --add safe.directory "$GITHUB_WORKSPACE"
-          tag=$(git describe --tags --abbrev=0 --match 'pyqt-tools-v[0-9]*')
-          echo "key=${CACHE_VERSION}-${tag}-qt${{ matrix.qt.qt }}-pyqt${{ matrix.qt.pyqt }}-${{ hashFiles('packages/pyqt-tools/**') }}" >> "$GITHUB_OUTPUT"
+          echo "key=${CACHE_VERSION}-qt${{ matrix.qt.qt }}-pyqt${{ matrix.qt.pyqt }}-${{ hashFiles('packages/pyqt-tools/**') }}" >> "$GITHUB_OUTPUT"
       - id: cache
         if: github.ref_type != 'tag'
         uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
@@ -620,61 +631,14 @@ jobs:
           python -c 'import PyQt${{ matrix.qt.major }}.sip; print(PyQt${{ matrix.qt.major }}.sip)'
           python -m pytest --capture=no --verbose --pyargs pyqt${{ matrix.qt.major }}_tools.tests
 
-  publish:
-    name: Publish
-    if: github.event_name == 'push' && github.ref_type == 'tag'
-    needs:
-      - qt-applications-test
-      - qt-tools-test
-      - pyqt-plugins-test
-      - pyqt-tools-test
-    runs-on: ubuntu-latest
-    environment: pypi
-    permissions:
-      id-token: write
-    steps:
-      - id: package
-        name: Select package from tag
-        run: |
-          case "$GITHUB_REF_NAME" in
-            qt-applications-v*|qt-tools-v*|pyqt-plugins-v*|pyqt-tools-v*) ;;
-            *) echo "Unrecognized tag: $GITHUB_REF_NAME"; exit 1 ;;
-          esac
-          echo "name=${GITHUB_REF_NAME%-v*}" >> "$GITHUB_OUTPUT"
-      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
-        with:
-          pattern: ${{ steps.package.outputs.name }}-*
-          merge-multiple: true
-          path: dist
-      - name: Check wheel versions match the tag
-        run: |
-          shopt -s nullglob
-          version="${GITHUB_REF_NAME#*-v}"
-          wheels=(dist/*.whl)
-          if [ "${#wheels[@]}" -eq 0 ]; then
-            echo "No wheels found for $GITHUB_REF_NAME"
-            exit 1
-          fi
-          status=0
-          for wheel in "${wheels[@]}"; do
-            wheel_version=$(basename "$wheel" | cut -d- -f2)
-            case "$wheel_version" in
-              *."$version") echo "OK: $wheel" ;;
-              *) echo "Version $wheel_version does not match tag $GITHUB_REF_NAME: $wheel"; status=1 ;;
-            esac
-          done
-          exit "$status"
-      - uses: pypa/gh-action-pypi-publish@7245906fb61fa33a13554f9d5fb856fe61758086 # v1.14.3
-        with:
-          # Allow re-running a publish that failed partway through.
-          skip-existing: true
-
   all:
     name: all
-    if: ${{ !cancelled() }}
+    # Tag runs that another tag run publishes for build nothing to check.
+    if: ${{ !cancelled() && needs.release-plan.outputs.build != 'false' }}
     needs:
       - mise
       - pre-commit
+      - release-plan
       - config
       - qt-applications-build
       - qt-applications-test
@@ -685,11 +649,149 @@ jobs:
       - pyqt-plugins-test-other-python
       - pyqt-tools-build
       - pyqt-tools-test
-      - publish
     runs-on: ubuntu-latest
     steps:
       - uses: re-actors/alls-green@b5b5b37504aa4183270bd3d855c52a67f212be35 # release/v1
         with:
-          # Publishing only runs for tags.
-          allowed-skips: publish
           jobs: ${{ toJSON(needs) }}
+
+  tag-release:
+    name: Tag release
+    needs: all
+    if: >-
+      github.repository == 'altendky/pyqt-tools' && github.ref == 'refs/heads/main' &&
+      (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+    runs-on: ubuntu-latest
+    concurrency:
+      group: tag-release
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          # Release order compares with earlier release tags.
+          fetch-depth: 0
+      - uses: actions/create-github-app-token@f418cff399f7aef4c2f0ad47e25ca7a6abbdd6fc # v3.4.0
+        id: app-token
+        with:
+          app-id: ${{ vars.RELEASE_APP_ID }}
+          private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
+          permission-contents: write
+      # Tags created with GITHUB_TOKEN would not start the release run.
+      - run: python3 scripts/release.py tag
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+
+  publish:
+    name: Publish
+    needs:
+      - release-plan
+      - all
+    if: needs.release-plan.outputs.publish == 'true'
+    runs-on: ubuntu-latest
+    environment: pypi
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      RELEASES: ${{ needs.release-plan.outputs.releases }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - if: contains(fromJSON(needs.release-plan.outputs.packages), 'qt-applications')
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          pattern: qt-applications-*
+          path: artifacts/qt-applications
+      - if: contains(fromJSON(needs.release-plan.outputs.packages), 'qt-tools')
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          pattern: qt-tools-*
+          path: artifacts/qt-tools
+      - if: contains(fromJSON(needs.release-plan.outputs.packages), 'pyqt-plugins')
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          pattern: pyqt-plugins-*
+          path: artifacts/pyqt-plugins
+      - if: contains(fromJSON(needs.release-plan.outputs.packages), 'pyqt-tools')
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          pattern: pyqt-tools-*
+          path: artifacts/pyqt-tools
+      - name: Check wheel names and versions
+        run: python3 scripts/release.py collect artifacts dist
+      # In dependency order, so each package's requirements are published
+      # before it.  skip-existing allows re-running a publish that failed
+      # partway through.
+      - if: contains(fromJSON(needs.release-plan.outputs.packages), 'qt-applications')
+        uses: pypa/gh-action-pypi-publish@7245906fb61fa33a13554f9d5fb856fe61758086 # v1.14.3
+        with:
+          packages-dir: dist/qt-applications/
+          skip-existing: true
+      - if: contains(fromJSON(needs.release-plan.outputs.packages), 'qt-tools')
+        uses: pypa/gh-action-pypi-publish@7245906fb61fa33a13554f9d5fb856fe61758086 # v1.14.3
+        with:
+          packages-dir: dist/qt-tools/
+          skip-existing: true
+      - if: contains(fromJSON(needs.release-plan.outputs.packages), 'pyqt-plugins')
+        uses: pypa/gh-action-pypi-publish@7245906fb61fa33a13554f9d5fb856fe61758086 # v1.14.3
+        with:
+          packages-dir: dist/pyqt-plugins/
+          skip-existing: true
+      - if: contains(fromJSON(needs.release-plan.outputs.packages), 'pyqt-tools')
+        uses: pypa/gh-action-pypi-publish@7245906fb61fa33a13554f9d5fb856fe61758086 # v1.14.3
+        with:
+          packages-dir: dist/pyqt-tools/
+          skip-existing: true
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: release-wheels
+          path: dist/
+          if-no-files-found: error
+
+  github-release:
+    name: GitHub Releases
+    needs:
+      - release-plan
+      - publish
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      RELEASES: ${{ needs.release-plan.outputs.releases }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: release-wheels
+          path: dist
+      - run: python3 scripts/release.py github-release dist
+        env:
+          GH_TOKEN: ${{ github.token }}
+
+  post-release:
+    name: Post-release PR
+    needs:
+      - release-plan
+      - github-release
+    runs-on: ubuntu-latest
+    env:
+      RELEASES: ${{ needs.release-plan.outputs.releases }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/create-github-app-token@f418cff399f7aef4c2f0ad47e25ca7a6abbdd6fc # v3.4.0
+        id: app-token
+        with:
+          app-id: ${{ vars.RELEASE_APP_ID }}
+          private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
+          permission-contents: write
+          permission-pull-requests: write
+      # The App's commit is signed by GitHub, and its PR runs CI.
+      - run: python3 scripts/release.py post-release
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}

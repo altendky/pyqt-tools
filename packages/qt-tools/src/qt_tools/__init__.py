@@ -27,9 +27,7 @@ qt_applications = import_it("qt_applications")
 fspath = getattr(os, 'fspath', str)
 
 
-from ._version import get_versions
-__version__ = get_versions()['version']
-del get_versions
+from ._version import __version__
 
 
 def bin_path():

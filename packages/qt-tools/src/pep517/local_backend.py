@@ -49,7 +49,6 @@ qt_applications_requirement = 'qt{}-applications{}'.format(
 
 requirements = {
     'attrs': '',
-    'versioneer': '== 0.29',
     'wheel': '',
 }
 

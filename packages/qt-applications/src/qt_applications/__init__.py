@@ -23,9 +23,7 @@ qt_applications = import_it("qt_applications")
 import_it("qt_applications", "_applications")
 
 
-from ._version import get_versions
-__version__ = get_versions()['version']
-del get_versions
+from ._version import __version__
 
 
 _root = pathlib.Path(__file__).absolute().parent

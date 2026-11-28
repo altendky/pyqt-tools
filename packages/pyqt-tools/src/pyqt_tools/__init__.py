@@ -1,6 +1,4 @@
-from ._version import get_versions
-__version__ = get_versions()['version']
-del get_versions
+from ._version import __version__
 
 
 # TODO: CAMPid 0970432108721340872130742130870874321
