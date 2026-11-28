@@ -1,0 +1,41 @@
+name: Pull request closed
+
+# A closed pull request's CI runs keep running, and its caches can't be used
+# again, since a pull request's caches are only visible to that same pull
+# request.  This includes the merge queue's draft pull requests.
+
+on:
+  pull_request:
+    types:
+      - closed
+
+permissions: {}
+
+jobs:
+  cleanup:
+    name: Clean up
+    # Pull requests from forks get a read-only token.
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+    defaults:
+      run:
+        # Adds pipefail.
+        shell: bash
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+      HEAD_REF: ${{ github.event.pull_request.head.ref }}
+      MERGE_REF: refs/pull/${{ github.event.pull_request.number }}/merge
+    steps:
+      - name: Cancel CI runs
+        run: |
+          gh run list --workflow ci.yml --event pull_request --branch "$HEAD_REF" --limit 100 \
+            --json databaseId,status --jq '.[] | select(.status != "completed") | .databaseId' |
+            while read -r id; do
+              # The run may have finished since it was listed.
+              gh run cancel "$id" || echo "::warning::Could not cancel run $id"
+            done
+      - name: Delete caches
+        run: gh cache delete --all --ref "$MERGE_REF" --succeed-on-no-caches
