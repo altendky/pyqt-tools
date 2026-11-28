@@ -1,3 +1,2 @@
 recursive-include src/pyqt_plugins *
-include versioneer.py
 include src/pyqt_plugins/_version.py

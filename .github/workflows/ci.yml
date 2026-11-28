@@ -27,8 +27,9 @@ env:
 #   qt-applications -> qt-tools -> pyqt-plugins -> pyqt-tools
 # Wheels built earlier in the run are passed along as artifacts and pinned with
 # pip constraints so tests and builds use them instead of releases from PyPI.
-# Built wheels are cached keyed on the package sources, except for tag builds
-# which always build fresh so the release versions are correct.
+# Built wheels are cached keyed on the package sources, which include each
+# package's version file, except for tag builds which publish and so always
+# build fresh.
 
 jobs:
   mise:
@@ -107,14 +108,10 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-          fetch-depth: 0
       - id: key
         shell: bash
-        # The version comes from the latest tag, so a new tag must rebuild.
         run: |
-          git config --global --add safe.directory "$GITHUB_WORKSPACE"
-          tag=$(git describe --tags --abbrev=0 --match 'qt-applications-v[0-9]*')
-          echo "key=${CACHE_VERSION}-${tag}-${{ matrix.platform.name }}-qt${{ matrix.qt.qt }}-${{ hashFiles('packages/qt-applications/**', '.github/scripts/platform_tag.py') }}" >> "$GITHUB_OUTPUT"
+          echo "key=${CACHE_VERSION}-${{ matrix.platform.name }}-qt${{ matrix.qt.qt }}-${{ hashFiles('packages/qt-applications/**', '.github/scripts/platform_tag.py') }}" >> "$GITHUB_OUTPUT"
       - id: cache
         if: github.ref_type != 'tag'
         uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
@@ -209,15 +206,10 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-          fetch-depth: 0
       - id: key
-        # The version comes from the latest tag, so a new tag must rebuild.
         # qt-tools also inspects the qt-applications wheel while building.
         run: |
-          git config --global --add safe.directory "$GITHUB_WORKSPACE"
-          tag=$(git describe --tags --abbrev=0 --match 'qt-tools-v[0-9]*')
-          upstream=$(git describe --tags --abbrev=0 --match 'qt-applications-v[0-9]*')
-          echo "key=${CACHE_VERSION}-${tag}-${upstream}-qt${{ matrix.qt.qt }}-${{ hashFiles('packages/qt-applications/**', 'packages/qt-tools/**') }}" >> "$GITHUB_OUTPUT"
+          echo "key=${CACHE_VERSION}-qt${{ matrix.qt.qt }}-${{ hashFiles('packages/qt-applications/**', 'packages/qt-tools/**') }}" >> "$GITHUB_OUTPUT"
       - id: cache
         if: github.ref_type != 'tag'
         uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
@@ -315,17 +307,13 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-          fetch-depth: 0
       - id: key
         shell: bash
         env:
           PLATFORM: ${{ matrix.platform.name }}
           PYTHON: ${{ matrix.python }}
-        # The version comes from the latest tag, so a new tag must rebuild.
         run: |
-          git config --global --add safe.directory "$GITHUB_WORKSPACE"
-          tag=$(git describe --tags --abbrev=0 --match 'pyqt-plugins-v[0-9]*')
-          echo "key=${CACHE_VERSION}-${tag}-${PLATFORM}-py${PYTHON}-qt${QT_VERSION}-pyqt${PYQT_VERSION}-${{ hashFiles('packages/pyqt-plugins/**', '.github/scripts/platform_tag.py') }}" >> "$GITHUB_OUTPUT"
+          echo "key=${CACHE_VERSION}-${PLATFORM}-py${PYTHON}-qt${QT_VERSION}-pyqt${PYQT_VERSION}-${{ hashFiles('packages/pyqt-plugins/**', '.github/scripts/platform_tag.py') }}" >> "$GITHUB_OUTPUT"
       - id: cache
         if: github.ref_type != 'tag'
         uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
@@ -532,13 +520,9 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-          fetch-depth: 0
       - id: key
-        # The version comes from the latest tag, so a new tag must rebuild.
         run: |
-          git config --global --add safe.directory "$GITHUB_WORKSPACE"
-          tag=$(git describe --tags --abbrev=0 --match 'pyqt-tools-v[0-9]*')
-          echo "key=${CACHE_VERSION}-${tag}-qt${{ matrix.qt.qt }}-pyqt${{ matrix.qt.pyqt }}-${{ hashFiles('packages/pyqt-tools/**') }}" >> "$GITHUB_OUTPUT"
+          echo "key=${CACHE_VERSION}-qt${{ matrix.qt.qt }}-pyqt${{ matrix.qt.pyqt }}-${{ hashFiles('packages/pyqt-tools/**') }}" >> "$GITHUB_OUTPUT"
       - id: cache
         if: github.ref_type != 'tag'
         uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0

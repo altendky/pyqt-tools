@@ -1,9 +1,9 @@
 import os
 import pathlib
+import runpy
 import sys
 
 import setuptools
-import versioneer
 
 import _build
 
@@ -33,7 +33,7 @@ pyqt_version = pad_version(os.environ.setdefault('PYQT_VERSION', '6.1.0'))
 qt_version = pad_version(os.environ.setdefault('QT_VERSION', '6.1.0'))
 qt_major_version = qt_version.partition('.')[0]
 
-pyqt_plugins_wrapper_version = versioneer.get_versions()['version']
+pyqt_plugins_wrapper_version = runpy.run_path('src/pyqt_plugins/_version.py')['__version__']
 pyqt_plugins_version = '{}.{}'.format(
     pyqt_version,
     pyqt_plugins_wrapper_version,

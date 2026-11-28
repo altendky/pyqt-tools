@@ -1,12 +1,12 @@
 import os
+import runpy
 import setuptools
-import versioneer
 
 import _build
 import local_backend
 
 
-qt_tools_wrapper_version = versioneer.get_versions()['version']
+qt_tools_wrapper_version = runpy.run_path('src/qt_tools/_version.py')['__version__']
 qt_tools_version = '{}.{}'.format(
     local_backend.qt_version,
     qt_tools_wrapper_version,

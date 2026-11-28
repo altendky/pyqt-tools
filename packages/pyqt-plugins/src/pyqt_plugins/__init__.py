@@ -4,9 +4,7 @@ import importlib.metadata
 import sys
 import sysconfig
 
-from ._version import get_versions
-__version__ = get_versions()['version']
-del get_versions
+from ._version import __version__
 
 major = int(importlib.metadata.version(__name__.partition('.')[0]).partition(".")[0])
 

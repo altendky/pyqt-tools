@@ -1,7 +1,7 @@
 import os
+import runpy
 
 import setuptools
-import versioneer
 
 
 class InvalidVersionError(Exception):
@@ -24,7 +24,7 @@ qt_version = pad_version(os.environ.setdefault('QT_VERSION', '6.1.0'))
 pyqt_major_version = pyqt_version.partition('.')[0]
 
 
-pyqt_tools_wrapper_version = versioneer.get_versions()['version']
+pyqt_tools_wrapper_version = runpy.run_path('src/pyqt_tools/_version.py')['__version__']
 pyqt_tools_version = '{}.{}'.format(pyqt_version, pyqt_tools_wrapper_version)
 
 
