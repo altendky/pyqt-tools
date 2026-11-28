@@ -70,6 +70,7 @@ jobs:
       build_python: ${{ steps.config.outputs.build_python }}
       platforms: ${{ steps.config.outputs.platforms }}
       exclude: ${{ steps.config.outputs.exclude }}
+      qt_applications_exclude: ${{ steps.config.outputs.qt_applications_exclude }}
       pyqt_exclude: ${{ steps.config.outputs.pyqt_exclude }}
       other_pythons: ${{ steps.config.outputs.other_pythons }}
     steps:
@@ -85,6 +86,10 @@ jobs:
             echo "build_python=$(jq --raw-output '.["build-python"]' "$config")"
             echo "platforms=$(jq --compact-output .platforms "$config")"
             echo "exclude=$(jq --compact-output '.exclude // []' "$config")"
+            # A platform tests the qt-applications wheel of the platform its
+            # qt-applications-from names for a Qt major version, such as the
+            # universal macOS wheel for Qt 6, instead of building its own.
+            echo "qt_applications_exclude=$(jq --compact-output '(.exclude // []) + [.platforms[] | .name as $name | (.["qt-applications-from"] // {}) | keys[] | {platform: {name: $name}, qt: {major: .}}]' "$config")"
             # PyQt jobs also skip combinations PyQt itself does not support.
             echo "pyqt_exclude=$(jq --compact-output '(.exclude // []) + (.["pyqt-exclude"] // [])' "$config")"
             echo "other_pythons=$(jq --compact-output '.["other-pythons"]' "$config")"
@@ -99,7 +104,7 @@ jobs:
       fail-fast: false
       matrix:
         platform: ${{ fromJSON(needs.config.outputs.platforms) }}
-        exclude: ${{ fromJSON(needs.config.outputs.exclude) }}
+        exclude: ${{ fromJSON(needs.config.outputs.qt_applications_exclude) }}
         qt: ${{ fromJSON(needs.config.outputs.qt) }}
     env:
       QT_VERSION: ${{ matrix.qt.qt }}
@@ -179,7 +184,7 @@ jobs:
           venv: 'true'
       - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
         with:
-          name: qt-applications-${{ matrix.platform.name }}-qt${{ matrix.qt.qt }}
+          name: qt-applications-${{ matrix.platform.qt-applications-from[matrix.qt.major] || matrix.platform.name }}-qt${{ matrix.qt.qt }}
           path: wheelhouse
       - name: Install
         run: |
@@ -282,7 +287,7 @@ jobs:
           venv: 'true'
       - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
         with:
-          name: qt-applications-${{ matrix.platform.name }}-qt${{ matrix.qt.qt }}
+          name: qt-applications-${{ matrix.platform.qt-applications-from[matrix.qt.major] || matrix.platform.name }}-qt${{ matrix.qt.qt }}
           path: wheelhouse
       - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
         with:
@@ -413,7 +418,7 @@ jobs:
           venv: 'true'
       - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
         with:
-          name: qt-applications-${{ matrix.platform.name }}-qt${{ matrix.qt.qt }}
+          name: qt-applications-${{ matrix.platform.qt-applications-from[matrix.qt.major] || matrix.platform.name }}-qt${{ matrix.qt.qt }}
           path: wheelhouse
       - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
         with:
@@ -596,7 +601,7 @@ jobs:
           venv: 'true'
       - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
         with:
-          name: qt-applications-${{ matrix.platform.name }}-qt${{ matrix.qt.qt }}
+          name: qt-applications-${{ matrix.platform.qt-applications-from[matrix.qt.major] || matrix.platform.name }}-qt${{ matrix.qt.qt }}
           path: wheelhouse
       - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
         with:
