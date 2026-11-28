@@ -19,9 +19,9 @@ different Python versions.  These files are not intended to be used directly.
    :alt: supported Python versions
    :target: https://pypi.org/project/qt6-applications/
 
-.. |GitHub| image:: https://img.shields.io/github/last-commit/altendky/qt-applications/main.svg
+.. |GitHub| image:: https://img.shields.io/github/last-commit/altendky/pyqt-tools/main.svg?path=packages%2Fqt-applications
    :alt: source on GitHub
-   :target: https://github.com/altendky/qt-applications
+   :target: https://github.com/altendky/pyqt-tools/tree/main/packages/qt-applications
 
-.. _`the pyqt-tools readme`: https://github.com/altendky/pyqt-tools#pyqt-tools
-.. _`the qt-tools readme`: https://github.com/altendky/qt-tools#qt-tools
+.. _`the pyqt-tools readme`: https://github.com/altendky/pyqt-tools/tree/main/packages/pyqt-tools#pyqt-tools
+.. _`the qt-tools readme`: https://github.com/altendky/pyqt-tools/tree/main/packages/qt-tools#qt-tools
