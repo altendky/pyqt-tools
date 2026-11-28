@@ -6,7 +6,7 @@ queue_rules:
       - base = main
       - -draft
     merge_method: merge
-    checks_timeout: 90 min
+    checks_timeout: 480 min
     max_checks_retries: 2
 
 merge_queue:
