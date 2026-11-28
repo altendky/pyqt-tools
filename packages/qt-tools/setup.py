@@ -40,7 +40,7 @@ setuptools.setup(
     description="Wrappers for the raw Qt programs from qt{}-applications".format(qt_major_version),
     long_description=readme,
     long_description_content_type='text/x-rst',
-    url='https://github.com/altendky/qt-tools',
+    url='https://github.com/altendky/pyqt-tools',
     author="Kyle Altendorf",
     author_email='sda@fstab.net',
     license='LGPLv3',

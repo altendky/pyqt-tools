@@ -42,19 +42,11 @@ pyqt_plugins_version = '{}.{}'.format(
 # Inclusive of the lower bound and exclusive of the upper
 qt_tools_wrapper_range = ['1.2', '2']
 
-# Must be False for release.  PyPI won't let you upload with a URL dependency.
-use_qt_tools_url = False
-
-if use_qt_tools_url:
-    qt_tools_url = ' @ git+https://github.com/altendky/qt-tools@main'
-    qt_tools_version_specifier = ''
-else:
-    qt_tools_url = ''
-    qt_tools_version_format = '>={qt}.{wrapper[0]}, <{qt}.{wrapper[1]}'
-    qt_tools_version_specifier = qt_tools_version_format.format(
-        qt=qt_version,
-        wrapper=qt_tools_wrapper_range,
-    )
+qt_tools_version_format = '>={qt}.{wrapper[0]}, <{qt}.{wrapper[1]}'
+qt_tools_version_specifier = qt_tools_version_format.format(
+    qt=qt_version,
+    wrapper=qt_tools_wrapper_range,
+)
 
 
 with open('README.rst') as f:
@@ -88,7 +80,7 @@ setuptools.setup(
     description="PyQt Designer and QML plugins",
     long_description=readme,
     long_description_content_type='text/x-rst',
-    url='https://github.com/altendky/pyqt-plugins',
+    url='https://github.com/altendky/pyqt-tools',
     author="Kyle Altendorf",
     author_email='sda@fstab.net',
     license='GPLv3',
@@ -121,10 +113,9 @@ setuptools.setup(
         'click',
         'pyqt{}=={}'.format(qt_major_version, pyqt_version),
         'pyqt{}-qt{}=={}'.format(qt_major_version, qt_major_version, qt_version),
-        'qt{}-tools{}{}'.format(
+        'qt{}-tools{}'.format(
             qt_major_version,
             qt_tools_version_specifier,
-            qt_tools_url,
         ),
     ],
 )
