@@ -144,7 +144,7 @@ jobs:
         with:
           path: packages/qt-applications/dist
           key: ${{ steps.key.outputs.key }}
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: qt-applications-${{ matrix.platform.name }}-qt${{ matrix.qt.qt }}
           path: packages/qt-applications/dist/*.whl
@@ -177,7 +177,7 @@ jobs:
         with:
           python-version: ${{ matrix.python }}
           venv: 'true'
-      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: qt-applications-${{ matrix.platform.name }}-qt${{ matrix.qt.qt }}
           path: wheelhouse
@@ -229,7 +229,7 @@ jobs:
         with:
           python-version: ${{ needs.config.outputs.build_python }}
       - if: steps.cache.outputs.cache-hit != 'true'
-        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: qt-applications-linux-x86_64-qt${{ matrix.qt.qt }}
           path: wheelhouse
@@ -246,7 +246,7 @@ jobs:
         with:
           path: packages/qt-tools/dist
           key: ${{ steps.key.outputs.key }}
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: qt-tools-qt${{ matrix.qt.qt }}
           path: packages/qt-tools/dist/*.whl
@@ -280,11 +280,11 @@ jobs:
         with:
           python-version: ${{ matrix.python }}
           venv: 'true'
-      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: qt-applications-${{ matrix.platform.name }}-qt${{ matrix.qt.qt }}
           path: wheelhouse
-      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: qt-tools-qt${{ matrix.qt.qt }}
           path: wheelhouse
@@ -375,7 +375,7 @@ jobs:
         with:
           path: packages/pyqt-plugins/dist
           key: ${{ steps.key.outputs.key }}
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: pyqt-plugins-${{ matrix.platform.name }}-py${{ matrix.python }}-qt${{ matrix.qt.qt }}-pyqt${{ matrix.qt.pyqt }}
           path: packages/pyqt-plugins/dist/*.whl
@@ -411,15 +411,15 @@ jobs:
         with:
           python-version: ${{ matrix.python }}
           venv: 'true'
-      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: qt-applications-${{ matrix.platform.name }}-qt${{ matrix.qt.qt }}
           path: wheelhouse
-      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: qt-tools-qt${{ matrix.qt.qt }}
           path: wheelhouse
-      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: pyqt-plugins-${{ matrix.platform.name }}-py${{ matrix.python }}-qt${{ matrix.qt.qt }}-pyqt${{ matrix.qt.pyqt }}
           path: wheelhouse
@@ -491,15 +491,15 @@ jobs:
       - uses: ./.github/actions/setup
         with:
           python-version: ${{ matrix.other.python }}
-      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: qt-applications-linux-x86_64-qt${{ matrix.qt.qt }}
           path: wheelhouse
-      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: qt-tools-qt${{ matrix.qt.qt }}
           path: wheelhouse
-      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: pyqt-plugins-linux-x86_64-py${{ matrix.other.python }}-qt${{ matrix.qt.qt }}-pyqt${{ matrix.qt.pyqt }}
           path: wheelhouse
@@ -557,7 +557,7 @@ jobs:
         with:
           path: packages/pyqt-tools/dist
           key: ${{ steps.key.outputs.key }}
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: pyqt-tools-qt${{ matrix.qt.qt }}-pyqt${{ matrix.qt.pyqt }}
           path: packages/pyqt-tools/dist/*.whl
@@ -594,19 +594,19 @@ jobs:
         with:
           python-version: ${{ matrix.python }}
           venv: 'true'
-      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: qt-applications-${{ matrix.platform.name }}-qt${{ matrix.qt.qt }}
           path: wheelhouse
-      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: qt-tools-qt${{ matrix.qt.qt }}
           path: wheelhouse
-      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: pyqt-plugins-${{ matrix.platform.name }}-py${{ matrix.python }}-qt${{ matrix.qt.qt }}-pyqt${{ matrix.qt.pyqt }}
           path: wheelhouse
-      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: pyqt-tools-qt${{ matrix.qt.qt }}-pyqt${{ matrix.qt.pyqt }}
           path: wheelhouse
@@ -641,7 +641,7 @@ jobs:
             *) echo "Unrecognized tag: $GITHUB_REF_NAME"; exit 1 ;;
           esac
           echo "name=${GITHUB_REF_NAME%-v*}" >> "$GITHUB_OUTPUT"
-      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           pattern: ${{ steps.package.outputs.name }}-*
           merge-multiple: true
