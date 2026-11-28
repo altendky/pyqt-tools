@@ -54,6 +54,32 @@ Debian and Ubuntu provide it for their Pythons in the ``libpython3.X`` package.
 .. _`release compatible with`: https://www.python.org/dev/peps/pep-0440/#compatible-release
 .. _`all available versions`: https://pypi.org/project/pyqt6-tools/#history
 
+Plugins extra
+=============
+
+.. code-block:: powershell
+
+  yourenv/Scripts/pip.exe install "pyqt6-tools[plugins]~=6.12"
+
+As of the next major version of pyqt6-tools, the PyQt Designer and QML plugins
+from pyqt6-plugins_ are an optional extra named ``plugins``.  A plain
+``pip install pyqt6-tools`` installs Designer and the other Qt tools and the
+``pyqt6-tools`` commands run them without any Python plugin setup.
+
+Install the ``plugins`` extra as shown above if you want Designer to load
+custom widgets written in Python or QML to load Python plugins.  It adds:
+
+- Designer's PyQt plugin, so ``PYQTDESIGNERPATH`` and ``--widget-path`` work,
+- the exception dialog for exceptions raised by your widgets' Python code,
+- the QML plugin and the PyQt QML import path,
+- the example and test options: ``--example-widget-path``,
+  ``--test-exception-dialog``, ``--run-qml-example`` and
+  ``--test-qml-example``.
+
+Using any of these options without the extra exits with an error saying to
+install it.  pyqt6-plugins is built for each Python version, so the extra may
+not be available yet for a new Python release even when pyqt6-tools is.
+
 Note:
     As of pyqt6-tools v3 the package has been broken down into four pieces.
     The wrappers remain here but the plugins are located in pyqt6-plugins_,
@@ -77,6 +103,7 @@ subcommands of the ``Scripts/qt6-tools.exe`` program.  In both cases, passing
 
 Additionally, each ``pyqt6-tools`` subcommand listed below includes a parameter
 to run a basic example which can be used to see if the plugins are working.
+These need the ``plugins`` extra.
 These examples are `not` intended to be used as examples of good code.
 
 Each subcommand searches up the filesystem tree from your current
@@ -101,6 +128,7 @@ Designer
 
 There is a ``Scripts/pyqt6-tools.exe designer.exe`` entry point that will help fill out
 ``PYQTDESIGNERPATH`` from either command line arguments or a ``.env`` file.
+``PYQTDESIGNERPATH`` and the plugin options need the ``plugins`` extra.
 Unknown arguments are passed through to the original Qt Designer program.
 
 .. code-block::
@@ -130,16 +158,17 @@ C++ code while the Python option shows PySide2 code.  ``pyqt6`` must already
 be installed or this script will be unable to find the original ``pyuic6.exe``
 to copy.
 
-In addition to the standard features of the official Designer plugin, this
-provides an exception dialog for your widget's Python code.  Otherwise Designer
-in Windows silently crashes on Python exceptions.
+With the ``plugins`` extra, in addition to the standard features of the
+official Designer plugin, this provides an exception dialog for your widget's
+Python code.  Otherwise Designer in Windows silently crashes on Python
+exceptions.
 
 QML Plugin
 ==========
 
-The QML plugin is also included.  In the future a tool may be provided to
-handle copying of the plugin to each directory where it is needed.  For now
-this must be done manually.
+The QML plugin is included with the ``plugins`` extra.  In the future a tool
+may be provided to handle copying of the plugin to each directory where it is
+needed.  For now this must be done manually.
 
 ``site-packages/pyqt6_tools/Qt/bin/plugins/pyqt6qmlplugin.dll``
 
