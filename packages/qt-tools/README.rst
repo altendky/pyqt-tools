@@ -17,9 +17,9 @@ package provides just the wrappers for `qt-applications`_.
    :alt: supported Python versions
    :target: https://pypi.org/project/qt6-applications/
 
-.. |GitHub| image:: https://img.shields.io/github/last-commit/altendky/qt-applications/main.svg
+.. |GitHub| image:: https://img.shields.io/github/last-commit/altendky/pyqt-tools/main.svg?path=packages%2Fqt-tools
    :alt: source on GitHub
-   :target: https://github.com/altendky/qt-applications
+   :target: https://github.com/altendky/pyqt-tools/tree/main/packages/qt-tools
 
-.. _`the pyqt-tools readme`: https://github.com/altendky/pyqt-tools#pyqt-tools
-.. _`qt-applications`: https://github.com/altendky/qt-applications#qt-applications
+.. _`the pyqt-tools readme`: https://github.com/altendky/pyqt-tools/tree/main/packages/pyqt-tools#pyqt-tools
+.. _`qt-applications`: https://github.com/altendky/pyqt-tools/tree/main/packages/qt-applications#qt-applications

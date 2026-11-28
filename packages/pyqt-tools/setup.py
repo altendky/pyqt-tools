@@ -31,19 +31,11 @@ pyqt_tools_version = '{}.{}'.format(pyqt_version, pyqt_tools_wrapper_version)
 # Inclusive of the lower bound and exclusive of the upper
 pyqt_plugins_wrapper_range = ['2.2', '3']
 
-# Must be False for release.  PyPI won't let you upload with a URL dependency.
-use_pyqt_plugins_url = False
-
-if use_pyqt_plugins_url:
-    pyqt_plugins_url = ' @ git+https://github.com/altendky/pyqt-plugins@main'
-    pyqt_plugins_version_specifier = ''
-else:
-    pyqt_plugins_url = ''
-    pyqt_plugins_version_format = '>={pyqt}.{wrapper[0]}, <{pyqt}.{wrapper[1]}'
-    pyqt_plugins_version_specifier = pyqt_plugins_version_format.format(
-        pyqt=pyqt_version,
-        wrapper=pyqt_plugins_wrapper_range,
-    )
+pyqt_plugins_version_format = '>={pyqt}.{wrapper[0]}, <{pyqt}.{wrapper[1]}'
+pyqt_plugins_version_specifier = pyqt_plugins_version_format.format(
+    pyqt=pyqt_version,
+    wrapper=pyqt_plugins_wrapper_range,
+)
 
 
 with open('README.rst') as f:
@@ -100,10 +92,9 @@ setuptools.setup(
     install_requires=[
         'click',
         'pyqt{}=={}'.format(pyqt_major_version, pyqt_version),
-        'pyqt{}-plugins{}{}'.format(
+        'pyqt{}-plugins{}'.format(
             pyqt_major_version,
             pyqt_plugins_version_specifier,
-            pyqt_plugins_url,
         ),
         'python-dotenv',
     ],
