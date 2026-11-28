@@ -8,4 +8,5 @@ rules:
     ignore:
       # The Linux build and test containers are python:<version>-bookworm for
       # each Python in .github/ci-config.json, which a digest can't express.
+      # The other-pythons containers come from the same file.
       - ci.yml
