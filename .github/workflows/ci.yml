@@ -72,10 +72,17 @@ jobs:
       exclude: ${{ steps.config.outputs.exclude }}
       pyqt_exclude: ${{ steps.config.outputs.pyqt_exclude }}
       other_pythons: ${{ steps.config.outputs.other_pythons }}
+      test_qt_applications: ${{ steps.changes.outputs.test_qt_applications }}
+      test_qt_tools: ${{ steps.changes.outputs.test_qt_tools }}
+      test_pyqt_plugins: ${{ steps.changes.outputs.test_pyqt_plugins }}
+      test_pyqt_tools: ${{ steps.changes.outputs.test_pyqt_tools }}
+      allowed_skips: ${{ steps.changes.outputs.allowed_skips }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
+          # The merge commit's first parent is the base branch.
+          fetch-depth: 2
       - id: config
         run: |
           config=.github/ci-config.json
@@ -89,6 +96,61 @@ jobs:
             echo "pyqt_exclude=$(jq --compact-output '(.exclude // []) + (.["pyqt-exclude"] // [])' "$config")"
             echo "other_pythons=$(jq --compact-output '.["other-pythons"]' "$config")"
           } | tee -a "$GITHUB_OUTPUT"
+      - id: changes
+        name: Choose packages to test
+        # Pull requests test the packages they change and every package
+        # after those in the dependency order.  A change to any file not
+        # listed here tests everything, as do all other runs.  Builds always
+        # run, since unchanged ones come from the cache, so later packages
+        # still get the wheels they need.
+        env:
+          EVENT: ${{ github.event_name }}
+        run: |
+          packages=(qt-applications qt-tools pyqt-plugins pyqt-tools)
+          first=${#packages[@]}
+          if [ "$EVENT" != pull_request ]; then
+            first=0
+          else
+            # Written to a file first so a failed diff fails the step.
+            git diff --no-renames --name-only HEAD^1 HEAD > "$RUNNER_TEMP/changed"
+            echo '### Changed files and the first package each one tests' >> "$GITHUB_STEP_SUMMARY"
+            while read -r file; do
+              case "$file" in
+                packages/qt-applications/*) index=0 ;;
+                packages/qt-tools/*) index=1 ;;
+                packages/pyqt-plugins/*) index=2 ;;
+                packages/pyqt-tools/*) index=3 ;;
+                # Used only by the mise and pre-commit jobs, which always
+                # run, or not used by CI at all.
+                .markdownlint-cli2.yaml | .mergify.yml | .mise/* | .pre-commit-config.yaml | \
+                  .github/workflows/renovate.yml | .github/zizmor.yml | \
+                  AGENTS.md | README.rst | mise.lock | mise.toml | renovate.json5)
+                  index=${#packages[@]} ;;
+                *) index=0 ;;
+              esac
+              if [ "$index" -lt "$first" ]; then
+                first=$index
+              fi
+              echo "- \`$file\`: ${packages[$index]:-none}" >> "$GITHUB_STEP_SUMMARY"
+            done < "$RUNNER_TEMP/changed"
+          fi
+          skips=(publish)
+          echo '### Tested packages' >> "$GITHUB_STEP_SUMMARY"
+          for index in "${!packages[@]}"; do
+            package=${packages[$index]}
+            if [ "$index" -ge "$first" ]; then
+              test=true
+            else
+              test=false
+              skips+=("$package-test")
+              if [ "$package" = pyqt-plugins ]; then
+                skips+=(pyqt-plugins-test-other-python)
+              fi
+            fi
+            echo "test_${package//-/_}=$test" | tee -a "$GITHUB_OUTPUT"
+            echo "- $package: $test" >> "$GITHUB_STEP_SUMMARY"
+          done
+          (IFS=,; echo "allowed_skips=${skips[*]}") | tee -a "$GITHUB_OUTPUT"
 
   qt-applications-build:
     name: qt-applications build ${{ matrix.platform.name }} Qt ${{ matrix.qt.qt }}
@@ -152,6 +214,7 @@ jobs:
 
   qt-applications-test:
     name: qt-applications test ${{ matrix.platform.name }} Python ${{ matrix.python }} Qt ${{ matrix.qt.qt }}
+    if: needs.config.outputs.test_qt_applications == 'true'
     needs:
       - config
       - qt-applications-build
@@ -254,6 +317,7 @@ jobs:
 
   qt-tools-test:
     name: qt-tools test ${{ matrix.platform.name }} Python ${{ matrix.python }} Qt ${{ matrix.qt.qt }}
+    if: needs.config.outputs.test_qt_tools == 'true'
     needs:
       - config
       - qt-applications-build
@@ -383,6 +447,7 @@ jobs:
 
   pyqt-plugins-test:
     name: pyqt-plugins test ${{ matrix.platform.name }} Python ${{ matrix.python }} PyQt ${{ matrix.qt.pyqt }}
+    if: needs.config.outputs.test_pyqt_plugins == 'true'
     needs:
       - config
       - qt-applications-build
@@ -438,6 +503,7 @@ jobs:
   # /usr/local.
   pyqt-plugins-test-other-python:
     name: pyqt-plugins test linux-x86_64 ${{ matrix.other.name }} Python ${{ matrix.other.python }} PyQt ${{ matrix.qt.pyqt }}
+    if: needs.config.outputs.test_pyqt_plugins == 'true'
     needs:
       - config
       - qt-applications-build
@@ -565,6 +631,7 @@ jobs:
 
   pyqt-tools-test:
     name: pyqt-tools test ${{ matrix.platform.name }} Python ${{ matrix.python }} PyQt ${{ matrix.qt.pyqt }}
+    if: needs.config.outputs.test_pyqt_tools == 'true'
     needs:
       - config
       - qt-applications-build
@@ -690,6 +757,7 @@ jobs:
     steps:
       - uses: re-actors/alls-green@b5b5b37504aa4183270bd3d855c52a67f212be35 # release/v1
         with:
-          # Publishing only runs for tags.
-          allowed-skips: publish
+          # Publishing only runs for tags, and pull requests skip the tests
+          # of packages they don't affect.
+          allowed-skips: ${{ needs.config.outputs.allowed_skips }}
           jobs: ${{ toJSON(needs) }}
